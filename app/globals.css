@@ -1756,3 +1756,234 @@ tr.risk-clean {
     grid-column: 2 / -1;
   }
 }
+
+/* Contrast and readability fixes for all dashboard pages. */
+.dashboard-main,
+.page,
+.friendly-page {
+  color: #102018;
+}
+
+.page-title,
+.page h1,
+.page h2,
+.panel h1,
+.panel h2,
+.panel h3,
+.summary-value,
+.metric strong {
+  color: #102018;
+}
+
+.page-subtitle,
+.summary-label,
+.metric span,
+.panel p,
+.field label {
+  color: #4b5563;
+}
+
+.panel,
+.summary-card,
+.chart-panel,
+.metric,
+.table-wrap {
+  border-color: #d8e7dc;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 0 16px 36px rgba(61, 92, 68, 0.08);
+}
+
+.metric {
+  background: #f8fcf8;
+}
+
+.field input,
+.field select,
+.field textarea,
+.control-grid input,
+.control-grid select {
+  border-color: #cbdccf;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #102018;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #6b7280;
+}
+
+.btn {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #238b45, #2b93c9);
+  color: #ffffff;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(35, 139, 69, 0.18);
+}
+
+.btn:hover,
+.friendly-btn:hover,
+.agri-btn:hover {
+  filter: brightness(0.97);
+  transform: translateY(-1px);
+}
+
+.btn.secondary {
+  border: 1px solid #cbdccf;
+  background: #ffffff;
+  color: #14532d;
+}
+
+table,
+.friendly-table {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+th,
+.friendly-table th {
+  border-bottom: 1px solid #cbdccf;
+  background: #dff3e3;
+  color: #102018;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+td,
+.friendly-table td {
+  border-bottom: 1px solid #edf5ef;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+tbody tr:hover {
+  background: #f7fbf5;
+}
+
+tr.risk-high {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+tr.risk-high td {
+  color: #7f1d1d;
+}
+
+tr.risk-medium {
+  background: #ffedd5;
+  color: #78350f;
+}
+
+tr.risk-medium td {
+  color: #78350f;
+}
+
+tr.risk-clean {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+tr.risk-clean td {
+  color: #14532d;
+}
+
+.badge.high {
+  border-color: #fecaca;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.medium {
+  border-color: #fed7aa;
+  background: #ffedd5;
+  color: #7c2d12;
+}
+
+.badge.clean {
+  border-color: #bbf7d0;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.map-layout {
+  background: #eef8f1;
+}
+
+.map-sidebar {
+  border-right: 1px solid #d8e7dc;
+  background: #ffffff;
+  color: #102018;
+  box-shadow: 12px 0 36px rgba(61, 92, 68, 0.08);
+}
+
+.map-sidebar .page-title,
+.map-sidebar strong {
+  color: #102018;
+}
+
+.map-sidebar .page-subtitle,
+.map-sidebar span,
+.map-sidebar label {
+  color: #4b5563;
+}
+
+.map-sidebar .panel {
+  background: #f6fbf7;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #f6fbf7;
+  color: #102018;
+  border: 1px solid #cbdccf;
+  box-shadow: 0 14px 32px rgba(31, 41, 55, 0.18);
+}
+
+.leaflet-popup-content {
+  color: #102018;
+}
+
+.popup-title {
+  color: #102018;
+  font-weight: 900;
+}
+
+.popup-grid span {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.crop-marker {
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgba(15, 32, 24, 0.35);
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: #334155;
+}
+
+.recharts-legend-item-text {
+  color: #1f2937 !important;
+}
+
+.recharts-default-tooltip {
+  background: #ffffff !important;
+  border: 1px solid #cbdccf !important;
+  color: #102018 !important;
+}
+
+.recharts-tooltip-label,
+.recharts-tooltip-item {
+  color: #102018 !important;
+}
+
+@media (max-width: 980px) {
+  .map-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid #d8e7dc;
+  }
+}
