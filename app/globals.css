@@ -1,0 +1,1758 @@
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  color-scheme: light;
+  --bg: #f4f9f1;
+  --panel: #ffffff;
+  --panel-2: #eef8f1;
+  --line: #d8e7dc;
+  --text: #173426;
+  --muted: #64756b;
+  --green: #238b45;
+  --amber: #f5a524;
+  --red: #dc2626;
+  --blue: #2688c7;
+  --violet: #a78bfa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.agri-home {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(225, 246, 231, 0.92), rgba(244, 249, 241, 1) 38%),
+    #f4f9f1;
+}
+
+.agri-nav {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: min(1180px, calc(100% - 32px));
+  min-height: 74px;
+  margin: 0 auto;
+  padding: 10px 0;
+  background: rgba(244, 249, 241, 0.88);
+  backdrop-filter: blur(16px);
+}
+
+.agri-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #123820;
+}
+
+.agri-brand span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2c9b55, #5bb6d8);
+  color: white;
+  box-shadow: 0 12px 26px rgba(35, 139, 69, 0.22);
+}
+
+.agri-nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.agri-nav-links a {
+  border-radius: 999px;
+  padding: 9px 12px;
+  color: #40584b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.agri-nav-links a:hover {
+  background: #e2f3e6;
+  color: #14532d;
+}
+
+.agri-hero {
+  display: grid;
+  grid-template-columns: 1.02fr 0.98fr;
+  gap: 42px;
+  align-items: center;
+  width: min(1180px, calc(100% - 32px));
+  min-height: calc(100vh - 74px);
+  margin: 0 auto;
+  padding: 48px 0 70px;
+}
+
+.agri-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 0 13px;
+  background: #dff3e3;
+  color: #176638;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.agri-hero h1 {
+  margin: 18px 0 0;
+  color: #14361f;
+  font-size: clamp(54px, 8vw, 92px);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.agri-hero h2 {
+  max-width: 720px;
+  margin: 16px 0 0;
+  color: #27604c;
+  font-size: clamp(27px, 3.2vw, 44px);
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.agri-hero p,
+.agri-section-heading p,
+.data-source-card p,
+.ndvi-formula-card p,
+.about-demo p {
+  color: #5d7065;
+  line-height: 1.7;
+}
+
+.agri-hero p {
+  max-width: 710px;
+  margin: 20px 0 0;
+  font-size: 17px;
+}
+
+.agri-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.agri-btn,
+.friendly-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 18px;
+  cursor: pointer;
+  font-weight: 900;
+  box-shadow: 0 14px 30px rgba(31, 97, 61, 0.16);
+}
+
+.agri-btn.primary,
+.friendly-btn {
+  background: linear-gradient(135deg, #238b45, #2b93c9);
+  color: white;
+}
+
+.agri-btn.secondary {
+  background: #f2b84b;
+  color: #4a2c00;
+}
+
+.agri-btn.light {
+  background: white;
+  color: #174f2d;
+  border: 1px solid #cfe4d4;
+}
+
+.farm-visual-card {
+  overflow: hidden;
+  border: 1px solid #cfe4d4;
+  border-radius: 30px;
+  background: white;
+  box-shadow: 0 28px 70px rgba(50, 86, 62, 0.18);
+}
+
+.farm-sky {
+  position: relative;
+  height: 128px;
+  background: linear-gradient(180deg, #cdeefd, #f5fbff);
+}
+
+.sun {
+  position: absolute;
+  top: 26px;
+  left: 34px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #ffd166;
+  box-shadow: 0 0 40px rgba(255, 209, 102, 0.7);
+}
+
+.satellite-dot {
+  position: absolute;
+  right: 34px;
+  top: 28px;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #1b74a6;
+}
+
+.farm-fields {
+  position: relative;
+  height: 330px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #a7d58e 0%, #6fbf73 100%);
+}
+
+.field-strip {
+  position: absolute;
+  display: block;
+  height: 85px;
+  width: 130%;
+  left: -12%;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.38);
+}
+
+.strip-one {
+  top: 32px;
+  background: rgba(22, 101, 52, 0.3);
+}
+
+.strip-two {
+  top: 122px;
+  background: rgba(234, 179, 8, 0.28);
+}
+
+.strip-three {
+  top: 212px;
+  background: rgba(21, 128, 61, 0.26);
+}
+
+.claim-pin {
+  position: absolute;
+  right: 44px;
+  bottom: 52px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  padding: 10px 13px;
+  background: white;
+  color: #14532d;
+  font-weight: 900;
+}
+
+.farm-visual-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.farm-visual-footer strong {
+  color: #166534;
+  font-size: 24px;
+}
+
+.agri-section,
+.friendly-page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.agri-section {
+  padding: 54px 0;
+}
+
+.agri-section-heading {
+  max-width: 800px;
+  margin-bottom: 22px;
+}
+
+.agri-section-heading h2,
+.about-demo h2,
+.friendly-header h1,
+.friendly-card h2 {
+  margin: 0;
+  color: #173426;
+  letter-spacing: 0;
+}
+
+.agri-section-heading h2,
+.friendly-header h1 {
+  font-size: clamp(30px, 4vw, 44px);
+}
+
+.agri-stats-grid,
+.agri-feature-grid,
+.agri-steps-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.agri-stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.agri-feature-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.agri-steps-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.agri-stat-card,
+.agri-feature-card,
+.agri-step-card,
+.data-source-card,
+.ndvi-formula-card,
+.about-demo,
+.friendly-card,
+.friendly-stat-card,
+.friendly-filter-card {
+  border: 1px solid #d8e7dc;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 42px rgba(61, 92, 68, 0.1);
+}
+
+.agri-stat-card,
+.friendly-stat-card {
+  padding: 20px;
+}
+
+.agri-stat-card span,
+.friendly-stat-card span {
+  color: #66766d;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.agri-stat-card strong,
+.friendly-stat-card strong {
+  display: block;
+  margin-top: 9px;
+  color: #14532d;
+  font-size: 29px;
+}
+
+.agri-feature-card,
+.agri-step-card {
+  padding: 22px;
+}
+
+.agri-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 16px;
+  background: #e5f5e8;
+  color: #238b45;
+}
+
+.agri-feature-card h3 {
+  margin: 18px 0 0;
+  color: #193c27;
+}
+
+.agri-feature-card p,
+.agri-step-card p {
+  color: #627267;
+  line-height: 1.6;
+}
+
+.agri-step-card span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 12px;
+  background: #238b45;
+  color: white;
+  font-weight: 900;
+}
+
+.two-column-section {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.data-source-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.data-source-card {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.data-source-card svg {
+  color: #238b45;
+}
+
+.data-source-card p {
+  margin: 5px 0 0;
+}
+
+.ndvi-formula-card {
+  padding: 24px;
+  background: linear-gradient(135deg, #ffffff, #e9f8ec);
+}
+
+.ndvi-formula-card strong {
+  display: block;
+  margin: 16px 0;
+  border-radius: 16px;
+  padding: 16px;
+  background: #173426;
+  color: white;
+}
+
+.ndvi-scale {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  color: #52635a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.ndvi-scale div {
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #dc2626, #facc15, #166534);
+}
+
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.crop-chip,
+.district-chip {
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 900;
+}
+
+.crop-chip {
+  background: #e7f6e9;
+  color: #166534;
+}
+
+.district-chip {
+  background: #e8f4fb;
+  color: #0f5d83;
+}
+
+.claim-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  border: 1px solid #d8e7dc;
+  border-radius: 24px;
+  padding: 20px;
+  background: white;
+}
+
+.claim-form label,
+.friendly-filter-card label {
+  display: grid;
+  gap: 7px;
+  color: #55675d;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.claim-form input,
+.claim-form select,
+.friendly-filter-card select {
+  min-height: 42px;
+  border: 1px solid #cfe0d4;
+  border-radius: 13px;
+  background: #fbfdfb;
+  color: #173426;
+  padding: 0 12px;
+}
+
+.about-demo {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 14px;
+  margin-bottom: 48px;
+  padding: 22px;
+}
+
+.about-demo svg {
+  color: #238b45;
+}
+
+.dashboard-shell {
+  background: linear-gradient(180deg, #eef8f1, #f7fbf5);
+}
+
+.top-nav {
+  border-bottom: 1px solid #d8e7dc;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.brand,
+.nav-link {
+  color: #173426;
+}
+
+.brand-mark {
+  border-radius: 13px;
+  border: 0;
+  background: linear-gradient(135deg, #238b45, #2b93c9);
+  color: white;
+}
+
+.nav-link {
+  border-radius: 999px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  border-color: #c9dfcf;
+  background: #e8f5eb;
+  color: #14532d;
+}
+
+.back-home {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  margin: 16px 0 0 max(16px, calc((100% - 1180px) / 2));
+  border-radius: 999px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: #14532d;
+  border: 1px solid #cfe0d4;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(60, 90, 68, 0.1);
+}
+
+.friendly-page {
+  padding: 22px 0 54px;
+}
+
+.friendly-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.friendly-header p,
+.friendly-card-heading p,
+.friendly-card > p,
+.ndvi-explainer {
+  color: #617269;
+  line-height: 1.6;
+}
+
+.friendly-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.friendly-filter-card {
+  display: grid;
+  grid-template-columns: 120px repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: end;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #14532d;
+  font-weight: 900;
+}
+
+.dashboard-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(310px, 0.45fr);
+  gap: 16px;
+}
+
+.bottom-grid {
+  grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
+  margin-top: 16px;
+}
+
+.friendly-card {
+  padding: 18px;
+}
+
+.friendly-card-heading {
+  margin-bottom: 14px;
+}
+
+.friendly-table-wrap {
+  overflow-x: auto;
+}
+
+.friendly-table {
+  min-width: 1000px;
+}
+
+.friendly-table th {
+  background: #eaf6ed;
+  color: #3d5547;
+}
+
+.friendly-table td {
+  color: #243d2f;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.status-pill.verified {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pill.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-pill.flagged {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-pill.high-risk {
+  background: #7f1d1d;
+  color: white;
+}
+
+.score-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.score-list span,
+.final-score,
+.claim-detail-grid span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 14px;
+  padding: 12px;
+  background: #f4faf5;
+  color: #52635a;
+}
+
+.final-score strong {
+  color: #b91c1c;
+}
+
+.satellite-preview {
+  position: relative;
+  height: 360px;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid #c9dfcf;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.28) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
+    #b7db91;
+  background-size: 42px 42px;
+}
+
+.farm-plot {
+  position: absolute;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.08);
+}
+
+.farm-plot.healthy {
+  inset: 42px 54% 170px 34px;
+  background: #1f7a32;
+}
+
+.farm-plot.moderate {
+  inset: 84px 74px 142px 52%;
+  background: #f4c542;
+}
+
+.farm-plot.damaged {
+  inset: 205px 92px 38px 58%;
+  background: #df5b43;
+}
+
+.farm-plot.small {
+  inset: 222px 52% 42px 58px;
+}
+
+.claim-location-dot {
+  position: absolute;
+  left: 58%;
+  top: 48%;
+  width: 20px;
+  height: 20px;
+  border: 4px solid white;
+  border-radius: 50%;
+  background: #0f5d83;
+  box-shadow: 0 0 0 7px rgba(15, 93, 131, 0.22);
+}
+
+.sat-label {
+  position: absolute;
+  z-index: 2;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #173426;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.tile-label { top: 14px; left: 14px; }
+.healthy-label { top: 72px; left: 46px; }
+.low-label { right: 34px; bottom: 68px; }
+.claim-label { top: 42%; left: 61%; }
+
+.ndvi-legend,
+.claim-detail-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ndvi-legend {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  color: #52635a;
+  font-size: 13px;
+}
+
+.ndvi-legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ndvi-legend i {
+  width: 14px;
+  height: 14px;
+  border-radius: 5px;
+}
+
+.legend-green { background: #166534; }
+.legend-yellow { background: #f4c542; }
+.legend-red { background: #df5b43; }
+
+.claim-detail-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.claim-detail-grid strong {
+  color: #173426;
+}
+
+.fraud-reason {
+  display: flex;
+  gap: 9px;
+  border-radius: 16px;
+  padding: 13px;
+  background: #fff7ed;
+  color: #92400e;
+}
+
+.district-bars {
+  display: grid;
+  gap: 14px;
+}
+
+.district-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 54px 76px;
+  gap: 9px;
+  align-items: center;
+  color: #42564a;
+  font-size: 13px;
+}
+
+.district-row div {
+  height: 12px;
+  border-radius: 999px;
+  background: #e2efe6;
+}
+
+.district-row i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #238b45, #50a8d6);
+}
+
+.district-row em {
+  color: #b91c1c;
+  font-style: normal;
+}
+
+.landing {
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(49, 196, 141, 0.18), transparent 24rem),
+    radial-gradient(circle at 78% 0%, rgba(93, 173, 226, 0.14), transparent 26rem),
+    linear-gradient(180deg, #081014 0%, #0b1014 48%, #091116 100%);
+}
+
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 72px;
+  width: min(1180px, calc(100% - 36px));
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(140, 165, 154, 0.16);
+  background: rgba(8, 16, 20, 0.78);
+  backdrop-filter: blur(18px);
+}
+
+.landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.landing-nav-links a {
+  min-height: 38px;
+  padding: 10px 12px;
+  color: #aabbb3;
+  font-size: 14px;
+}
+
+.landing-nav-links a:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.landing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
+  gap: 42px;
+  align-items: center;
+  width: min(1180px, calc(100% - 36px));
+  min-height: calc(100vh - 72px);
+  margin: 0 auto;
+  padding: 52px 0 72px;
+}
+
+.hero-copy h1 {
+  margin: 18px 0 0;
+  font-size: clamp(54px, 8vw, 94px);
+  line-height: 0.94;
+  letter-spacing: 0;
+}
+
+.hero-copy h2 {
+  max-width: 760px;
+  margin: 18px 0 0;
+  color: #cde7db;
+  font-size: clamp(25px, 3.1vw, 43px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.hero-copy p {
+  max-width: 690px;
+  margin: 22px 0 0;
+  color: #a9bbb2;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid rgba(49, 196, 141, 0.28);
+  background: rgba(49, 196, 141, 0.08);
+  color: #b7f7d9;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-weight: 800;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+}
+
+.landing-btn.primary {
+  border-color: rgba(49, 196, 141, 0.42);
+  background: linear-gradient(135deg, #1d8b61, #197a91);
+  color: #f2fff9;
+}
+
+.landing-btn.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #edf4ef;
+}
+
+.hero-visual {
+  position: relative;
+}
+
+.scan-panel {
+  border: 1px solid rgba(112, 143, 130, 0.28);
+  background:
+    linear-gradient(180deg, rgba(18, 26, 32, 0.96), rgba(12, 18, 23, 0.96)),
+    var(--panel);
+  box-shadow: 0 26px 72px rgba(0, 0, 0, 0.46);
+  padding: 18px;
+}
+
+.scan-top,
+.risk-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #a9bbb2;
+  font-size: 13px;
+}
+
+.scan-top strong,
+.risk-strip strong {
+  color: #b7f7d9;
+}
+
+.map-preview {
+  position: relative;
+  height: min(54vw, 420px);
+  min-height: 310px;
+  margin: 16px 0;
+  overflow: hidden;
+  border: 1px solid rgba(112, 143, 130, 0.28);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 34% 32%, rgba(49, 196, 141, 0.18), transparent 9rem),
+    radial-gradient(circle at 72% 64%, rgba(93, 173, 226, 0.16), transparent 11rem),
+    #071014;
+  background-size: 34px 34px, 34px 34px, auto, auto, auto;
+}
+
+.plot {
+  position: absolute;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(49, 196, 141, 0.18);
+}
+
+.plot-a {
+  inset: 16% 54% 52% 12%;
+}
+
+.plot-b {
+  inset: 25% 18% 46% 52%;
+  background: rgba(93, 173, 226, 0.16);
+}
+
+.plot-c {
+  inset: 58% 48% 17% 18%;
+  background: rgba(245, 165, 36, 0.16);
+}
+
+.plot-d {
+  inset: 58% 14% 18% 60%;
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.alert-pin {
+  position: absolute;
+  top: 52%;
+  right: 24%;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(239, 68, 68, 0.54);
+  background: rgba(239, 68, 68, 0.2);
+  color: #fecaca;
+  box-shadow: 0 0 32px rgba(239, 68, 68, 0.34);
+}
+
+.landing-section {
+  width: min(1180px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 62px 0;
+}
+
+.section-heading {
+  max-width: 720px;
+  margin-bottom: 24px;
+}
+
+.section-heading h2,
+.preview-copy h2,
+.maharashtra-section h2 {
+  margin: 0;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.section-heading p,
+.preview-copy p,
+.maharashtra-section p {
+  margin: 12px 0 0;
+  color: #a9bbb2;
+  line-height: 1.7;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.feature-card,
+.step-card,
+.landing-stat {
+  border: 1px solid rgba(112, 143, 130, 0.22);
+  background: rgba(18, 26, 32, 0.78);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+}
+
+.feature-card {
+  min-height: 245px;
+  padding: 20px;
+}
+
+.feature-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(49, 196, 141, 0.28);
+  background: rgba(49, 196, 141, 0.1);
+  color: #8ff0c4;
+}
+
+.feature-card h3,
+.step-card h3 {
+  margin: 18px 0 0;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.feature-card p {
+  margin: 12px 0 0;
+  color: #a9bbb2;
+  line-height: 1.6;
+}
+
+.how-section {
+  border-top: 1px solid rgba(112, 143, 130, 0.14);
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.step-card {
+  min-height: 150px;
+  padding: 20px;
+}
+
+.step-card span {
+  color: #8ff0c4;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.preview-section {
+  display: grid;
+  grid-template-columns: 0.75fr 1.25fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.landing-stat {
+  padding: 22px;
+}
+
+.landing-stat span {
+  color: #a9bbb2;
+  font-size: 13px;
+}
+
+.landing-stat strong {
+  display: block;
+  margin-top: 10px;
+  font-size: clamp(28px, 4vw, 44px);
+}
+
+.maharashtra-section {
+  display: grid;
+  grid-template-columns: 1fr 0.82fr;
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 34px;
+  padding: 34px;
+  border: 1px solid rgba(112, 143, 130, 0.22);
+  background:
+    linear-gradient(135deg, rgba(49, 196, 141, 0.12), rgba(93, 173, 226, 0.08)),
+    rgba(18, 26, 32, 0.72);
+}
+
+.maharashtra-section h2 {
+  margin-top: 16px;
+}
+
+.maharashtra-list {
+  display: grid;
+  gap: 12px;
+}
+
+.maharashtra-list span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(7, 16, 20, 0.5);
+  color: #d9eee4;
+}
+
+.landing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(1180px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 24px 0 34px;
+  border-top: 1px solid rgba(112, 143, 130, 0.16);
+  color: #a9bbb2;
+}
+
+.dashboard-shell {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(49, 196, 141, 0.06), transparent 28rem),
+    var(--bg);
+}
+
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 64px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(11, 16, 20, 0.94);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+.brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(49, 196, 141, 0.4);
+  background: #163026;
+  color: var(--green);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  color: var(--muted);
+}
+
+.nav-link:hover,
+.nav-link.active {
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.dashboard-main {
+  min-height: calc(100vh - 64px);
+}
+
+.page {
+  width: min(1420px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 28px 0 36px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.page-subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.panel {
+  border: 1px solid var(--line);
+  background: rgba(18, 26, 32, 0.88);
+}
+
+.panel-pad {
+  padding: 18px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.cards {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.summary-card {
+  min-height: 112px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.summary-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.summary-value {
+  margin-top: 12px;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  background: #0f171c;
+  color: var(--text);
+  padding: 9px 10px;
+  outline: none;
+}
+
+.field textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid #2f6f56;
+  background: #174332;
+  color: #ecfff7;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  border-color: var(--line);
+  background: var(--panel-2);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+th,
+td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #101820;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+tr.risk-high {
+  background: rgba(239, 68, 68, 0.14);
+}
+
+tr.risk-medium {
+  background: rgba(245, 165, 36, 0.12);
+}
+
+tr.risk-clean {
+  background: rgba(49, 196, 141, 0.09);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge.high {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.18);
+}
+
+.badge.medium {
+  border-color: rgba(245, 165, 36, 0.5);
+  color: #fde68a;
+  background: rgba(245, 165, 36, 0.16);
+}
+
+.badge.clean {
+  border-color: rgba(49, 196, 141, 0.5);
+  color: #bbf7d0;
+  background: rgba(49, 196, 141, 0.14);
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - 64px);
+}
+
+.map-sidebar {
+  z-index: 20;
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: rgba(18, 26, 32, 0.96);
+  padding: 18px;
+}
+
+.map-canvas {
+  min-height: calc(100vh - 64px);
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #0b1014;
+}
+
+.crop-marker {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 2px solid white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #111a21;
+  color: var(--text);
+}
+
+.popup-title {
+  margin: 0 0 8px;
+  font-weight: 800;
+}
+
+.popup-grid {
+  display: grid;
+  gap: 4px;
+}
+
+.chart-grid {
+  grid-template-columns: 1.2fr 0.8fr;
+}
+
+.chart-panel {
+  min-height: 340px;
+  padding: 18px;
+}
+
+.chart-panel.wide {
+  grid-column: 1 / -1;
+}
+
+.impact-grid {
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.metric-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.metric {
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: #0f171c;
+}
+
+.metric span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.metric strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 24px;
+}
+
+@media (max-width: 980px) {
+  .landing-nav {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 0;
+  }
+
+  .landing-nav-links {
+    flex-wrap: wrap;
+  }
+
+  .landing-hero,
+  .preview-section,
+  .maharashtra-section {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-hero {
+    min-height: auto;
+    padding-top: 36px;
+  }
+
+  .feature-grid,
+  .steps-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .top-nav,
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+  }
+
+  .cards,
+  .control-grid,
+  .chart-grid,
+  .impact-grid,
+  .metric-list {
+    grid-template-columns: 1fr;
+  }
+
+  .map-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .map-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .map-canvas {
+    height: 68vh;
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 620px) {
+  .landing-nav-links a {
+    padding: 9px 8px;
+    font-size: 13px;
+  }
+
+  .hero-actions,
+  .landing-btn {
+    width: 100%;
+  }
+
+  .feature-grid,
+  .steps-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-card {
+    min-height: auto;
+  }
+
+  .maharashtra-section {
+    padding: 22px;
+  }
+
+  .landing-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* Final light-theme dashboard overrides kept at the bottom so legacy dark styles do not win. */
+.dashboard-shell {
+  background: linear-gradient(180deg, #eef8f1, #f7fbf5);
+}
+
+.top-nav {
+  border-bottom: 1px solid #d8e7dc;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.brand,
+.nav-link {
+  color: #173426;
+}
+
+.brand-mark {
+  border-radius: 13px;
+  border: 0;
+  background: linear-gradient(135deg, #238b45, #2b93c9);
+  color: white;
+}
+
+.nav-link {
+  border-radius: 999px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  border-color: #c9dfcf;
+  background: #e8f5eb;
+  color: #14532d;
+}
+
+@media (max-width: 980px) {
+  .agri-nav,
+  .agri-hero,
+  .two-column-section,
+  .friendly-header,
+  .dashboard-overview-grid,
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agri-nav,
+  .friendly-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .agri-hero {
+    min-height: auto;
+  }
+
+  .agri-stats-grid,
+  .agri-feature-grid,
+  .agri-steps-grid,
+  .friendly-stats-grid,
+  .friendly-filter-card,
+  .claim-detail-grid,
+  .ndvi-legend,
+  .claim-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filter-title {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .agri-actions,
+  .agri-btn,
+  .friendly-btn {
+    width: 100%;
+  }
+
+  .agri-stats-grid,
+  .agri-feature-grid,
+  .agri-steps-grid,
+  .friendly-stats-grid,
+  .friendly-filter-card,
+  .claim-detail-grid,
+  .ndvi-legend,
+  .claim-form {
+    grid-template-columns: 1fr;
+  }
+
+  .farm-fields,
+  .satellite-preview {
+    height: 300px;
+  }
+
+  .district-row {
+    grid-template-columns: 74px 1fr 44px;
+  }
+
+  .district-row em {
+    grid-column: 2 / -1;
+  }
+}
