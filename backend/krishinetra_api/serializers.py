@@ -1,6 +1,5 @@
 import json
 
-from django.contrib.gis.geos import GEOSGeometry
 from rest_framework import serializers
 
 from .models import CropSubmission, Farm, Farmer
@@ -8,22 +7,13 @@ from .models import CropSubmission, Farm, Farmer
 
 class GeometrySerializerField(serializers.Field):
     def to_representation(self, value):
-        if value is None:
-            return None
-        return json.loads(value.geojson)
+        return value
 
     def to_internal_value(self, data):
-        if isinstance(data, str):
-            raw_geometry = data
-        else:
-            raw_geometry = json.dumps(data)
-
         try:
-            geometry = GEOSGeometry(raw_geometry, srid=4326)
+            return json.loads(data) if isinstance(data, str) else data
         except Exception as exc:
             raise serializers.ValidationError("Enter a valid GeoJSON geometry.") from exc
-
-        return geometry
 
 
 class FarmerSerializer(serializers.ModelSerializer):

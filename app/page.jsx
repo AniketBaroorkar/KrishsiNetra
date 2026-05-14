@@ -1,319 +1,141 @@
+"use client";
+
 import Link from "next/link";
-import {
-  AlertTriangle,
-  BarChart3,
-  Camera,
-  CheckCircle2,
-  Database,
-  FileText,
-  Gauge,
-  LandPlot,
-  Map,
-  MapPin,
-  Radar,
-  Satellite,
-  ShieldCheck,
-  Smartphone,
-  Sprout,
-} from "lucide-react";
+import { ArrowRight, BarChart3, Bell, BriefcaseBusiness, Camera, Mail, MessageCircle, Phone, Satellite, Sprout, Users } from "lucide-react";
 
-import {
-  maharashtraDistricts,
-  platformStats,
-  supportedCrops,
-} from "../data/dashboardData";
+import { LanguageSelector, useLanguage } from "../components/LanguageProvider";
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/map", label: "Live Crop Map" },
-  { href: "/dashboard/fraud", label: "Fraud Alerts" },
-  { href: "/dashboard/analytics", label: "Analytics" },
-  { href: "/dashboard/disaster", label: "Disaster Impact" },
-  { href: "#data-sources", label: "About Data Sources" },
-];
+const contact = {
+  email: "info@krishinetra.ai",
+  phone: "9579207219",
+  linkedin: "https://www.linkedin.com/",
+  instagram: "https://www.instagram.com/",
+  whatsapp: "https://wa.me/919579207219",
+  tel: "tel:+919579207219",
+};
 
-const features = [
-  {
-    title: "Geo-tagged Farmer Photo Upload",
-    text: "Farmers submit crop photos with GPS and survey details from the field.",
-    icon: Camera,
-  },
-  {
-    title: "AI Crop Classification",
-    text: "A crop image model checks whether the photo matches the claimed crop.",
-    icon: Radar,
-  },
-  {
-    title: "Sentinel-2 NDVI Verification",
-    text: "Satellite Red and NIR bands estimate crop health around the farm area.",
-    icon: Satellite,
-  },
-  {
-    title: "Fraud Risk Scoring",
-    text: "Officials get a simple score with reasons for approving or reviewing claims.",
-    icon: Gauge,
-  },
-];
-
-const steps = [
-  "Farmer submits geo-tagged crop photo",
-  "GPS location is matched with registered farm boundary",
-  "AI model predicts crop type from photo",
-  "Sentinel-2 satellite data is fetched for that location",
-  "NDVI is calculated using Red and NIR bands",
-  "Fraud risk score is generated for officials",
-];
-
-const dataSources = [
-  {
-    title: "Farmer Mobile App",
-    text: "Provides geo-tagged crop photos, farmer details, survey number, and claim information.",
-    icon: Smartphone,
-  },
-  {
-    title: "GPS Location",
-    text: "Coordinates come from the mobile device and are compared with the registered farm boundary.",
-    icon: MapPin,
-  },
-  {
-    title: "Sentinel-2 Satellite",
-    text: "Images come from Sentinel-2 through the Copernicus Data Space Ecosystem API.",
-    icon: Satellite,
-  },
-  {
-    title: "AI + Maps",
-    text: "The demo combines crop image classification, OpenStreetMap views, and officer dashboards.",
-    icon: Database,
-  },
-];
+const heroImage = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1800&q=80";
 
 export default function HomePage() {
+  const { t } = useLanguage();
+  const navLinks = [
+    { href: "/", label: t("home") },
+    { href: "/about", label: t("aboutUs") },
+    { href: "/#features", label: t("features") },
+    { href: "/farmers", label: t("farmerData") },
+    { href: "/dashboard", label: t("dashboard") },
+    { href: "/disaster-alerts", label: t("disasterAlerts") },
+    { href: "/#contact", label: t("contact") },
+  ];
+
+  const features = [
+    "Geo-tagged mobile crop photo intake",
+    "AI crop prediction and confidence scoring",
+    "Satellite crop-health verification",
+    "Fraud risk scoring for officers",
+    "Farmer monitoring and district summaries",
+    "Disaster alerts sent to farmers",
+  ];
+
   return (
-    <main className="agri-home">
-      <nav className="agri-nav">
-        <Link className="agri-brand" href="/">
-          <span>
-            <ShieldCheck size={21} aria-hidden="true" />
-          </span>
-          KrishiNetra
-        </Link>
-        <div className="agri-nav-links">
-          {navLinks.map((link) => (
-            <Link href={link.href} key={link.href}>
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </nav>
-
-      <section className="agri-hero">
-        <div className="agri-hero-copy">
-          <div className="agri-kicker">
-            <Sprout size={17} aria-hidden="true" />
-            Agriculture insurance verification platform
-          </div>
-          <h1>KrishiNetra</h1>
-          <h2>AI + Satellite-Based Agricultural Fraud Detection System</h2>
-          <p>
-            KrishiNetra verifies crop insurance claims using farmer-submitted geo-tagged photos,
-            AI crop classification, GPS validation, and Sentinel-2 satellite NDVI analysis.
-          </p>
-          <div className="agri-actions">
-            <Link className="agri-btn primary" href="/dashboard">
-              <BarChart3 size={18} aria-hidden="true" />
-              Open Dashboard
-            </Link>
-            <Link className="agri-btn secondary" href="#submit-claim">
-              <FileText size={18} aria-hidden="true" />
-              Submit Farmer Claim
-            </Link>
-            <Link className="agri-btn light" href="/dashboard/fraud">
-              <AlertTriangle size={18} aria-hidden="true" />
-              View Fraud Alerts
-            </Link>
-          </div>
-        </div>
-
-        <div className="farm-visual-card">
-          <div className="farm-sky">
-            <span className="sun" />
-            <span className="satellite-dot">
-              <Satellite size={20} aria-hidden="true" />
+    <main className="krishi-site" id="home">
+      <header className="krishi-header">
+        <div className="krishi-header-top">
+          <Link className="krishi-brand-lockup" href="/">
+            <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
+            <span>
+              <strong>{t("title")}</strong>
+              <small>{t("subtitle")}</small>
             </span>
+          </Link>
+          <div className="krishi-contact-strip" aria-label="Contact details">
+            <LanguageSelector />
+            <a href={`mailto:${contact.email}`}><Mail size={16} aria-hidden="true" />{contact.email}</a>
+            <a href={contact.tel}><Phone size={16} aria-hidden="true" />{contact.phone}</a>
           </div>
-          <div className="farm-fields">
-            <span className="field-strip strip-one" />
-            <span className="field-strip strip-two" />
-            <span className="field-strip strip-three" />
-            <span className="claim-pin">
-              <MapPin size={18} aria-hidden="true" />
-              Claim GPS
-            </span>
-          </div>
-          <div className="farm-visual-footer">
-            <strong>NDVI 0.72</strong>
-            <span>Healthy vegetation detected</span>
+        </div>
+        <nav className="krishi-nav-bar" aria-label="Main navigation">
+          {navLinks.map((link) => <Link href={link.href} key={link.label}>{link.label}</Link>)}
+        </nav>
+      </header>
+
+      <div className="floating-socials" aria-label="Social and contact links">
+        {[
+          { label: "LinkedIn", href: contact.linkedin, icon: BriefcaseBusiness },
+          { label: "Instagram", href: contact.instagram, icon: Camera },
+          { label: "WhatsApp", href: contact.whatsapp, icon: MessageCircle },
+          { label: "Phone", href: contact.tel, icon: Phone },
+        ].map(({ label, href, icon: Icon }) => (
+          <a href={href} key={label} aria-label={label} title={label}><Icon size={19} aria-hidden="true" /></a>
+        ))}
+      </div>
+
+      <section className="krishi-hero single-hero" style={{ backgroundImage: `url("${heroImage}")` }}>
+        <div className="hero-green-overlay" />
+        <div className="krishi-hero-content">
+          <span className="hero-kicker"><Satellite size={18} aria-hidden="true" />{t("subtitle")}</span>
+          <h1>{t("heroHeading")}</h1>
+          <p>{t("heroSubheading")}</p>
+          <div className="hero-cta-row">
+            <Link className="krishi-cta primary" href="/dashboard">{t("viewDashboard")}<ArrowRight size={18} /></Link>
+            <Link className="krishi-cta secondary" href="/farmers">{t("viewFarmerRecords")}<Users size={18} /></Link>
+            <Link className="krishi-cta secondary" href="/disaster-alerts">{t("sendDisasterAlert")}<Bell size={18} /></Link>
           </div>
         </div>
       </section>
 
-      <section className="agri-section">
-        <div className="agri-section-heading">
-          <h2>Live Demo Snapshot</h2>
-          <p>Mock statistics for presenting the complete monitoring workflow to officials.</p>
-        </div>
-        <div className="agri-stats-grid">
-          {platformStats.map((stat) => (
-            <article className="agri-stat-card" key={stat.label}>
-              <span>{stat.label}</span>
-              <strong>{stat.value}</strong>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="agri-section">
-        <div className="agri-section-heading">
-          <h2>Verification Features</h2>
-          <p>Simple, explainable checks that help non-technical reviewers understand each claim.</p>
-        </div>
-        <div className="agri-feature-grid">
-          {features.map(({ title, text, icon: Icon }) => (
-            <article className="agri-feature-card" key={title}>
-              <div className="agri-icon">
-                <Icon size={23} aria-hidden="true" />
-              </div>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="agri-section how-krishi-works">
-        <div className="agri-section-heading">
-          <h2>How KrishiNetra Works</h2>
-          <p>From a farmer photo to an officer-ready fraud risk score.</p>
-        </div>
-        <div className="agri-steps-grid">
-          {steps.map((step, index) => (
-            <article className="agri-step-card" key={step}>
-              <span>{index + 1}</span>
-              <p>{step}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="agri-section two-column-section" id="data-sources">
-        <div>
-          <div className="agri-section-heading">
-            <h2>About Data Sources</h2>
-            <p>
-              Sentinel-2 is a European satellite mission that captures Earth observation images.
-              KrishiNetra uses the farmer&apos;s GPS location to request satellite imagery for
-              that farm area. The system then uses Red and Near-Infrared bands to calculate NDVI,
-              which helps estimate crop health.
-            </p>
-          </div>
-          <div className="data-source-grid">
-            {dataSources.map(({ title, text, icon: Icon }) => (
-              <article className="data-source-card" key={title}>
-                <Icon size={20} aria-hidden="true" />
-                <div>
-                  <strong>{title}</strong>
-                  <p>{text}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-        <div className="ndvi-formula-card">
-          <h3>NDVI Formula</h3>
-          <strong>NDVI = (NIR - Red) / (NIR + Red)</strong>
+      <section className="krishi-section about-band" id="about">
+        <div className="section-copy">
+          <span className="section-eyebrow">{t("aboutUs")}</span>
+          <h2>Fraud detection, crop monitoring, and farmer support in one platform.</h2>
           <p>
-            High NDVI means healthy vegetation. Low NDVI can indicate bare soil, damaged crops,
-            or a crop mismatch.
+            KrishiNetra helps officers verify claims with farmer-submitted GPS photos, AI crop
+            prediction, satellite crop-health evidence, and explainable risk scores.
           </p>
-          <div className="ndvi-scale">
-            <span>Low</span>
-            <div />
-            <span>Healthy</span>
-          </div>
+        </div>
+        <div className="about-proof-card">
+          <BarChart3 size={30} aria-hidden="true" />
+          <strong>Government-ready demo workflow</strong>
+          <span>Mobile submission, farmer records, officer dashboard, fraud flags, and disaster alerts.</span>
         </div>
       </section>
 
-      <section className="agri-section two-column-section">
-        <div>
-          <div className="agri-section-heading">
-            <h2>Supported Crops</h2>
-            <p>Current model categories for the crop photo classification demo.</p>
-          </div>
-          <div className="chip-grid">
-            {supportedCrops.map((crop) => (
-              <span className="crop-chip" key={crop}>{crop}</span>
-            ))}
-          </div>
+      <section className="krishi-section" id="features">
+        <div className="section-heading">
+          <span className="section-eyebrow">{t("features")}</span>
+          <h2>Built for agriculture departments and hackathon presentation clarity.</h2>
         </div>
-        <div>
-          <div className="agri-section-heading">
-            <h2>Maharashtra Coverage</h2>
-            <p>District and taluka-wise filtering for insurance verification and disaster review.</p>
-          </div>
-          <div className="chip-grid">
-            {maharashtraDistricts.map((district) => (
-              <span className="district-chip" key={district}>{district}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="agri-section claim-demo-section" id="submit-claim">
-        <div className="agri-section-heading">
-          <h2>Farmer Claim Submission</h2>
-          <p>Frontend-only mock form for demonstrating the farmer claim workflow.</p>
-        </div>
-        <form className="claim-form">
-          {[
-            "Farmer Name",
-            "Aadhaar Number",
-            "Phone Number",
-            "District",
-            "Taluka",
-            "Village",
-            "Survey Number",
-          ].map((label) => (
-            <label key={label}>
-              <span>{label}</span>
-              <input placeholder={label} />
-            </label>
+        <div className="premium-feature-grid">
+          {features.map((feature) => (
+            <article className="premium-feature-card" key={feature}>
+              <span><Sprout size={24} aria-hidden="true" /></span>
+              <h3>{feature}</h3>
+              <p>Designed with clean officer workflows, readable badges, and mobile-app integration readiness.</p>
+            </article>
           ))}
-          <label>
-            <span>Crop Type</span>
-            <select defaultValue="Sugarcane">
-              {supportedCrops.map((crop) => (
-                <option key={crop}>{crop}</option>
-              ))}
-            </select>
-          </label>
-          <button className="agri-btn light" type="button">Upload Photo</button>
-          <button className="agri-btn light" type="button">Capture GPS</button>
-          <button className="agri-btn primary" type="button">Submit Claim</button>
+        </div>
+      </section>
+
+      <section className="krishi-section contact-section" id="contact">
+        <div className="contact-details">
+          <span className="section-eyebrow">{t("contact")}</span>
+          <h2>Contact KrishiNetra support</h2>
+          <p>Use these demo contact details in the web dashboard, farmer support flow, and presentation footer.</p>
+          <a href={`mailto:${contact.email}`}><Mail size={17} />{contact.email}</a>
+          <a href={contact.tel}><Phone size={17} />{contact.phone}</a>
+          <a href={contact.whatsapp}><MessageCircle size={17} />WhatsApp farmer support</a>
+        </div>
+        <form className="contact-form">
+          <label>Full Name<input placeholder="Officer or farmer name" /></label>
+          <label>Phone Number<input placeholder="9579207219" /></label>
+          <label>District<input placeholder="Pune" /></label>
+          <label>Request Type<select defaultValue="Dashboard demo"><option>Dashboard demo</option><option>Farmer support</option><option>Disaster alert</option></select></label>
+          <label className="wide">Message<textarea placeholder="Write your message" /></label>
+          <button className="krishi-cta primary" type="button">Submit</button>
         </form>
       </section>
 
-      <section className="agri-section about-demo">
-        <CheckCircle2 size={24} aria-hidden="true" />
-        <div>
-          <h2>About this Demo</h2>
-          <p>
-            This is a prototype for Pune Agri Hackathon 2026. The current version uses mock data
-            for demonstration. In production, it will connect to Django backend, PostgreSQL/PostGIS
-            database, PyTorch AI model, and Copernicus Sentinel-2 satellite data.
-          </p>
-        </div>
-      </section>
+      <footer className="krishi-footer">KrishiNetra | Contact: 9579207219 | info@krishinetra.ai</footer>
     </main>
   );
 }

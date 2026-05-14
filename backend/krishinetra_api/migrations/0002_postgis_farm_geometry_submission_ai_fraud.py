@@ -1,4 +1,3 @@
-from django.contrib.gis.db import models as gis_models
 from django.db import migrations, models
 import django.db.models.deletion
 
@@ -29,12 +28,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="farm",
             name="location",
-            field=gis_models.PointField(geography=True, srid=4326),
+            field=models.JSONField(default=dict),
         ),
         migrations.AddField(
             model_name="farm",
             name="boundary",
-            field=gis_models.PolygonField(geography=True, srid=4326),
+            field=models.JSONField(default=dict),
         ),
         migrations.AddField(
             model_name="cropsubmission",

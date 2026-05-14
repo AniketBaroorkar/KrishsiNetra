@@ -1,4 +1,3 @@
-from django.contrib.gis.db import models as gis_models
 from django.db import models
 
 
@@ -21,8 +20,9 @@ class Farm(models.Model):
     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name="farms")
     survey_number = models.CharField(max_length=80)
     area_acres = models.DecimalField(max_digits=10, decimal_places=2)
-    location = gis_models.PointField(srid=4326, geography=True)
-    boundary = gis_models.PolygonField(srid=4326, geography=True)
+    # Stored as GeoJSON-like JSON so the demo backend runs without GDAL/PostGIS.
+    location = models.JSONField(default=dict)
+    boundary = models.JSONField(default=dict)
 
     class Meta:
         ordering = ["survey_number"]
@@ -45,6 +45,8 @@ class CropSubmission(models.Model):
         PENDING = "PENDING", "Pending"
         VERIFIED = "VERIFIED", "Verified"
         FLAGGED = "FLAGGED", "Flagged"
+        APPROVED = "APPROVED", "Approved"
+        REJECTED = "REJECTED", "Rejected"
 
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name="submissions")
     claimed_crop = models.CharField(max_length=20, choices=CropChoices.choices)

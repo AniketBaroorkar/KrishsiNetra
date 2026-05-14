@@ -1,16 +1,10 @@
 import DashboardNav from "../../components/DashboardNav";
-import Link from "next/link";
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="dashboard-shell">
+    <div className="dashboard-shell gov-dashboard-shell">
       <DashboardNav />
-      <main className="dashboard-main">
-        <Link className="back-home" href="/">
-          ← Back to Home
-        </Link>
-        {children}
-      </main>
+      <main className="dashboard-main gov-dashboard-main">{children}</main>
     </div>
   );
 }

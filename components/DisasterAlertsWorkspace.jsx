@@ -1,0 +1,176 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { Bell, Send } from "lucide-react";
+
+import { useLanguage } from "./LanguageProvider";
+import { demoAlerts } from "../data/alertsData";
+import { getDemoFarmers, uniqueValues } from "../utils/farmers";
+
+const disasterTypes = ["Heavy Rain", "Flood", "Drought", "Pest Attack", "Crop Disease", "Heat Wave", "Unseasonal Rain"];
+
+export default function DisasterAlertsWorkspace() {
+  const { t } = useLanguage();
+  const [farmers, setFarmers] = useState(() => getDemoFarmers());
+  const [alerts, setAlerts] = useState(demoAlerts);
+  const [confirmation, setConfirmation] = useState("");
+  const [form, setForm] = useState({
+    district: "All",
+    cropType: "All",
+    riskLevel: "All",
+    farmerId: "All",
+    disasterType: "Heavy Rain",
+    title: "Weather advisory",
+    message: "Please check your crop field and follow guidance from the agriculture department.",
+    language: "English",
+  });
+
+  const districts = ["All", ...uniqueValues(farmers, "district")];
+  const crops = ["All", ...uniqueValues(farmers, "cropType")];
+
+  const filteredFarmers = useMemo(() => {
+    return farmers.filter((farmer) => (
+      (form.district === "All" || farmer.district === form.district) &&
+      (form.cropType === "All" || farmer.cropType === form.cropType) &&
+      (form.riskLevel === "All" || farmer.riskLevel === form.riskLevel) &&
+      (form.farmerId === "All" || farmer.farmerId === form.farmerId)
+    ));
+  }, [farmers, form]);
+
+  function updateField(key, value) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function sendAlert() {
+    const farmerIds = filteredFarmers.map((farmer) => farmer.farmerId);
+    const payload = {
+      farmerIds,
+      disasterType: form.disasterType,
+      title: form.title,
+      message: form.message,
+      language: form.language,
+      sentAt: new Date().toISOString(),
+    };
+
+    const response = await fetch("/api/alerts/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    const alert = result.alert || { ...payload, id: `ALT-${Date.now()}`, status: "Sent" };
+
+    setAlerts((current) => [alert, ...current]);
+    setFarmers((current) => current.map((farmer) => (
+      farmerIds.includes(farmer.farmerId)
+        ? {
+            ...farmer,
+            disasterAlertStatus: "Sent",
+            alertHistory: [
+              {
+                type: form.disasterType,
+                title: form.title,
+                message: form.message,
+                language: form.language,
+                status: "Sent",
+                sentAt: new Date().toLocaleString(),
+              },
+              ...farmer.alertHistory,
+            ],
+          }
+        : farmer
+    )));
+    setConfirmation(`Alert sent to ${farmerIds.length} farmer(s). Mobile notification is simulated for demo.`);
+  }
+
+  return (
+    <section className="gov-page disaster-alert-page">
+      <div className="gov-page-header">
+        <div>
+          <span className="gov-kicker">{t("disasterAlerts")}</span>
+          <h1>{t("disasterAlerts")}</h1>
+          <p>
+            Send disaster impact messages to selected farmers. This demo simulates app
+            notifications and can later connect to Firebase Cloud Messaging or SMS.
+          </p>
+        </div>
+        <span className="api-notice">Contact: 9579207219</span>
+      </div>
+
+      <div className="analytics-summary-grid">
+        <article className="gov-stat-card analytics-stat-card"><span>Total Farmers</span><strong>{farmers.length}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span>Filtered Farmers</span><strong>{filteredFarmers.length}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span>Alerts Sent</span><strong>{alerts.length}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span>High Risk Farmers</span><strong>{farmers.filter((farmer) => farmer.riskLevel === "High").length}</strong></article>
+      </div>
+
+      <div className="alert-layout">
+        <form className="gov-card alert-form">
+          <label>{t("district")}<select value={form.district} onChange={(event) => updateField("district", event.target.value)}>{districts.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>{t("cropType")}<select value={form.cropType} onChange={(event) => updateField("cropType", event.target.value)}>{crops.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>{t("riskScore")}<select value={form.riskLevel} onChange={(event) => updateField("riskLevel", event.target.value)}>{["All", "Low", "Medium", "High"].map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>Select Farmer<select value={form.farmerId} onChange={(event) => updateField("farmerId", event.target.value)}><option>All</option>{filteredFarmers.map((farmer) => <option value={farmer.farmerId} key={farmer.farmerId}>{farmer.farmerName}</option>)}</select></label>
+          <label>{t("disasterType")}<select value={form.disasterType} onChange={(event) => updateField("disasterType", event.target.value)}>{disasterTypes.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>{t("language")}<select value={form.language} onChange={(event) => updateField("language", event.target.value)}>{["English", "Marathi", "Hindi"].map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label className="wide">{t("messageTitle")}<input value={form.title} onChange={(event) => updateField("title", event.target.value)} /></label>
+          <label className="wide">{t("messageBody")}<textarea value={form.message} onChange={(event) => updateField("message", event.target.value)} /></label>
+          <button className="krishi-cta primary" type="button" onClick={sendAlert}>
+            <Send size={17} aria-hidden="true" />
+            {t("sendAlert")}
+          </button>
+          {confirmation ? <p className="alert-confirmation">{confirmation}</p> : null}
+        </form>
+
+        <aside className="gov-card targeted-farmers">
+          <h2>Target Farmers</h2>
+          <p>{filteredFarmers.length} farmer(s) match selected filters.</p>
+          <div className="target-list">
+            {filteredFarmers.slice(0, 8).map((farmer) => (
+              <span key={farmer.farmerId}>
+                <Bell size={15} aria-hidden="true" />
+                {farmer.farmerName} - {farmer.cropType} - {farmer.district}
+              </span>
+            ))}
+          </div>
+        </aside>
+      </div>
+
+      <section className="gov-card">
+        <div className="friendly-card-heading">
+          <h2>Alert History</h2>
+          <p>Status: Sent / Delivered / Pending with message preview and timestamp.</p>
+        </div>
+        <div className="friendly-table-wrap">
+          <table className="friendly-table gov-table">
+            <thead>
+              <tr>
+                <th>Alert ID</th>
+                <th>{t("disasterType")}</th>
+                <th>{t("messageTitle")}</th>
+                <th>{t("messageBody")}</th>
+                <th>{t("language")}</th>
+                <th>Farmers</th>
+                <th>Status</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              {alerts.map((alert) => (
+                <tr key={alert.id}>
+                  <td><strong>{alert.id}</strong></td>
+                  <td>{alert.disasterType}</td>
+                  <td>{alert.title}</td>
+                  <td>{alert.message}</td>
+                  <td>{alert.language}</td>
+                  <td>{alert.farmerIds?.length || 0}</td>
+                  <td><span className="status-badge approved">{alert.status}</span></td>
+                  <td>{alert.sentAt}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  );
+}
