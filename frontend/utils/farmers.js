@@ -1,3 +1,5 @@
+import * as XLSX from "xlsx";
+
 import { demoFarmers } from "../data/farmersData";
 import { calculateLocationIntegrity } from "./locationIntegrity";
 import { buildDemoSatelliteResult } from "./satelliteVerification";
@@ -201,4 +203,19 @@ export function downloadFarmersJson(farmers) {
     "krishinetra_farmer_data.json",
     "application/json;charset=utf-8",
   );
+}
+
+export function downloadFarmersXlsx(farmers) {
+  const rows = farmers.map((farmer) =>
+    Object.fromEntries(farmerExportColumns.map(([label, key]) => [label, farmer[key] ?? ""])),
+  );
+  const worksheet = XLSX.utils.json_to_sheet(rows, {
+    header: farmerExportColumns.map(([label]) => label),
+  });
+  worksheet["!cols"] = farmerExportColumns.map(([label]) => ({
+    wch: Math.max(label.length + 2, 14),
+  }));
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Farmers");
+  XLSX.writeFile(workbook, "krishinetra_farmer_data.xlsx");
 }

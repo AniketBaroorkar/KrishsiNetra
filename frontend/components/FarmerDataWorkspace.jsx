@@ -9,6 +9,7 @@ import SatelliteVerificationPanel from "./SatelliteVerificationPanel";
 import {
   downloadFarmersCsv,
   downloadFarmersJson,
+  downloadFarmersXlsx,
   fetchFarmers,
   getDemoFarmers,
   uniqueValues,
@@ -372,6 +373,10 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
             <h2>{compact ? t("farmerTablePreview") : t("farmerRecords")}</h2>
             <p>{filtered.length} {t("farmerRecordsCount")}</p>
           </div>
+          <button className="download-csv-btn" type="button" onClick={() => downloadFarmersXlsx(farmers)}>
+            <Download size={16} aria-hidden="true" />
+            Export to Excel
+          </button>
         </div>
         <div className="friendly-table-wrap">
           <table className="friendly-table gov-table farmer-table">
@@ -379,6 +384,10 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
               <tr>
                 <th>{t("farmerId")}</th>
                 <th>{t("farmerName")}</th>
+                <th>{t("lastPhoto")}</th>
+                <th>{t("claimStatus")}</th>
+                <th>{t("riskScore")}</th>
+                <th>{t("action")}</th>
                 <th>{t("mobileNumber")}</th>
                 <th>{t("village")}</th>
                 <th>{t("taluka")}</th>
@@ -389,16 +398,12 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                 <th>{t("surveyNumber")}</th>
                 <th>{t("gpsLatitude")}</th>
                 <th>{t("gpsLongitude")}</th>
-                <th>{t("lastPhoto")}</th>
                 <th>{t("submissionDate")}</th>
-                <th>{t("claimStatus")}</th>
-                <th>{t("riskScore")}</th>
                 <th>{t("disasterAlertStatus")}</th>
                 <th>GPS Trust Status</th>
                 <th>Mock Location</th>
                 <th>GPS Accuracy</th>
                 <th>Location Risk</th>
-                <th>{t("action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -406,6 +411,21 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                 <tr key={farmer.farmerId}>
                   <td><strong>{farmer.farmerId}</strong></td>
                   <td>{farmer.farmerName}</td>
+                  <td>{farmer.photoUrl ? <img className="table-photo" src={farmer.photoUrl} alt="" /> : t("missingPhoto")}</td>
+                  <td><span className={`status-badge ${statusClass(farmer.claimStatus)}`}>{statusLabel(farmer.claimStatus, t)}</span></td>
+                  <td><span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</span></td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="view-detail-btn" type="button" onClick={() => setSelectedFarmer(farmer)}>
+                        <Eye size={15} aria-hidden="true" />
+                        {t("viewDetails")}
+                      </button>
+                      <button className="view-detail-btn" type="button" onClick={() => viewFarmerOnMap(farmer)} disabled={!farmer.latitude || !farmer.longitude}>
+                        <MapPin size={15} aria-hidden="true" />
+                        View on Map
+                      </button>
+                    </div>
+                  </td>
                   <td>{farmer.mobileNumber}</td>
                   <td>{farmer.village}</td>
                   <td>{farmer.taluka}</td>
@@ -416,25 +436,12 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                   <td>{farmer.surveyNumber}</td>
                   <td>{farmer.latitude ?? t("missingGps")}</td>
                   <td>{farmer.longitude ?? t("missingGps")}</td>
-                  <td>{farmer.photoUrl ? <img className="table-photo" src={farmer.photoUrl} alt="" /> : t("missingPhoto")}</td>
                   <td>{farmer.submissionDate}</td>
-                  <td><span className={`status-badge ${statusClass(farmer.claimStatus)}`}>{statusLabel(farmer.claimStatus, t)}</span></td>
-                  <td><span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</span></td>
                   <td>{statusLabel(farmer.disasterAlertStatus, t)}</td>
                   <td><span className={`gps-trust-badge ${gpsTrustClass(farmer.gpsTrustStatus)}`}>{farmer.gpsTrustStatus}</span></td>
                   <td>{mockLocationLabel(farmer.isMockLocation)}</td>
                   <td>{farmer.gpsAccuracy ? `${farmer.gpsAccuracy} m` : "Unknown"}</td>
                   <td>{farmer.locationRiskReason}</td>
-                  <td>
-                    <button className="view-detail-btn" type="button" onClick={() => setSelectedFarmer(farmer)}>
-                      <Eye size={15} aria-hidden="true" />
-                      {t("viewDetails")}
-                    </button>
-                    <button className="view-detail-btn" type="button" onClick={() => viewFarmerOnMap(farmer)} disabled={!farmer.latitude || !farmer.longitude}>
-                      <MapPin size={15} aria-hidden="true" />
-                      View on Map
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
