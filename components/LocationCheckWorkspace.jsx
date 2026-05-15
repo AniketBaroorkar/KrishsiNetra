@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, MapPin, Satellite } from "lucide-react";
 
+import { getDemoFarmers } from "../utils/farmers";
+
 const LocationLeafletMap = dynamic(() => import("./LocationLeafletMap"), {
   ssr: false,
   loading: () => <div className="location-map-loading">Loading map...</div>,
@@ -23,6 +25,7 @@ function riskClass(riskLevel = "") {
 
 export default function LocationCheckWorkspace() {
   const searchParams = useSearchParams();
+  const farmers = useMemo(() => getDemoFarmers(), []);
   const initial = useMemo(() => {
     const farmerId = searchParams.get("farmerId") || "";
     const hasFarmerFromUrl = Boolean(farmerId);
@@ -43,6 +46,7 @@ export default function LocationCheckWorkspace() {
   const [satelliteResult, setSatelliteResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [selectedFarmerId, setSelectedFarmerId] = useState(initial.farmerId);
 
   const latitude = cleanNumber(mapLocation.latitude);
   const longitude = cleanNumber(mapLocation.longitude);
@@ -52,6 +56,7 @@ export default function LocationCheckWorkspace() {
     setForm(initial);
     setMapLocation(initial);
     setSatelliteResult(null);
+    setSelectedFarmerId(initial.farmerId);
     if (initial.farmerId && (!searchParams.get("lat") || !searchParams.get("lng"))) {
       setMessage("GPS location not available for this farmer.");
     } else {
@@ -61,6 +66,33 @@ export default function LocationCheckWorkspace() {
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function selectFarmer(farmerId) {
+    setSelectedFarmerId(farmerId);
+    const farmer = farmers.find((item) => item.farmerId === farmerId);
+    if (!farmer) return;
+
+    const next = {
+      farmerId: farmer.farmerId,
+      latitude: farmer.latitude ? String(farmer.latitude) : "",
+      longitude: farmer.longitude ? String(farmer.longitude) : "",
+      cropType: farmer.cropType || "",
+      farmerName: farmer.farmerName || "",
+      village: farmer.village || "",
+      district: farmer.district || "",
+      surveyNumber: farmer.surveyNumber || "",
+    };
+
+    setForm(next);
+    setSatelliteResult(null);
+    if (!farmer.latitude || !farmer.longitude) {
+      setMapLocation(next);
+      setMessage("GPS location not available for this farmer.");
+      return;
+    }
+    setMessage("");
+    setMapLocation(next);
   }
 
   function showLocation() {
@@ -117,6 +149,17 @@ export default function LocationCheckWorkspace() {
 
       <div className="location-check-layout">
         <form className="gov-card location-check-form">
+          <label>
+            Select Farmer
+            <select value={selectedFarmerId} onChange={(event) => selectFarmer(event.target.value)}>
+              <option value="">Choose farmer</option>
+              {farmers.map((farmer) => (
+                <option value={farmer.farmerId} key={farmer.farmerId}>
+                  {farmer.farmerName} - {farmer.cropType} - {farmer.district}
+                </option>
+              ))}
+            </select>
+          </label>
           <label>Farmer ID<input value={form.farmerId} onChange={(event) => updateField("farmerId", event.target.value)} placeholder="F001" /></label>
           <label>Latitude<input value={form.latitude} onChange={(event) => updateField("latitude", event.target.value)} placeholder="18.5204" /></label>
           <label>Longitude<input value={form.longitude} onChange={(event) => updateField("longitude", event.target.value)} placeholder="73.8567" /></label>

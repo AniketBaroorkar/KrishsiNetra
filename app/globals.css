@@ -4349,7 +4349,8 @@ tr.risk-clean td {
   font-weight: 950;
 }
 
-.location-check-form input {
+.location-check-form input,
+.location-check-form select {
   min-height: 44px;
   border: 1px solid #cfe0d4;
   border-radius: 8px;
