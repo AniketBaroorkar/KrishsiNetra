@@ -1,12 +1,27 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, Satellite } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MapPin, Search, Satellite } from "lucide-react";
 
 import SatelliteVerificationPanel from "./SatelliteVerificationPanel";
 import { getDemoFarmers, uniqueValues } from "../utils/farmers";
 
+function buildLocationUrl(farmer) {
+  const params = new URLSearchParams();
+  params.set("farmerId", farmer.farmerId);
+  if (farmer.latitude) params.set("lat", farmer.latitude);
+  if (farmer.longitude) params.set("lng", farmer.longitude);
+  if (farmer.cropType) params.set("crop", farmer.cropType);
+  if (farmer.farmerName) params.set("farmer", farmer.farmerName);
+  if (farmer.village) params.set("village", farmer.village);
+  if (farmer.district) params.set("district", farmer.district);
+  if (farmer.surveyNumber) params.set("survey", farmer.surveyNumber);
+  return `/dashboard/location-check?${params.toString()}`;
+}
+
 export default function SatelliteVerificationWorkspace() {
+  const router = useRouter();
   const farmers = useMemo(() => getDemoFarmers(), []);
   const [query, setQuery] = useState("");
   const [selectedFarmerId, setSelectedFarmerId] = useState(farmers[0]?.farmerId || "");
@@ -23,6 +38,14 @@ export default function SatelliteVerificationWorkspace() {
 
   const selectedFarmer = farmers.find((farmer) => farmer.farmerId === selectedFarmerId) || filteredFarmers[0] || farmers[0];
   const districts = uniqueValues(farmers, "district").slice(0, 6);
+
+  function openLocationCheck(farmer = selectedFarmer) {
+    if (!farmer?.latitude || !farmer?.longitude) {
+      router.push(`/dashboard/location-check?farmerId=${encodeURIComponent(farmer?.farmerId || "")}&farmer=${encodeURIComponent(farmer?.farmerName || "")}`);
+      return;
+    }
+    router.push(buildLocationUrl(farmer));
+  }
 
   return (
     <section className="gov-page satellite-page">
@@ -62,7 +85,15 @@ export default function SatelliteVerificationWorkspace() {
             <span>Latitude<strong>{selectedFarmer?.latitude ?? "Missing GPS"}</strong></span>
             <span>Longitude<strong>{selectedFarmer?.longitude ?? "Missing GPS"}</strong></span>
             <span>Crop Type<strong>{selectedFarmer?.cropType}</strong></span>
+            <span>Mobile Number<strong>{selectedFarmer?.mobileNumber}</strong></span>
+            <span>District<strong>{selectedFarmer?.district}</strong></span>
             <span>Submitted Date<strong>{selectedFarmer?.submissionDate}</strong></span>
+          </div>
+          <div className="satellite-action-row">
+            <button className="download-csv-btn" type="button" onClick={() => openLocationCheck(selectedFarmer)}>
+              <MapPin size={16} aria-hidden="true" />
+              Open in Location Check
+            </button>
           </div>
         </section>
 
@@ -83,6 +114,52 @@ export default function SatelliteVerificationWorkspace() {
           title={`${selectedFarmer.farmerName} Satellite Verification`}
         />
       ) : null}
+
+      <section className="gov-card">
+        <div className="friendly-card-heading">
+          <h2>Farmer Location List</h2>
+          <p>Select a farmer or open the exact GPS point in Location Check.</p>
+        </div>
+        <div className="friendly-table-wrap">
+          <table className="friendly-table gov-table satellite-farmer-table">
+            <thead>
+              <tr>
+                <th>Farmer</th>
+                <th>Mobile</th>
+                <th>Crop</th>
+                <th>Village</th>
+                <th>District</th>
+                <th>GPS</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredFarmers.map((farmer) => (
+                <tr key={farmer.farmerId}>
+                  <td><strong>{farmer.farmerName}</strong><small>{farmer.farmerId}</small></td>
+                  <td>{farmer.mobileNumber}</td>
+                  <td>{farmer.cropType}</td>
+                  <td>{farmer.village}</td>
+                  <td>{farmer.district}</td>
+                  <td>{farmer.latitude && farmer.longitude ? `${farmer.latitude}, ${farmer.longitude}` : "Missing GPS"}</td>
+                  <td>
+                    <div className="table-actions">
+                      <button type="button" onClick={() => setSelectedFarmerId(farmer.farmerId)}>
+                        <Satellite size={15} aria-hidden="true" />
+                        Select
+                      </button>
+                      <button type="button" onClick={() => openLocationCheck(farmer)}>
+                        <MapPin size={15} aria-hidden="true" />
+                        Verify Location
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="gov-card">
         <div className="friendly-card-heading">

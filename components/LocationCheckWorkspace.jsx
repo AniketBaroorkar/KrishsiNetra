@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, MapPin, Satellite } from "lucide-react";
 
 const LocationLeafletMap = dynamic(() => import("./LocationLeafletMap"), {
@@ -23,13 +23,20 @@ function riskClass(riskLevel = "") {
 
 export default function LocationCheckWorkspace() {
   const searchParams = useSearchParams();
-  const initial = useMemo(() => ({
-    latitude: searchParams.get("lat") || "18.5204",
-    longitude: searchParams.get("lng") || "73.8567",
-    cropType: searchParams.get("crop") || "Sugarcane",
-    farmerName: searchParams.get("farmer") || "",
-    surveyNumber: searchParams.get("survey") || "",
-  }), [searchParams]);
+  const initial = useMemo(() => {
+    const farmerId = searchParams.get("farmerId") || "";
+    const hasFarmerFromUrl = Boolean(farmerId);
+    return {
+      farmerId,
+      latitude: searchParams.get("lat") || (hasFarmerFromUrl ? "" : "18.5204"),
+      longitude: searchParams.get("lng") || (hasFarmerFromUrl ? "" : "73.8567"),
+      cropType: searchParams.get("crop") || (hasFarmerFromUrl ? "" : "Sugarcane"),
+      farmerName: searchParams.get("farmer") || "",
+      village: searchParams.get("village") || "",
+      district: searchParams.get("district") || "",
+      surveyNumber: searchParams.get("survey") || "",
+    };
+  }, [searchParams]);
 
   const [form, setForm] = useState(initial);
   const [mapLocation, setMapLocation] = useState(initial);
@@ -40,6 +47,17 @@ export default function LocationCheckWorkspace() {
   const latitude = cleanNumber(mapLocation.latitude);
   const longitude = cleanNumber(mapLocation.longitude);
   const hasValidLocation = latitude !== null && longitude !== null;
+
+  useEffect(() => {
+    setForm(initial);
+    setMapLocation(initial);
+    setSatelliteResult(null);
+    if (initial.farmerId && (!searchParams.get("lat") || !searchParams.get("lng"))) {
+      setMessage("GPS location not available for this farmer.");
+    } else {
+      setMessage("");
+    }
+  }, [initial, searchParams]);
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -99,10 +117,13 @@ export default function LocationCheckWorkspace() {
 
       <div className="location-check-layout">
         <form className="gov-card location-check-form">
+          <label>Farmer ID<input value={form.farmerId} onChange={(event) => updateField("farmerId", event.target.value)} placeholder="F001" /></label>
           <label>Latitude<input value={form.latitude} onChange={(event) => updateField("latitude", event.target.value)} placeholder="18.5204" /></label>
           <label>Longitude<input value={form.longitude} onChange={(event) => updateField("longitude", event.target.value)} placeholder="73.8567" /></label>
           <label>Crop Type<input value={form.cropType} onChange={(event) => updateField("cropType", event.target.value)} placeholder="Sugarcane" /></label>
           <label>Farmer Name optional<input value={form.farmerName} onChange={(event) => updateField("farmerName", event.target.value)} placeholder="Ramesh Patil" /></label>
+          <label>Village<input value={form.village} onChange={(event) => updateField("village", event.target.value)} placeholder="Malegaon" /></label>
+          <label>District<input value={form.district} onChange={(event) => updateField("district", event.target.value)} placeholder="Pune" /></label>
           <label>Survey Number optional<input value={form.surveyNumber} onChange={(event) => updateField("surveyNumber", event.target.value)} placeholder="SN-42/2" /></label>
           <button className="download-csv-btn" type="button" onClick={showLocation}>
             <MapPin size={16} aria-hidden="true" />
@@ -121,9 +142,29 @@ export default function LocationCheckWorkspace() {
             longitude={longitude}
             cropType={mapLocation.cropType}
             farmerName={mapLocation.farmerName}
+            village={mapLocation.village}
+            district={mapLocation.district}
+            surveyNumber={mapLocation.surveyNumber}
           />
         </section>
       </div>
+
+      <section className="gov-card location-farmer-card">
+        <div className="friendly-card-heading">
+          <h2>Farmer Details</h2>
+          <p>Loaded from URL query parameters or the manual input form.</p>
+        </div>
+        <div className="satellite-result-grid compact-result">
+          <span>Farmer ID<strong>{mapLocation.farmerId || "Not provided"}</strong></span>
+          <span>Farmer Name<strong>{mapLocation.farmerName || "Not provided"}</strong></span>
+          <span>Crop Type<strong>{mapLocation.cropType || "Not provided"}</strong></span>
+          <span>Village<strong>{mapLocation.village || "Not provided"}</strong></span>
+          <span>District<strong>{mapLocation.district || "Not provided"}</strong></span>
+          <span>Survey Number<strong>{mapLocation.surveyNumber || "Not provided"}</strong></span>
+          <span>Latitude<strong>{mapLocation.latitude || "Missing GPS"}</strong></span>
+          <span>Longitude<strong>{mapLocation.longitude || "Missing GPS"}</strong></span>
+        </div>
+      </section>
 
       <section className="gov-card location-satellite-card">
         <div className="friendly-card-heading table-heading-row">

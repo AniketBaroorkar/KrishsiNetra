@@ -16,7 +16,7 @@ function MapUpdater({ latitude, longitude }) {
   return null;
 }
 
-export default function LocationLeafletMap({ latitude, longitude, cropType, farmerName }) {
+export default function LocationLeafletMap({ latitude, longitude, cropType, farmerName, village, district, surveyNumber }) {
   const position = Number.isFinite(latitude) && Number.isFinite(longitude)
     ? [latitude, longitude]
     : [18.5204, 73.8567];
@@ -40,9 +40,12 @@ export default function LocationLeafletMap({ latitude, longitude, cropType, farm
         <Popup>
           <div className="location-popup">
             {farmerName ? <strong>{farmerName}</strong> : null}
+            {cropType ? <span>Crop Type: {cropType}</span> : null}
+            {village ? <span>Village: {village}</span> : null}
+            {district ? <span>District: {district}</span> : null}
+            {surveyNumber ? <span>Survey Number: {surveyNumber}</span> : null}
             <span>Latitude: {position[0]}</span>
             <span>Longitude: {position[1]}</span>
-            <span>Crop Type: {cropType || "Not specified"}</span>
           </div>
         </Popup>
       </Marker>
