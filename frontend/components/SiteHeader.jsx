@@ -21,7 +21,6 @@ export default function SiteHeader() {
     { href: "/about", label: t("aboutUs") },
     { href: "/dashboard", label: t("dashboard") },
     { href: "/disaster-alerts", label: t("disasterAlerts") },
-    { href: "/#contact", label: t("contact") },
   ];
 
   return (

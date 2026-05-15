@@ -2,6 +2,7 @@ import "./globals.css";
 import "./platform-polish.css";
 import { Inter } from "next/font/google";
 import { LanguageProvider } from "../components/LanguageProvider";
+import ContactFab from "../components/ContactFab";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,7 +20,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          {children}
+          <ContactFab />
+        </LanguageProvider>
       </body>
     </html>
   );

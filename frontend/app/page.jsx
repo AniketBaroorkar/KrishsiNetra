@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BarChart3, Bell, Mail, MessageCircle, Phone, Satellite, Sprout, Users } from "lucide-react";
+import { ArrowRight, BarChart3, Bell, Satellite, Sprout, Users } from "lucide-react";
 
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
 import FloatingSocials from "../components/FloatingSocials";
 import { useLanguage } from "../components/LanguageProvider";
-import { siteContact } from "../data/site";
 
 const heroImage = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1800&q=80";
 
@@ -72,25 +71,6 @@ export default function HomePage() {
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="krishi-section contact-section" id="contact">
-        <div className="contact-details">
-          <span className="section-eyebrow">{t("contact")}</span>
-          <h2>{t("contactSupport")}</h2>
-          <p>{t("contactSubtitle")}</p>
-          <a href={`mailto:${siteContact.email}`}><Mail size={17} />{siteContact.email}</a>
-          <a href={siteContact.tel}><Phone size={17} />{siteContact.phone}</a>
-          <a href={siteContact.whatsapp}><MessageCircle size={17} />WhatsApp</a>
-        </div>
-        <form className="contact-form">
-          <label>{t("fullName")}<input placeholder={t("farmerName")} /></label>
-          <label>{t("phoneNumber")}<input placeholder="9579207219" /></label>
-          <label>{t("district")}<input placeholder="Pune" /></label>
-          <label>{t("requestType")}<select defaultValue="Dashboard demo"><option>{t("dashboard")}</option><option>{t("farmerData")}</option><option>{t("disasterAlerts")}</option></select></label>
-          <label className="wide">{t("message")}<textarea placeholder={t("messageBody")} /></label>
-          <button className="krishi-cta primary" type="button">{t("submit")}</button>
-        </form>
       </section>
 
       <SiteFooter />
