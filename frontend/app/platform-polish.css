@@ -1012,6 +1012,16 @@ body {
   box-shadow: 0 8px 20px rgba(20, 83, 45, 0.25);
 }
 
+.hero-kpi-icon.hero-kpi-icon-amber {
+  background: linear-gradient(135deg, #b45309, #f59e0b);
+  box-shadow: 0 8px 20px rgba(180, 83, 9, 0.28);
+}
+
+.hero-kpi-icon.hero-kpi-icon-red {
+  background: linear-gradient(135deg, #991b1b, #dc2626);
+  box-shadow: 0 8px 20px rgba(153, 27, 27, 0.28);
+}
+
 .hero-kpi-body {
   display: grid;
   gap: 4px;

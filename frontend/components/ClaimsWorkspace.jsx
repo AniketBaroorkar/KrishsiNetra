@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
-  CheckCircle2,
   Eye,
   Flag,
   Image as ImageIcon,
@@ -21,6 +20,13 @@ import { fetchClaims, getDemoClaims, getRiskLevel, patchClaimStatus } from "../u
 
 const riskOptions = ["All", "Low", "Medium", "High"];
 const statusOptions = ["All", "Pending", "Verified", "Approved", "Rejected", "Flagged", "High Risk"];
+
+const CLAIM_STATUS_TONES = [
+  { key: "pending", label: "Pending", color: "#0369a1" },
+  { key: "approved", label: "Approved", color: "#166534" },
+  { key: "rejected", label: "Rejected", color: "#991b1b" },
+  { key: "flagged", label: "Flagged", color: "#b45309" },
+];
 
 function riskBadgeClass(level) {
   if (level === "High") return "high";
@@ -299,38 +305,77 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
         <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
 
-      <div className="gov-stat-grid six">
-        <article className="gov-stat-card">
-          <span className="gov-stat-icon"><ShieldAlert size={20} aria-hidden="true" /></span>
-          <span>{t("totalClaims")}</span>
-          <strong>{stats.total}</strong>
-        </article>
-        <article className="gov-stat-card">
-          <span className="gov-stat-icon"><Eye size={20} aria-hidden="true" /></span>
-          <span>{t("pendingClaims")}</span>
-          <strong>{stats.pending}</strong>
-        </article>
-        <article className="gov-stat-card">
-          <span className="gov-stat-icon"><CheckCircle2 size={20} aria-hidden="true" /></span>
-          <span>{t("approved")}</span>
-          <strong>{stats.approved || stats.verified}</strong>
-        </article>
-        <article className="gov-stat-card">
-          <span className="gov-stat-icon"><ThumbsDown size={20} aria-hidden="true" /></span>
-          <span>{t("rejectedClaims")}</span>
-          <strong>{stats.rejected}</strong>
-        </article>
-        <article className="gov-stat-card">
-          <span className="gov-stat-icon"><Flag size={20} aria-hidden="true" /></span>
-          <span>{t("flaggedClaims")}</span>
-          <strong>{stats.flagged}</strong>
-        </article>
-        <article className="gov-stat-card">
-          <span className="gov-stat-icon"><AlertTriangle size={20} aria-hidden="true" /></span>
-          <span>{t("highRiskClaims")}</span>
-          <strong>{stats.highRisk}</strong>
-        </article>
-      </div>
+      {(() => {
+        const breakdown = CLAIM_STATUS_TONES.map((tone) => ({
+          ...tone,
+          count: stats[tone.key] || 0,
+        }));
+        const breakdownTotal = breakdown.reduce((sum, item) => sum + item.count, 0);
+        const awaitingReview = stats.pending + stats.flagged;
+        return (
+          <>
+            <div className="hero-kpi-grid">
+              <article className="hero-kpi-card">
+                <span className="hero-kpi-icon"><ShieldAlert size={22} aria-hidden="true" /></span>
+                <div className="hero-kpi-body">
+                  <span className="hero-kpi-label">{t("totalClaims")}</span>
+                  <strong>{stats.total}</strong>
+                  <small>All farmer submissions</small>
+                </div>
+              </article>
+              <article className="hero-kpi-card">
+                <span className="hero-kpi-icon hero-kpi-icon-amber"><Eye size={22} aria-hidden="true" /></span>
+                <div className="hero-kpi-body">
+                  <span className="hero-kpi-label">Awaiting Review</span>
+                  <strong>{awaitingReview}</strong>
+                  <small>{stats.pending} pending &middot; {stats.flagged} flagged</small>
+                </div>
+              </article>
+              <article className="hero-kpi-card">
+                <span className="hero-kpi-icon hero-kpi-icon-red"><AlertTriangle size={22} aria-hidden="true" /></span>
+                <div className="hero-kpi-body">
+                  <span className="hero-kpi-label">{t("highRiskClaims")}</span>
+                  <strong>{stats.highRisk}</strong>
+                  <small>Need immediate officer attention</small>
+                </div>
+              </article>
+            </div>
+
+            <section className="gov-card claim-status-card">
+              <div className="friendly-card-heading">
+                <h2>Status Breakdown</h2>
+                <p>Where the {stats.total} claims sit by review state.</p>
+              </div>
+              <div className="status-bar-row" role="img" aria-label="Claim status distribution">
+                {breakdown.map(({ key, label, color, count }) => (
+                  count ? (
+                    <span
+                      className="status-bar-segment"
+                      key={key}
+                      style={{ flex: count, background: color }}
+                      title={`${label}: ${count}`}
+                    />
+                  ) : null
+                ))}
+              </div>
+              <div className="status-chip-grid">
+                {breakdown.map(({ key, label, color, count }) => {
+                  const pct = breakdownTotal ? (count / breakdownTotal) * 100 : 0;
+                  return (
+                    <div className="status-chip" key={key}>
+                      <span className="status-chip-dot" style={{ background: color }} />
+                      <div>
+                        <strong>{count}</strong>
+                        <small>{label} &middot; {pct.toFixed(0)}%</small>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </>
+        );
+      })()}
 
       <div className="claims-toolbar">
         <label className="claims-search">
