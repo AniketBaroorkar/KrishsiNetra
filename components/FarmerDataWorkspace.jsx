@@ -49,6 +49,19 @@ function riskLabel(level, t) {
   return t("all");
 }
 
+function gpsTrustClass(status) {
+  if (status === "Valid") return "valid";
+  if (status === "Spoofing Suspected") return "spoofing";
+  if (status === "Suspicious") return "suspicious";
+  return "unknown";
+}
+
+function mockLocationLabel(value) {
+  if (value === true) return "Yes";
+  if (value === false) return "No";
+  return "Unknown";
+}
+
 function buildLocationUrl(farmer) {
   const params = new URLSearchParams();
   if (farmer.latitude) params.set("lat", farmer.latitude);
@@ -143,6 +156,25 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
         </div>
 
         <div className="claim-modal-section">
+          <section className="location-integrity-card">
+            <div className="friendly-card-heading">
+              <h3>Location Integrity Check</h3>
+              <p>GPS Spoofing Detection and Mock Location Detection for officer review.</p>
+            </div>
+            <div className="location-integrity-grid">
+              <span>GPS Coordinates<strong>{farmer.latitude && farmer.longitude ? `${farmer.latitude}, ${farmer.longitude}` : t("missingGps")}</strong></span>
+              <span>GPS Accuracy<strong>{farmer.gpsAccuracy ? `${farmer.gpsAccuracy} meters` : "Unknown"}</strong></span>
+              <span>GPS Timestamp<strong>{farmer.gpsTimestamp || "Unknown"}</strong></span>
+              <span>GPS Provider<strong>{farmer.gpsProvider || "Unknown"}</strong></span>
+              <span>Mock Location Detected<strong>{mockLocationLabel(farmer.isMockLocation)}</strong></span>
+              <span>Photo Capture Type<strong>{farmer.photoCaptureType || "Unknown"}</strong></span>
+              <span>GPS Trust Status<strong className={`gps-trust-badge ${gpsTrustClass(farmer.gpsTrustStatus)}`}>{farmer.gpsTrustStatus}</strong></span>
+              <span className="wide">Location Risk Reason<strong>{farmer.locationRiskReason}</strong></span>
+            </div>
+          </section>
+        </div>
+
+        <div className="claim-modal-section">
           <SatelliteVerificationPanel
             record={farmer}
             uploadedPhotoUrl={farmer.photoUrl}
@@ -177,6 +209,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
     crop: "All",
     risk: "All",
     status: "All",
+    gpsTrust: "All",
   });
 
   useEffect(() => {
@@ -202,6 +235,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
   const districts = ["All", ...uniqueValues(farmers, "district")];
   const crops = ["All", ...uniqueValues(farmers, "cropType")];
   const statuses = ["All", "Pending", "Verified", "Approved", "Rejected", "Flagged", "High Risk"];
+  const gpsTrustStatuses = ["All", "Valid", "Suspicious", "Spoofing Suspected", "Unknown"];
 
   const filtered = useMemo(() => {
     const query = filters.query.trim().toLowerCase();
@@ -214,7 +248,8 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         (filters.district === "All" || farmer.district === filters.district) &&
         (filters.crop === "All" || farmer.cropType === filters.crop) &&
         (filters.risk === "All" || farmer.riskLevel === filters.risk) &&
-        (filters.status === "All" || farmer.claimStatus === filters.status)
+        (filters.status === "All" || farmer.claimStatus === filters.status) &&
+        (filters.gpsTrust === "All" || farmer.gpsTrustStatus === filters.gpsTrust)
       );
     });
   }, [farmers, filters]);
@@ -313,6 +348,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         <label>{t("cropType")}<select value={filters.crop} onChange={(event) => updateFilter("crop", event.target.value)}>{crops.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label>{t("riskScore")}<select value={filters.risk} onChange={(event) => updateFilter("risk", event.target.value)}>{["All", "Low", "Medium", "High"].map((item) => <option key={item} value={item}>{riskLabel(item, t)}</option>)}</select></label>
         <label>{t("status")}<select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>{statuses.map((item) => <option key={item} value={item}>{statusLabel(item, t)}</option>)}</select></label>
+        <label>GPS Trust Status<select value={filters.gpsTrust} onChange={(event) => updateFilter("gpsTrust", event.target.value)}>{gpsTrustStatuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
       </div>
 
       <section className="gov-card">
@@ -343,6 +379,10 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                 <th>{t("claimStatus")}</th>
                 <th>{t("riskScore")}</th>
                 <th>{t("disasterAlertStatus")}</th>
+                <th>GPS Trust Status</th>
+                <th>Mock Location</th>
+                <th>GPS Accuracy</th>
+                <th>Location Risk</th>
                 <th>{t("action")}</th>
               </tr>
             </thead>
@@ -366,6 +406,10 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                   <td><span className={`status-badge ${statusClass(farmer.claimStatus)}`}>{statusLabel(farmer.claimStatus, t)}</span></td>
                   <td><span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</span></td>
                   <td>{statusLabel(farmer.disasterAlertStatus, t)}</td>
+                  <td><span className={`gps-trust-badge ${gpsTrustClass(farmer.gpsTrustStatus)}`}>{farmer.gpsTrustStatus}</span></td>
+                  <td>{mockLocationLabel(farmer.isMockLocation)}</td>
+                  <td>{farmer.gpsAccuracy ? `${farmer.gpsAccuracy} m` : "Unknown"}</td>
+                  <td>{farmer.locationRiskReason}</td>
                   <td>
                     <button className="view-detail-btn" type="button" onClick={() => setSelectedFarmer(farmer)}>
                       <Eye size={15} aria-hidden="true" />

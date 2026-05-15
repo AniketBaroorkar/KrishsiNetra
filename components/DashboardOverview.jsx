@@ -24,6 +24,10 @@ export default function DashboardOverview() {
     flagged: farmers.filter((farmer) => ["Flagged", "High Risk"].includes(farmer.claimStatus)).length,
     highRisk: farmers.filter((farmer) => farmer.riskLevel === "High").length,
     alerts: demoAlerts.length,
+    validGps: farmers.filter((farmer) => farmer.gpsTrustStatus === "Valid").length,
+    suspiciousGps: farmers.filter((farmer) => farmer.gpsTrustStatus === "Suspicious").length,
+    spoofingGps: farmers.filter((farmer) => farmer.gpsTrustStatus === "Spoofing Suspected").length,
+    unknownGps: farmers.filter((farmer) => farmer.gpsTrustStatus === "Unknown").length,
   };
 
   const cropSummary = uniqueValues(farmers, "cropType").map((crop) => ({
@@ -62,6 +66,13 @@ export default function DashboardOverview() {
             <strong>{value}</strong>
           </article>
         ))}
+      </div>
+
+      <div className="analytics-summary-grid">
+        <article className="gov-stat-card analytics-stat-card"><span>Valid GPS Claims</span><strong>{stats.validGps}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span>Suspicious GPS Claims</span><strong>{stats.suspiciousGps}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span>Spoofing Suspected</span><strong>{stats.spoofingGps}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span>Unknown GPS Status</span><strong>{stats.unknownGps}</strong></article>
       </div>
 
       <div className="dashboard-insight-grid">

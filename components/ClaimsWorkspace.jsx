@@ -54,6 +54,19 @@ function statusLabel(status, t) {
   return status || "";
 }
 
+function gpsTrustClass(status) {
+  if (status === "Valid") return "valid";
+  if (status === "Spoofing Suspected") return "spoofing";
+  if (status === "Suspicious") return "suspicious";
+  return "unknown";
+}
+
+function mockLocationLabel(value) {
+  if (value === true) return "Yes";
+  if (value === false) return "No";
+  return "Unknown";
+}
+
 function ClaimActions({ claim, onStatusChange, t }) {
   return (
     <div className="claim-actions">
@@ -155,6 +168,25 @@ function ClaimDetailsModal({ claim, onClose, onStatusChange, t }) {
         </div>
 
         <div className="claim-modal-section">
+          <section className="location-integrity-card">
+            <div className="friendly-card-heading">
+              <h3>Location Integrity Check</h3>
+              <p>GPS Trust Status, Mock Location Detection, and photo capture evidence.</p>
+            </div>
+            <div className="location-integrity-grid">
+              <span>GPS Coordinates<strong>{claim.gpsLat && claim.gpsLon ? `${claim.gpsLat}, ${claim.gpsLon}` : t("missingGps")}</strong></span>
+              <span>GPS Accuracy<strong>{claim.gpsAccuracy ? `${claim.gpsAccuracy} meters` : "Unknown"}</strong></span>
+              <span>GPS Timestamp<strong>{claim.gpsTimestamp || "Unknown"}</strong></span>
+              <span>GPS Provider<strong>{claim.gpsProvider || "Unknown"}</strong></span>
+              <span>Mock Location Detected<strong>{mockLocationLabel(claim.isMockLocation)}</strong></span>
+              <span>Photo Capture Type<strong>{claim.photoCaptureType || "Unknown"}</strong></span>
+              <span>GPS Trust Status<strong className={`gps-trust-badge ${gpsTrustClass(claim.gpsTrustStatus)}`}>{claim.gpsTrustStatus}</strong></span>
+              <span className="wide">Location Risk Reason<strong>{claim.locationRiskReason}</strong></span>
+            </div>
+          </section>
+        </div>
+
+        <div className="claim-modal-section">
           <SatelliteVerificationPanel
             record={claim}
             uploadedPhotoUrl={claim.photoUrl}
@@ -177,6 +209,7 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [riskFilter, setRiskFilter] = useState("All");
+  const [gpsTrustFilter, setGpsTrustFilter] = useState("All");
   const [selectedClaim, setSelectedClaim] = useState(null);
 
   useEffect(() => {
@@ -216,10 +249,11 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
       return (
         matchesQuery &&
         (statusFilter === "All" || claim.status === statusFilter) &&
-        (riskFilter === "All" || riskLevel === riskFilter)
+        (riskFilter === "All" || riskLevel === riskFilter) &&
+        (gpsTrustFilter === "All" || claim.gpsTrustStatus === gpsTrustFilter)
       );
     });
-  }, [claims, query, riskFilter, statusFilter]);
+  }, [claims, gpsTrustFilter, query, riskFilter, statusFilter]);
 
   const stats = useMemo(() => {
     return {
@@ -319,6 +353,12 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
             {riskOptions.map((risk) => <option key={risk} value={risk}>{riskLabel(risk, t)}</option>)}
           </select>
         </label>
+        <label>
+          GPS Trust Status
+          <select value={gpsTrustFilter} onChange={(event) => setGpsTrustFilter(event.target.value)}>
+            {["All", "Valid", "Suspicious", "Spoofing Suspected", "Unknown"].map((status) => <option key={status} value={status}>{status}</option>)}
+          </select>
+        </label>
       </div>
 
       {mode === "overview" ? (
@@ -363,6 +403,10 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
                 <th>{t("gpsLongitude")}</th>
                 <th>{t("riskScore")}</th>
                 <th>{t("status")}</th>
+                <th>GPS Trust Status</th>
+                <th>Mock Location</th>
+                <th>GPS Accuracy</th>
+                <th>Location Risk</th>
                 <th>{t("submittedDate")}</th>
                 <th>{t("action")}</th>
               </tr>
@@ -391,6 +435,10 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
                         {statusLabel(claim.status, t)}
                       </span>
                     </td>
+                    <td><span className={`gps-trust-badge ${gpsTrustClass(claim.gpsTrustStatus)}`}>{claim.gpsTrustStatus}</span></td>
+                    <td>{mockLocationLabel(claim.isMockLocation)}</td>
+                    <td>{claim.gpsAccuracy ? `${claim.gpsAccuracy} m` : "Unknown"}</td>
+                    <td>{claim.locationRiskReason}</td>
                     <td>{claim.submittedDate}</td>
                     <td>
                       <div className="table-actions">

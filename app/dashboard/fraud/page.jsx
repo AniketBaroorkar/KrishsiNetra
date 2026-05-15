@@ -22,6 +22,13 @@ function statusLabel(status, t) {
   return status || "";
 }
 
+function gpsTrustClass(status) {
+  if (status === "Valid") return "valid";
+  if (status === "Spoofing Suspected") return "spoofing";
+  if (status === "Suspicious") return "suspicious";
+  return "unknown";
+}
+
 export default function FraudAlertsPage() {
   const { t } = useLanguage();
   const farmers = getDemoFarmers();
@@ -63,6 +70,7 @@ export default function FraudAlertsPage() {
                 <th>{t("predictedCrop")}</th>
                 <th>{t("riskScore")}</th>
                 <th>{t("status")}</th>
+                <th>GPS Trust Status</th>
                 <th>{t("reason")}</th>
               </tr>
             </thead>
@@ -78,6 +86,7 @@ export default function FraudAlertsPage() {
                     <td>{farmer.predictedCrop}</td>
                     <td><span className={`risk-badge ${farmer.riskLevel.toLowerCase()}`}>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</span></td>
                     <td><span className="status-badge flagged">{statusLabel(farmer.claimStatus, t)}</span></td>
+                    <td><span className={`gps-trust-badge ${gpsTrustClass(farmer.gpsTrustStatus)}`}>{farmer.gpsTrustStatus}</span></td>
                     <td>{farmer.riskReason}</td>
                   </tr>
                 ))}

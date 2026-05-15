@@ -50,6 +50,24 @@ export function getRiskFromNdvi(ndviScore, cloudCoverStatus = "Low cloud cover")
   };
 }
 
+function buildSarFallback({ ndviScore, cloudCoverStatus, seed = 0.5 }) {
+  const cloudy = cloudCoverStatus.toLowerCase().includes("high") || cloudCoverStatus.toLowerCase().includes("cloudy");
+  const sarUsed = cloudy;
+  const vv = Number((-9 - seed * 4).toFixed(2));
+  const vh = Number((-15 - seed * 5).toFixed(2));
+  const supportsActivity = ndviScore > 0.45 || (cloudy && seed > 0.35);
+
+  return {
+    sarUsed,
+    vvSignal: vv,
+    vhSignal: vh,
+    fieldMoistureStatus: seed > 0.75 ? "High moisture" : seed > 0.35 ? "Normal moisture" : "Low moisture",
+    floodDisasterIndication: seed > 0.86 ? "Possible waterlogging" : "No flood indication",
+    cropStructureSignal: supportsActivity ? "Structured field signal present" : "Weak crop structure signal",
+    sarResult: supportsActivity ? "Supports Claim" : "Uncertain",
+  };
+}
+
 export function buildDemoSatelliteResult(input = {}) {
   const latitude = Number(input.latitude);
   const longitude = Number(input.longitude);
@@ -62,6 +80,8 @@ export function buildDemoSatelliteResult(input = {}) {
       cropHealth: "Unknown",
       satelliteDate: "Demo Sentinel-2 image",
       cloudCoverStatus: "Unknown cloud cover",
+      opticalResult: "Uncertain",
+      sentinel1Sar: buildSarFallback({ ndviScore: 0, cloudCoverStatus: "Unknown cloud cover", seed: 0.2 }),
       riskLevel: "High Risk",
       riskReason: "Missing GPS coordinates prevent satellite verification.",
       isDemo: true,
@@ -70,7 +90,9 @@ export function buildDemoSatelliteResult(input = {}) {
 
   const seed = Math.abs(Math.sin(latitude * 12.9898 + longitude * 78.233));
   const ndviScore = Number((0.18 + seed * 0.62).toFixed(2));
-  const { riskLevel, riskReason } = getRiskFromNdvi(ndviScore);
+  const cloudCoverStatus = seed > 0.82 ? "High cloud cover" : "Low cloud cover";
+  const sentinel1Sar = buildSarFallback({ ndviScore, cloudCoverStatus, seed });
+  const { riskLevel, riskReason } = getRiskFromNdvi(ndviScore, cloudCoverStatus);
 
   return {
     satelliteImageUrl: FALLBACK_IMAGE,
@@ -78,7 +100,9 @@ export function buildDemoSatelliteResult(input = {}) {
     vegetationStatus: ndviScore > 0.5 ? "Healthy vegetation detected" : ndviScore > 0.2 ? "Moderate vegetation detected" : "Low vegetation detected",
     cropHealth: ndviScore > 0.5 ? "Good" : ndviScore > 0.2 ? "Moderate" : "Poor",
     satelliteDate: "Recent Sentinel-2 image",
-    cloudCoverStatus: "Low cloud cover",
+    cloudCoverStatus,
+    opticalResult: cloudCoverStatus.includes("High") ? "Cloudy" : "Clear",
+    sentinel1Sar,
     riskLevel,
     riskReason,
     isDemo: true,
@@ -191,6 +215,7 @@ export async function verifyWithSentinelHub(input = {}) {
     const buffer = Buffer.from(await response.arrayBuffer());
     const ndviScore = buildDemoSatelliteResult(input).ndviScore;
     const { riskLevel, riskReason } = getRiskFromNdvi(ndviScore);
+    const cloudCoverStatus = "Low cloud cover";
 
     return {
       satelliteImageUrl: `data:image/png;base64,${buffer.toString("base64")}`,
@@ -198,7 +223,9 @@ export async function verifyWithSentinelHub(input = {}) {
       vegetationStatus: ndviScore > 0.5 ? "Healthy vegetation detected" : "Moderate vegetation detected",
       cropHealth: ndviScore > 0.5 ? "Good" : "Moderate",
       satelliteDate: "Recent Sentinel-2 image",
-      cloudCoverStatus: "Low cloud cover",
+      cloudCoverStatus,
+      opticalResult: "Clear",
+      sentinel1Sar: buildSarFallback({ ndviScore, cloudCoverStatus, seed: 0.62 }),
       riskLevel,
       riskReason,
       isDemo: false,

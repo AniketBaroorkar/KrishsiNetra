@@ -98,14 +98,40 @@ export default function SatelliteVerificationPanel({ record, uploadedPhotoUrl, t
       ) : null}
 
       {result ? (
-        <div className="satellite-result-grid">
-          <span>NDVI Score<strong>{Number(result.ndviScore).toFixed(2)}</strong></span>
-          <span>Vegetation Status<strong>{result.vegetationStatus}</strong></span>
-          <span>Crop Health<strong>{result.cropHealth}</strong></span>
-          <span>Satellite Date<strong>{result.satelliteDate}</strong></span>
-          <span>Cloud Cover<strong>{result.cloudCoverStatus}</strong></span>
-          <span>Risk Level<strong className={`risk-badge ${riskClass(result.riskLevel)}`}>{result.riskLevel}</strong></span>
-          <p className="satellite-risk-reason">{result.riskReason}</p>
+        <div className="satellite-verification-card-grid">
+          <section className="satellite-method-card">
+            <h4>Sentinel-2 Optical Verification</h4>
+            <p>Sentinel-2 is used for NDVI and vegetation health. NDVI helps check whether active crop vegetation is present at the submitted GPS location.</p>
+            <div className="satellite-result-grid method-result-grid">
+              <span>NDVI Score<strong>{Number(result.ndviScore).toFixed(2)}</strong></span>
+              <span>Vegetation Status<strong>{result.vegetationStatus}</strong></span>
+              <span>Crop Health<strong>{result.cropHealth}</strong></span>
+              <span>Cloud Cover<strong>{result.cloudCoverStatus}</strong></span>
+              <span>Satellite Date<strong>{result.satelliteDate}</strong></span>
+              <span>Optical Result<strong>{result.opticalResult || "Clear"}</strong></span>
+            </div>
+          </section>
+
+          <section className="satellite-method-card">
+            <h4>Sentinel-1 SAR Fallback</h4>
+            <p>Sentinel-1 SAR is used when clouds block Sentinel-2 imagery. It helps verify field condition during cloudy weather, rain, or night. Sentinel-1 does not calculate NDVI.</p>
+            <div className="satellite-result-grid method-result-grid">
+              <span>SAR Used<strong>{result.sentinel1Sar?.sarUsed ? "Yes" : "No"}</strong></span>
+              <span>VV / VH Signal<strong>{result.sentinel1Sar?.vvSignal} / {result.sentinel1Sar?.vhSignal}</strong></span>
+              <span>Field Moisture Status<strong>{result.sentinel1Sar?.fieldMoistureStatus || "Unknown"}</strong></span>
+              <span>Flood/Disaster Indication<strong>{result.sentinel1Sar?.floodDisasterIndication || "Unknown"}</strong></span>
+              <span>Crop Structure Signal<strong>{result.sentinel1Sar?.cropStructureSignal || "Unknown"}</strong></span>
+              <span>SAR Result<strong>{result.sentinel1Sar?.sarResult || "Uncertain"}</strong></span>
+            </div>
+          </section>
+
+          <section className="satellite-method-card full-width">
+            <h4>Final Satellite Risk</h4>
+            <div className="satellite-result-grid method-result-grid">
+              <span>Risk Level<strong className={`risk-badge ${riskClass(result.riskLevel)}`}>{result.riskLevel}</strong></span>
+            </div>
+            <p className="satellite-risk-reason">{result.riskReason}</p>
+          </section>
         </div>
       ) : null}
     </section>

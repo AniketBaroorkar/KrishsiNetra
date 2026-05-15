@@ -228,14 +228,36 @@ export default function LocationCheckWorkspace() {
         ) : null}
 
         {satelliteResult ? (
-          <div className="satellite-result-grid">
-            <span>NDVI Score<strong>{Number(satelliteResult.ndviScore).toFixed(2)}</strong></span>
-            <span>Vegetation Status<strong>{satelliteResult.vegetationStatus}</strong></span>
-            <span>Crop Health<strong>{satelliteResult.cropHealth}</strong></span>
-            <span>Risk Level<strong className={`risk-badge ${riskClass(satelliteResult.riskLevel)}`}>{satelliteResult.riskLevel}</strong></span>
-            <span>Satellite Date<strong>{satelliteResult.satelliteDate}</strong></span>
-            <span>Cloud Cover Status<strong>{satelliteResult.cloudCoverStatus}</strong></span>
-            <p className="satellite-risk-reason">{satelliteResult.riskReason}</p>
+          <div className="satellite-verification-card-grid">
+            <section className="satellite-method-card">
+              <h4>Sentinel-2 Optical Verification</h4>
+              <div className="satellite-result-grid method-result-grid">
+                <span>NDVI Score<strong>{Number(satelliteResult.ndviScore).toFixed(2)}</strong></span>
+                <span>Vegetation Status<strong>{satelliteResult.vegetationStatus}</strong></span>
+                <span>Crop Health<strong>{satelliteResult.cropHealth}</strong></span>
+                <span>Cloud Cover<strong>{satelliteResult.cloudCoverStatus}</strong></span>
+                <span>Satellite Date<strong>{satelliteResult.satelliteDate}</strong></span>
+                <span>Optical Result<strong>{satelliteResult.opticalResult || "Clear"}</strong></span>
+              </div>
+            </section>
+            <section className="satellite-method-card">
+              <h4>Sentinel-1 SAR Fallback</h4>
+              <div className="satellite-result-grid method-result-grid">
+                <span>SAR Used<strong>{satelliteResult.sentinel1Sar?.sarUsed ? "Yes" : "No"}</strong></span>
+                <span>VV / VH Signal<strong>{satelliteResult.sentinel1Sar?.vvSignal} / {satelliteResult.sentinel1Sar?.vhSignal}</strong></span>
+                <span>Field Moisture Status<strong>{satelliteResult.sentinel1Sar?.fieldMoistureStatus || "Unknown"}</strong></span>
+                <span>Flood/Disaster Indication<strong>{satelliteResult.sentinel1Sar?.floodDisasterIndication || "Unknown"}</strong></span>
+                <span>Crop Structure Signal<strong>{satelliteResult.sentinel1Sar?.cropStructureSignal || "Unknown"}</strong></span>
+                <span>SAR Result<strong>{satelliteResult.sentinel1Sar?.sarResult || "Uncertain"}</strong></span>
+              </div>
+            </section>
+            <section className="satellite-method-card full-width">
+              <h4>Final Satellite Risk</h4>
+              <div className="satellite-result-grid method-result-grid">
+                <span>Risk Level<strong className={`risk-badge ${riskClass(satelliteResult.riskLevel)}`}>{satelliteResult.riskLevel}</strong></span>
+              </div>
+              <p className="satellite-risk-reason">{satelliteResult.riskReason}</p>
+            </section>
           </div>
         ) : (
           <p className="location-empty-result">No satellite result yet. Click Run Satellite Verification after confirming the map location.</p>

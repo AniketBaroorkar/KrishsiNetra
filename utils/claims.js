@@ -1,10 +1,13 @@
 import { demoClaims } from "../data/claimsData";
+import { calculateLocationIntegrity } from "./locationIntegrity";
+import { buildDemoSatelliteResult } from "./satelliteVerification";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 export function calculateRiskScore(claim) {
   let score = 0.08;
   const reasons = [];
+  const locationIntegrity = calculateLocationIntegrity(claim);
 
   if (!claim.hasPhoto && !claim.photoUrl) {
     score += 0.42;
@@ -33,6 +36,24 @@ export function calculateRiskScore(claim) {
     reasons.push("Moderate AI confidence");
   }
 
+  if (locationIntegrity.gpsTrustStatus === "Spoofing Suspected") {
+    score = Math.max(score, 0.76);
+    reasons.push("Location integrity check marked GPS spoofing suspected");
+  } else if (locationIntegrity.locationRiskReason === "GPS coordinates are missing.") {
+    score = Math.max(score, 0.76);
+    reasons.push(locationIntegrity.locationRiskReason);
+  } else if (locationIntegrity.gpsTrustStatus === "Suspicious") {
+    score = Math.max(score, 0.48);
+    reasons.push(locationIntegrity.locationRiskReason);
+  } else if (locationIntegrity.gpsTrustStatus === "Unknown") {
+    score = Math.max(score, 0.4);
+    reasons.push(locationIntegrity.locationRiskReason);
+  }
+  if (claim.photoCaptureType === "Gallery Upload") {
+    score = Math.max(score, 0.4);
+    reasons.push("Photo was uploaded from gallery. Live capture is preferred.");
+  }
+
   const riskScore = Math.min(0.99, Number(score.toFixed(2)));
   if (reasons.length === 0) {
     reasons.push("Crop, photo, GPS, and confidence checks are consistent");
@@ -46,14 +67,43 @@ export function calculateRiskScore(claim) {
 }
 
 export function enrichClaim(claim) {
-  const risk = calculateRiskScore(claim);
+  const fallback = getDemoClaimLocationFields(claim);
+  const baseClaim = { ...fallback, ...claim };
+  const locationIntegrity = calculateLocationIntegrity(baseClaim);
+  const risk = calculateRiskScore(baseClaim);
   return {
-    ...claim,
-    hasPhoto: Boolean(claim.hasPhoto || claim.photoUrl),
-    riskScore: claim.riskScore ?? risk.riskScore,
+    ...baseClaim,
+    ...locationIntegrity,
+    hasPhoto: Boolean(baseClaim.hasPhoto || baseClaim.photoUrl),
+    riskScore: baseClaim.riskScore ?? risk.riskScore,
     riskLevel: risk.riskLevel,
-    fraudReason: claim.fraudReason || risk.fraudReason,
+    fraudReason: baseClaim.fraudReason || risk.fraudReason,
+    satelliteVerification: baseClaim.satelliteVerification || buildDemoSatelliteResult({
+      latitude: baseClaim.gpsLat,
+      longitude: baseClaim.gpsLon,
+      cropType: baseClaim.cropClaimed,
+      submittedAt: baseClaim.submittedAt,
+    }),
   };
+}
+
+function getDemoClaimLocationFields(claim = {}) {
+  const index = Number(String(claim.id || "").replace(/\D/g, "").slice(-3)) || 0;
+  const submittedAt = `${claim.submittedDate || "2026-05-15"}T10:30:00`;
+  const defaults = {
+    gpsAccuracy: 16,
+    gpsTimestamp: submittedAt,
+    gpsProvider: "GPS",
+    isMockLocation: false,
+    photoCaptureType: "Live Camera",
+    submittedAt,
+  };
+
+  if (index === 2 || index === 6) return { ...defaults, gpsAccuracy: 132 };
+  if (index === 5 || index === 8) return { ...defaults, isMockLocation: true, gpsAccuracy: 10 };
+  if (index === 10 || index === 12) return { ...defaults, photoCaptureType: "Gallery Upload" };
+  if (index === 4) return { ...defaults, gpsTimestamp: "2026-05-01T08:00:00" };
+  return defaults;
 }
 
 export function getRiskLevel(score) {
@@ -97,6 +147,12 @@ function normalizeApiClaim(item) {
     claimAmount: item.claimAmount || "Rs. 30,000",
     satelliteResult: item.satelliteResult || item.satellite_result || "Satellite verification result pending.",
     surveyNo: item.surveyNo || farm.survey_number || "Not available",
+    gpsAccuracy: item.gpsAccuracy ?? item.gps_accuracy,
+    gpsTimestamp: item.gpsTimestamp || item.gps_timestamp,
+    gpsProvider: item.gpsProvider || item.gps_provider,
+    isMockLocation: item.isMockLocation ?? item.is_mock_location,
+    photoCaptureType: item.photoCaptureType || item.photo_capture_type,
+    submittedAt: item.submittedAt || item.submitted_at,
   });
 }
 

@@ -1,8 +1,11 @@
 import { demoFarmers } from "../data/farmersData";
+import { calculateLocationIntegrity } from "./locationIntegrity";
+import { buildDemoSatelliteResult } from "./satelliteVerification";
 
 export function calculateFarmerRisk(farmer) {
   let score = 0.08;
   const reasons = [];
+  const locationIntegrity = calculateLocationIntegrity(farmer);
 
   if (!farmer.photoUrl) {
     score += 0.42;
@@ -28,6 +31,24 @@ export function calculateFarmerRisk(farmer) {
     reasons.push("Moderate AI confidence");
   }
 
+  if (locationIntegrity.gpsTrustStatus === "Spoofing Suspected") {
+    score = Math.max(score, 0.76);
+    reasons.push("Location integrity check marked GPS spoofing suspected");
+  } else if (locationIntegrity.locationRiskReason === "GPS coordinates are missing.") {
+    score = Math.max(score, 0.76);
+    reasons.push(locationIntegrity.locationRiskReason);
+  } else if (locationIntegrity.gpsTrustStatus === "Suspicious") {
+    score = Math.max(score, 0.48);
+    reasons.push(locationIntegrity.locationRiskReason);
+  } else if (locationIntegrity.gpsTrustStatus === "Unknown") {
+    score = Math.max(score, 0.4);
+    reasons.push(locationIntegrity.locationRiskReason);
+  }
+  if (farmer.photoCaptureType === "Gallery Upload") {
+    score = Math.max(score, 0.4);
+    reasons.push("Photo was uploaded from gallery. Live capture is preferred.");
+  }
+
   const riskScore = Math.min(0.99, Number(score.toFixed(2)));
   return {
     riskScore,
@@ -37,19 +58,56 @@ export function calculateFarmerRisk(farmer) {
 }
 
 export function enrichFarmer(farmer) {
-  const risk = calculateFarmerRisk(farmer);
+  const fallback = getDemoLocationFields(farmer);
+  const baseFarmer = { ...fallback, ...farmer };
+  const locationIntegrity = calculateLocationIntegrity(baseFarmer);
+  const risk = calculateFarmerRisk(baseFarmer);
   return {
-    ...farmer,
-    riskScore: farmer.riskScore ?? risk.riskScore,
-    riskLevel: farmer.riskLevel || risk.riskLevel,
-    riskReason: farmer.riskReason || risk.riskReason,
+    ...baseFarmer,
+    ...locationIntegrity,
+    riskScore: baseFarmer.riskScore ?? risk.riskScore,
+    riskLevel: baseFarmer.riskLevel || risk.riskLevel,
+    riskReason: baseFarmer.riskReason || risk.riskReason,
     satelliteResult:
-      farmer.satelliteResult ||
+      baseFarmer.satelliteResult ||
       (risk.riskLevel === "High"
         ? "Satellite verification needs officer review due to missing or mismatched evidence."
         : "Satellite vegetation signal supports the submitted crop area."),
-    alertHistory: farmer.alertHistory || [],
+    satelliteVerification: baseFarmer.satelliteVerification || buildDemoSatelliteResult({
+      latitude: baseFarmer.latitude,
+      longitude: baseFarmer.longitude,
+      cropType: baseFarmer.cropType,
+      submittedAt: baseFarmer.submittedAt,
+    }),
+    alertHistory: baseFarmer.alertHistory || [],
   };
+}
+
+function getDemoLocationFields(farmer = {}) {
+  const index = Number(String(farmer.farmerId || "").replace(/\D/g, "")) || 0;
+  const submittedAt = `${farmer.submissionDate || "2026-05-15"}T10:30:00`;
+  const defaults = {
+    gpsAccuracy: 18,
+    gpsTimestamp: submittedAt,
+    gpsProvider: "GPS",
+    isMockLocation: false,
+    photoCaptureType: "Live Camera",
+    submittedAt,
+  };
+
+  if (index === 2 || index === 4) {
+    return { ...defaults, gpsAccuracy: 145 };
+  }
+  if (index === 3 || index === 5) {
+    return { ...defaults, isMockLocation: true, gpsAccuracy: 12 };
+  }
+  if (index === 8 || index === 12) {
+    return { ...defaults, photoCaptureType: "Gallery Upload" };
+  }
+  if (index === 13) {
+    return { ...defaults, gpsAccuracy: "", gpsProvider: "Unknown", isMockLocation: "unknown", photoCaptureType: "Unknown" };
+  }
+  return defaults;
 }
 
 export function getDemoFarmers() {
@@ -97,6 +155,13 @@ const farmerExportColumns = [
   ["Survey Number", "surveyNumber"],
   ["GPS Latitude", "latitude"],
   ["GPS Longitude", "longitude"],
+  ["GPS Accuracy", "gpsAccuracy"],
+  ["GPS Timestamp", "gpsTimestamp"],
+  ["GPS Provider", "gpsProvider"],
+  ["Mock Location", "isMockLocation"],
+  ["GPS Trust Status", "gpsTrustStatus"],
+  ["Location Risk Reason", "locationRiskReason"],
+  ["Photo Capture Type", "photoCaptureType"],
   ["Claim Status", "claimStatus"],
   ["Risk Score", "riskScore"],
   ["Disaster Alert Status", "disasterAlertStatus"],
