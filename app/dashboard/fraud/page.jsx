@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Clock, Flag } from "lucide-react";
+import { AlertTriangle, Flag, MapPinOff, Radar, ShieldAlert } from "lucide-react";
 
 import { useLanguage } from "../../../components/LanguageProvider";
 import { getDemoFarmers } from "../../../utils/farmers";
@@ -33,9 +33,10 @@ export default function FraudAlertsPage() {
   const { t } = useLanguage();
   const farmers = getDemoFarmers();
   const highRisk = farmers.filter((farmer) => farmer.riskLevel === "High");
-  const mediumRisk = farmers.filter((farmer) => farmer.riskLevel === "Medium");
-  const flagged = farmers.filter((farmer) => ["Flagged", "High Risk"].includes(farmer.claimStatus));
-  const verified = farmers.filter((farmer) => ["Verified", "Approved"].includes(farmer.claimStatus));
+  const spoofingSuspected = farmers.filter((farmer) => farmer.gpsTrustStatus === "Spoofing Suspected");
+  const missingGps = farmers.filter((farmer) => !farmer.latitude || !farmer.longitude);
+  const lowNdvi = farmers.filter((farmer) => Number(farmer.satelliteVerification?.ndviScore || 1) < 0.2);
+  const cropMismatch = farmers.filter((farmer) => farmer.cropType !== farmer.predictedCrop);
 
   return (
     <section className="gov-page">
@@ -45,14 +46,33 @@ export default function FraudAlertsPage() {
           <h1>{t("fraudTitle")}</h1>
           <p>{t("fraudSubtitle")}</p>
         </div>
-        <span className="api-notice">{t("usingDemo")}</span>
+        <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
 
-      <div className="analytics-summary-grid">
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><AlertTriangle size={20} /></span><span>{t("highRisk")}</span><strong>{highRisk.length}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><Clock size={20} /></span><span>{t("mediumRisk")}</span><strong>{mediumRisk.length}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><Flag size={20} /></span><span>{t("flaggedClaims")}</span><strong>{flagged.length}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><CheckCircle2 size={20} /></span><span>{t("verifiedClaims")}</span><strong>{verified.length}</strong></article>
+      <div className="analytics-summary-grid fraud-summary-grid">
+        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><AlertTriangle size={20} /></span><span>{t("highRiskClaims")}</span><strong>{highRisk.length}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><ShieldAlert size={20} /></span><span>GPS Spoofing Suspected</span><strong>{spoofingSuspected.length}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><MapPinOff size={20} /></span><span>{t("missingGps")}</span><strong>{missingGps.length}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><Radar size={20} /></span><span>Low NDVI</span><strong>{lowNdvi.length}</strong></article>
+        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><Flag size={20} /></span><span>Crop Mismatch</span><strong>{cropMismatch.length}</strong></article>
+      </div>
+
+      <div className="fraud-reason-grid">
+        <article className="gov-card">
+          <span className="risk-badge high">High Priority</span>
+          <h2>Location Integrity Review</h2>
+          <p>GPS spoofing signals, missing coordinates, or poor GPS accuracy move the claim into officer review.</p>
+        </article>
+        <article className="gov-card">
+          <span className="risk-badge medium">Satellite Review</span>
+          <h2>NDVI and SAR Signals</h2>
+          <p>Low vegetation score or uncertain Sentinel evidence is highlighted without automatically rejecting the claim.</p>
+        </article>
+        <article className="gov-card">
+          <span className="risk-badge low">Crop Evidence</span>
+          <h2>AI Crop Match</h2>
+          <p>Claimed crop and predicted crop are compared with farmer photo and satellite evidence for final risk scoring.</p>
+        </article>
       </div>
 
       <section className="gov-card">

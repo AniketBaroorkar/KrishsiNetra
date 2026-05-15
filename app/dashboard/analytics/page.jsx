@@ -103,6 +103,7 @@ export default function AnalyticsPage() {
           <h1>{t("analyticsTitle")}</h1>
           <p>{t("analyticsSubtitle")}</p>
         </div>
+        <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
 
       <div className="analytics-summary-grid">

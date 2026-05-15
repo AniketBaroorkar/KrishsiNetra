@@ -55,8 +55,10 @@ export default function SatelliteVerificationWorkspace() {
           <h1>Satellite Verification</h1>
           <p>Run Sentinel-2 NDVI checks only when an officer selects a farmer, keeping the dashboard fast and credentials server-side.</p>
         </div>
-        <span className="api-notice">Server route: POST /api/satellite/verify</span>
+        <span className="api-notice">Contact: 9579207219</span>
       </div>
+
+      <p className="demo-satellite-note satellite-route-note">Server route: POST /api/satellite/verify</p>
 
       <div className="claims-toolbar satellite-toolbar">
         <label className="claims-search">

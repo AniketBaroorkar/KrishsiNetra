@@ -4815,3 +4815,160 @@ tr.risk-clean td {
     grid-template-columns: 1fr;
   }
 }
+
+/* Shared government dashboard design system refinements for secondary pages. */
+.analytics-summary-grid,
+.dashboard-insight-grid,
+.fraud-reason-grid,
+.satellite-overview-grid,
+.location-check-layout,
+.alert-layout {
+  align-items: stretch;
+}
+
+.claims-data-notice,
+.farmer-data-notice,
+.satellite-route-note {
+  margin: -4px 0 16px;
+}
+
+.fraud-reason-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.fraud-reason-grid h2,
+.about-info-card h3 {
+  margin: 12px 0 8px;
+  color: #123820;
+}
+
+.fraud-reason-grid p,
+.about-info-card p {
+  margin: 0;
+  color: #52635a;
+  line-height: 1.6;
+}
+
+.dashboard-map-preview {
+  min-height: 360px;
+  margin-top: 14px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.34) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,0.34) 1px, transparent 1px),
+    linear-gradient(135deg, #d9edc5, #8ccf88 45%, #e7d28d);
+  background-size: 42px 42px;
+}
+
+.map-preview-pin {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #166534;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(15, 32, 24, 0.22);
+}
+
+.map-preview-pin.medium {
+  background: #d97706;
+}
+
+.map-preview-pin.high {
+  background: #b91c1c;
+}
+
+.map-overview-card {
+  margin-bottom: 16px;
+}
+
+.about-platform-page {
+  min-height: 100vh;
+  padding: 24px;
+  background: #f4f9f1;
+}
+
+.about-gov-page {
+  display: grid;
+  gap: 16px;
+}
+
+.about-gov-page .krishi-brand-lockup {
+  width: fit-content;
+  border: 1px solid #d9e9d9;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(57, 91, 62, 0.1);
+}
+
+.about-gov-header {
+  margin-bottom: 0;
+}
+
+.about-info-card {
+  min-height: auto;
+}
+
+.about-info-card .gov-stat-icon {
+  margin-bottom: 8px;
+}
+
+.about-section-heading {
+  max-width: 980px;
+}
+
+.about-section-heading h2 {
+  margin: 8px 0 0;
+  color: #123820;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.12;
+}
+
+.integrity-explainer-section.gov-card {
+  padding: 18px;
+}
+
+.integrity-explainer-section.gov-card .integrity-explainer-card,
+.integrity-explainer-section.gov-card .integrity-example-card,
+.integrity-explainer-section.gov-card .verification-flow {
+  box-shadow: none;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-seven,
+  .gov-stat-grid.six,
+  .analytics-summary-grid,
+  .fraud-summary-grid,
+  .fraud-reason-grid,
+  .about-story-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .fraud-reason-grid,
+  .about-story-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-platform-page {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-seven,
+  .gov-stat-grid.six,
+  .analytics-summary-grid,
+  .fraud-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

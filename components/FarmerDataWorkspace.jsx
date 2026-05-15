@@ -254,6 +254,13 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
     });
   }, [farmers, filters]);
 
+  const pageStats = useMemo(() => ({
+    total: farmers.length,
+    verified: farmers.filter((farmer) => ["Verified", "Approved"].includes(farmer.claimStatus)).length,
+    highRisk: farmers.filter((farmer) => farmer.riskLevel === "High").length,
+    spoofing: farmers.filter((farmer) => farmer.gpsTrustStatus === "Spoofing Suspected").length,
+  }), [farmers]);
+
   function updateFilter(key, value) {
     setFilters((current) => ({ ...current, [key]: value }));
   }
@@ -311,7 +318,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
             <p>{t("farmerDataSubtitle")}</p>
           </div>
           <div className="farmer-header-actions">
-            <span className="api-notice">{t(noticeKey)}</span>
+            <span className="api-notice">{t("contact")}: 9579207219</span>
             <button className="download-csv-btn" type="button" onClick={() => downloadFarmersCsv(farmers)}>
               <Download size={17} aria-hidden="true" />
               {t("downloadFarmerData")}
@@ -325,19 +332,27 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
       ) : null}
 
       {!compact ? (
-        <div className="farmer-profile-grid">
-          {filtered.slice(0, 4).map((farmer) => (
-            <article className="farmer-profile-card" key={farmer.farmerId}>
-              <img src={farmer.photoUrl || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80"} alt="" />
-              <div>
-                <strong>{farmer.farmerName}</strong>
-                <span>{farmer.cropType} - {farmer.district}</span>
-              </div>
-              <span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)}</span>
-            </article>
-          ))}
+        <div className="analytics-summary-grid">
+          <article className="gov-stat-card analytics-stat-card">
+            <span>{t("totalFarmers")}</span>
+            <strong>{pageStats.total}</strong>
+          </article>
+          <article className="gov-stat-card analytics-stat-card">
+            <span>{t("verifiedClaims")}</span>
+            <strong>{pageStats.verified}</strong>
+          </article>
+          <article className="gov-stat-card analytics-stat-card">
+            <span>{t("highRiskFarmers")}</span>
+            <strong>{pageStats.highRisk}</strong>
+          </article>
+          <article className="gov-stat-card analytics-stat-card">
+            <span>GPS Spoofing Suspected</span>
+            <strong>{pageStats.spoofing}</strong>
+          </article>
         </div>
       ) : null}
+
+      {!compact ? <p className="demo-satellite-note farmer-data-notice">{t(noticeKey)}</p> : null}
 
       <div className="claims-toolbar farmer-toolbar">
         <label className="claims-search">

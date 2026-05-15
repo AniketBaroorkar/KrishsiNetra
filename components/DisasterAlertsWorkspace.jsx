@@ -139,7 +139,7 @@ export default function DisasterAlertsWorkspace() {
           <label>{t("language")}<select value={form.language} onChange={(event) => updateField("language", event.target.value)}>{["English", "Marathi", "Hindi"].map((item) => <option key={item}>{item}</option>)}</select></label>
           <label className="wide">{t("messageTitle")}<input value={form.title} onChange={(event) => updateField("title", event.target.value)} /></label>
           <label className="wide">{t("messageBody")}<textarea value={form.message} onChange={(event) => updateField("message", event.target.value)} /></label>
-          <button className="krishi-cta primary" type="button" onClick={sendAlert}>
+          <button className="download-csv-btn" type="button" onClick={sendAlert}>
             <Send size={17} aria-hidden="true" />
             {t("sendAlert")}
           </button>

@@ -259,6 +259,7 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
     return {
       total: claims.length,
       verified: claims.filter((claim) => claim.status === "Verified" || claim.status === "Approved").length,
+      approved: claims.filter((claim) => claim.status === "Approved").length,
       flagged: claims.filter((claim) => claim.status === "Flagged").length,
       rejected: claims.filter((claim) => claim.status === "Rejected").length,
       highRisk: claims.filter((claim) => (claim.riskLevel || getRiskLevel(claim.riskScore)) === "High").length,
@@ -296,7 +297,7 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
           <h1>{mode === "overview" ? t("dashboardTitle") : t("claimsTitle")}</h1>
           <p>{t("claimsSubtitle")}</p>
         </div>
-        <span className="api-notice">{t(apiNoticeKey)}</span>
+        <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
 
       <div className="gov-stat-grid six">
@@ -306,14 +307,14 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
           <strong>{stats.total}</strong>
         </article>
         <article className="gov-stat-card">
-          <span className="gov-stat-icon"><CheckCircle2 size={20} aria-hidden="true" /></span>
-          <span>{t("verifiedClaims")}</span>
-          <strong>{stats.verified}</strong>
+          <span className="gov-stat-icon"><Eye size={20} aria-hidden="true" /></span>
+          <span>{t("pendingClaims")}</span>
+          <strong>{stats.pending}</strong>
         </article>
         <article className="gov-stat-card">
-          <span className="gov-stat-icon"><Flag size={20} aria-hidden="true" /></span>
-          <span>{t("flaggedClaims")}</span>
-          <strong>{stats.flagged}</strong>
+          <span className="gov-stat-icon"><CheckCircle2 size={20} aria-hidden="true" /></span>
+          <span>{t("approved")}</span>
+          <strong>{stats.approved || stats.verified}</strong>
         </article>
         <article className="gov-stat-card">
           <span className="gov-stat-icon"><ThumbsDown size={20} aria-hidden="true" /></span>
@@ -321,16 +322,18 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
           <strong>{stats.rejected}</strong>
         </article>
         <article className="gov-stat-card">
+          <span className="gov-stat-icon"><Flag size={20} aria-hidden="true" /></span>
+          <span>{t("flaggedClaims")}</span>
+          <strong>{stats.flagged}</strong>
+        </article>
+        <article className="gov-stat-card">
           <span className="gov-stat-icon"><AlertTriangle size={20} aria-hidden="true" /></span>
           <span>{t("highRiskClaims")}</span>
           <strong>{stats.highRisk}</strong>
         </article>
-        <article className="gov-stat-card">
-          <span className="gov-stat-icon"><Eye size={20} aria-hidden="true" /></span>
-          <span>{t("pendingClaims")}</span>
-          <strong>{stats.pending}</strong>
-        </article>
       </div>
+
+      <p className="demo-satellite-note claims-data-notice">{t(apiNoticeKey)}</p>
 
       <div className="claims-toolbar">
         <label className="claims-search">

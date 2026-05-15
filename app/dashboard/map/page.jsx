@@ -36,7 +36,7 @@ export default function MapPage() {
           <h1>{t("mapTitle")}</h1>
           <p>{t("mapSubtitle")}</p>
         </div>
-        <span className="api-notice">{t("usingDemo")}</span>
+        <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
 
       <div className="analytics-summary-grid">
@@ -45,6 +45,33 @@ export default function MapPage() {
         <article className="gov-stat-card analytics-stat-card"><span>{t("missingGps")}</span><strong>{farmers.length - mappedFarmers.length}</strong></article>
         <article className="gov-stat-card analytics-stat-card"><span>{t("highRisk")}</span><strong>{highRisk}</strong></article>
       </div>
+
+      <section className="gov-card map-overview-card">
+        <div className="friendly-card-heading">
+          <h2>{t("liveMap")}</h2>
+          <p>{t("mapSubtitle")}</p>
+        </div>
+        <div className="mini-map dashboard-map-preview">
+          <span className="map-grid-label">Maharashtra Farmer GPS Overview</span>
+          <i className="map-field one" />
+          <i className="map-field two" />
+          <i className="map-field three" />
+          <i className="map-field four" />
+          {mappedFarmers.slice(0, 7).map((farmer, index) => (
+            <span
+              className={`map-preview-pin ${farmer.riskLevel.toLowerCase()}`}
+              key={farmer.farmerId}
+              style={{
+                left: `${18 + ((index * 11) % 62)}%`,
+                top: `${24 + ((index * 9) % 46)}%`,
+              }}
+              title={`${farmer.farmerName} - ${farmer.cropType}`}
+            >
+              <MapPin size={15} aria-hidden="true" />
+            </span>
+          ))}
+        </div>
+      </section>
 
       <section className="gov-card">
         <div className="friendly-card-heading">
