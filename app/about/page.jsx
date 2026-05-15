@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Bell, Camera, Satellite, ShieldCheck, Sprout } from "lucide-react";
 
+import BackButton from "../../components/BackButton";
 import { useLanguage } from "../../components/LanguageProvider";
 
 export default function AboutPage() {
@@ -14,6 +15,7 @@ export default function AboutPage() {
           <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
           <span><strong>{t("appName")}</strong><small>{t("subtitle")}</small></span>
         </Link>
+        <BackButton fallbackPath="/dashboard" />
 
         <div className="gov-page-header about-gov-header">
           <div>

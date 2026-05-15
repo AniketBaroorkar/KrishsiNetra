@@ -2993,6 +2993,26 @@ tr.risk-clean td {
   font-weight: 900;
 }
 
+.dashboard-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border: 1px solid #cfe0d4;
+  border-radius: 999px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: #14532d;
+  cursor: pointer;
+  font-weight: 950;
+  box-shadow: 0 12px 28px rgba(15, 47, 30, 0.16);
+}
+
+.dashboard-menu-backdrop {
+  display: none;
+}
+
 .gov-topbar {
   position: sticky;
   top: 0;
@@ -4354,6 +4374,30 @@ tr.risk-clean td {
   margin-bottom: 16px;
 }
 
+.farmer-page {
+  padding-inline: 0;
+}
+
+.farmer-page .gov-page-header {
+  align-items: flex-start;
+}
+
+.farmer-toolbar {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.farmer-toolbar .claims-search {
+  grid-column: span 2;
+}
+
+.farmer-table td:last-child {
+  min-width: 250px;
+}
+
+.farmer-table .view-detail-btn {
+  margin: 3px 4px 3px 0;
+}
+
 .gov-page,
 .page,
 .friendly-page,
@@ -4786,14 +4830,49 @@ tr.risk-clean td {
 
 @media (max-width: 1100px) {
   .gov-dashboard-shell {
-    flex-direction: column;
+    display: block;
+    padding-top: 66px;
   }
 
   .gov-sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 140;
+    width: min(320px, calc(100vw - 48px));
+    height: 100vh;
     flex-basis: auto;
+    transform: translateX(-105%);
+    transition: transform 180ms ease;
+  }
+
+  .gov-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .dashboard-menu-toggle {
+    position: fixed;
+    top: 12px;
+    left: 14px;
+    z-index: 160;
+    display: inline-flex;
+  }
+
+  .dashboard-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 130;
+    display: block;
+    border: 0;
+    background: rgba(15, 47, 30, 0.42);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  .dashboard-menu-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .gov-dashboard-main {
@@ -4809,6 +4888,14 @@ tr.risk-clean td {
 @media (max-width: 640px) {
   .gov-dashboard-main {
     padding: 12px;
+  }
+
+  .dashboard-content-container > .back-button {
+    margin-left: 0;
+  }
+
+  .farmer-toolbar .claims-search {
+    grid-column: auto;
   }
 
   .location-card-grid {
