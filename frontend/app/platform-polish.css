@@ -148,8 +148,11 @@ body {
   font-weight: var(--fw-regular);
 }
 
-/* Footer */
+/* Footer — sticky at viewport bottom, mirroring the sticky top header */
 .krishi-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 80;
   font-size: var(--fs-sm);
   font-weight: var(--fw-regular);
 }
