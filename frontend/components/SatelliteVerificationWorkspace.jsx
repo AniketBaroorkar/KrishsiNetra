@@ -58,8 +58,6 @@ export default function SatelliteVerificationWorkspace() {
         <span className="api-notice">Contact: 9579207219</span>
       </div>
 
-      <p className="demo-satellite-note satellite-route-note">Server route: POST /api/satellite/verify</p>
-
       <div className="claims-toolbar satellite-toolbar">
         <label className="claims-search">
           <Search size={17} aria-hidden="true" />

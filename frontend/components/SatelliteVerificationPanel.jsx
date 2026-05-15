@@ -91,11 +91,6 @@ export default function SatelliteVerificationPanel({ record, uploadedPhotoUrl, t
       </div>
 
       {error ? <p className="upload-status error">{error}</p> : null}
-      {result?.isDemo ? (
-        <p className="demo-satellite-note">
-          {result.demoReason || "Demo satellite result shown because Sentinel API credentials are not configured."}
-        </p>
-      ) : null}
 
       {result ? (
         <div className="satellite-verification-card-grid">

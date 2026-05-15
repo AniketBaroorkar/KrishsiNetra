@@ -352,8 +352,6 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         </div>
       ) : null}
 
-      {!compact ? <p className="demo-satellite-note farmer-data-notice">{t(noticeKey)}</p> : null}
-
       <div className="claims-toolbar farmer-toolbar">
         <label className="claims-search">
           <Search size={17} aria-hidden="true" />

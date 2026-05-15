@@ -112,7 +112,6 @@ function ClaimDetailsModal({ claim, onClose, onStatusChange, t }) {
         <div className="claim-modal-grid">
           <div className="claim-photo-panel">
             {claim.photoUrl ? (
-              // External demo image. Replace with backend-uploaded photo URL in production.
               <img src={claim.photoUrl} alt={`${claim.cropClaimed} claim submitted by ${claim.farmerName}`} />
             ) : (
               <div className="missing-photo">
@@ -332,8 +331,6 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
           <strong>{stats.highRisk}</strong>
         </article>
       </div>
-
-      <p className="demo-satellite-note claims-data-notice">{t(apiNoticeKey)}</p>
 
       <div className="claims-toolbar">
         <label className="claims-search">

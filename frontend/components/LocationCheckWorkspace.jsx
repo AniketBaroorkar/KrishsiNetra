@@ -221,12 +221,6 @@ export default function LocationCheckWorkspace() {
           </button>
         </div>
 
-        {satelliteResult?.isDemo ? (
-          <p className="demo-satellite-note">
-            {satelliteResult.demoReason || "Demo satellite result shown because Sentinel API credentials are not configured."}
-          </p>
-        ) : null}
-
         {satelliteResult ? (
           <div className="satellite-verification-card-grid">
             <section className="satellite-method-card">
