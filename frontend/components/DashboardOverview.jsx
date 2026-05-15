@@ -11,7 +11,7 @@ import { demoAlerts } from "../data/alertsData";
 import { getDemoFarmers, uniqueValues } from "../utils/farmers";
 
 const STATUS_TONES = [
-  { key: "verified", label: "Verified", color: "#22c55e" },
+  { key: "verified", label: "Verified", color: "#166534" },
   { key: "pending", label: "Pending", color: "#3b82f6" },
   { key: "flagged", label: "Flagged", color: "#f59e0b" },
   { key: "highRisk", label: "High Risk", color: "#ef4444" },
@@ -153,7 +153,7 @@ export default function DashboardOverview() {
             <h2>{t("cropDistribution")}</h2>
             <p>Claims grouped by crop, ranked by volume</p>
           </div>
-          <CategoryBarChart data={cropSummary} labelKey="crop" valueKey="count" color="#22c55e" />
+          <CategoryBarChart data={cropSummary} labelKey="crop" valueKey="count" color="#166534" />
         </section>
         <section className="gov-card">
           <div className="friendly-card-heading">

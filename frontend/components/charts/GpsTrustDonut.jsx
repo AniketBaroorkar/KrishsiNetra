@@ -3,7 +3,7 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const COLORS = {
-  Valid: "#22c55e",
+  Valid: "#166534",
   Suspicious: "#f59e0b",
   "Spoofing Suspected": "#ef4444",
   Unknown: "#94a3b8",

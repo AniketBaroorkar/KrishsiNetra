@@ -3,7 +3,7 @@
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const COLORS = {
-  Low: "#22c55e",
+  Low: "#166534",
   Medium: "#f59e0b",
   High: "#ef4444",
 };

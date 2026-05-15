@@ -23,7 +23,7 @@ const statusOptions = ["All", "Pending", "Verified", "Approved", "Rejected", "Fl
 
 const CLAIM_STATUS_TONES = [
   { key: "pending", label: "Pending", color: "#3b82f6" },
-  { key: "approved", label: "Approved", color: "#22c55e" },
+  { key: "approved", label: "Approved", color: "#166534" },
   { key: "rejected", label: "Rejected", color: "#ef4444" },
   { key: "flagged", label: "Flagged", color: "#f59e0b" },
 ];
