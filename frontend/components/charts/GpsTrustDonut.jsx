@@ -3,10 +3,10 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const COLORS = {
-  Valid: "#166534",
-  Suspicious: "#d97706",
-  "Spoofing Suspected": "#dc2626",
-  Unknown: "#6b7280",
+  Valid: "#22c55e",
+  Suspicious: "#f59e0b",
+  "Spoofing Suspected": "#ef4444",
+  Unknown: "#94a3b8",
 };
 
 export default function GpsTrustDonut({ data, height = 220 }) {

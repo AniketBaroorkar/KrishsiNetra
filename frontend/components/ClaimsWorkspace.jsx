@@ -22,10 +22,10 @@ const riskOptions = ["All", "Low", "Medium", "High"];
 const statusOptions = ["All", "Pending", "Verified", "Approved", "Rejected", "Flagged", "High Risk"];
 
 const CLAIM_STATUS_TONES = [
-  { key: "pending", label: "Pending", color: "#0369a1" },
-  { key: "approved", label: "Approved", color: "#166534" },
-  { key: "rejected", label: "Rejected", color: "#991b1b" },
-  { key: "flagged", label: "Flagged", color: "#b45309" },
+  { key: "pending", label: "Pending", color: "#3b82f6" },
+  { key: "approved", label: "Approved", color: "#22c55e" },
+  { key: "rejected", label: "Rejected", color: "#ef4444" },
+  { key: "flagged", label: "Flagged", color: "#f59e0b" },
 ];
 
 function riskBadgeClass(level) {

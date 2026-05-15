@@ -11,10 +11,10 @@ import { demoAlerts } from "../data/alertsData";
 import { getDemoFarmers, uniqueValues } from "../utils/farmers";
 
 const STATUS_TONES = [
-  { key: "verified", label: "Verified", color: "#166534" },
-  { key: "pending", label: "Pending", color: "#0369a1" },
-  { key: "flagged", label: "Flagged", color: "#b45309" },
-  { key: "highRisk", label: "High Risk", color: "#991b1b" },
+  { key: "verified", label: "Verified", color: "#22c55e" },
+  { key: "pending", label: "Pending", color: "#3b82f6" },
+  { key: "flagged", label: "Flagged", color: "#f59e0b" },
+  { key: "highRisk", label: "High Risk", color: "#ef4444" },
 ];
 
 export default function DashboardOverview() {
@@ -153,14 +153,14 @@ export default function DashboardOverview() {
             <h2>{t("cropDistribution")}</h2>
             <p>Claims grouped by crop, ranked by volume</p>
           </div>
-          <CategoryBarChart data={cropSummary} labelKey="crop" valueKey="count" color="#166534" />
+          <CategoryBarChart data={cropSummary} labelKey="crop" valueKey="count" color="#22c55e" />
         </section>
         <section className="gov-card">
           <div className="friendly-card-heading">
             <h2>{t("districtSummary")}</h2>
             <p>Claims grouped by district, ranked by volume</p>
           </div>
-          <CategoryBarChart data={districtSummary} labelKey="district" valueKey="count" color="#0369a1" />
+          <CategoryBarChart data={districtSummary} labelKey="district" valueKey="count" color="#3b82f6" />
         </section>
       </div>
 

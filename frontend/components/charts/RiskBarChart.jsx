@@ -3,9 +3,9 @@
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const COLORS = {
-  Low: "#166534",
-  Medium: "#d97706",
-  High: "#dc2626",
+  Low: "#22c55e",
+  Medium: "#f59e0b",
+  High: "#ef4444",
 };
 
 export default function RiskBarChart({ data, height = 200 }) {
