@@ -357,11 +357,13 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
           <Search size={17} aria-hidden="true" />
           <input value={filters.query} onChange={(event) => updateFilter("query", event.target.value)} placeholder={`${t("search")} ${t("farmerName")} / ${t("mobileNumber")}`} />
         </label>
-        <label>{t("district")}<select value={filters.district} onChange={(event) => updateFilter("district", event.target.value)}>{districts.map((item) => <option key={item}>{item}</option>)}</select></label>
-        <label>{t("cropType")}<select value={filters.crop} onChange={(event) => updateFilter("crop", event.target.value)}>{crops.map((item) => <option key={item}>{item}</option>)}</select></label>
-        <label>{t("riskScore")}<select value={filters.risk} onChange={(event) => updateFilter("risk", event.target.value)}>{["All", "Low", "Medium", "High"].map((item) => <option key={item} value={item}>{riskLabel(item, t)}</option>)}</select></label>
-        <label>{t("status")}<select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>{statuses.map((item) => <option key={item} value={item}>{statusLabel(item, t)}</option>)}</select></label>
-        <label>GPS Trust Status<select value={filters.gpsTrust} onChange={(event) => updateFilter("gpsTrust", event.target.value)}>{gpsTrustStatuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+        <div className="claims-toolbar-filters">
+          <label>{t("district")}<select value={filters.district} onChange={(event) => updateFilter("district", event.target.value)}>{districts.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>{t("cropType")}<select value={filters.crop} onChange={(event) => updateFilter("crop", event.target.value)}>{crops.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>{t("riskScore")}<select value={filters.risk} onChange={(event) => updateFilter("risk", event.target.value)}>{["All", "Low", "Medium", "High"].map((item) => <option key={item} value={item}>{riskLabel(item, t)}</option>)}</select></label>
+          <label>{t("status")}<select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>{statuses.map((item) => <option key={item} value={item}>{statusLabel(item, t)}</option>)}</select></label>
+          <label>GPS Trust Status<select value={filters.gpsTrust} onChange={(event) => updateFilter("gpsTrust", event.target.value)}>{gpsTrustStatuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+        </div>
       </div>
 
       <section className="gov-card">

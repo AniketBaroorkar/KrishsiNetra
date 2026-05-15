@@ -341,24 +341,26 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
             placeholder={`${t("search")} ${t("claimId")}, ${t("farmerName")}, ${t("phoneNumber")}, ${t("village")}, ${t("district")}, ${t("cropType")}`}
           />
         </label>
-        <label>
-          {t("status")}
-          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-            {statusOptions.map((status) => <option key={status} value={status}>{statusLabel(status, t)}</option>)}
-          </select>
-        </label>
-        <label>
-          {t("riskScore")}
-          <select value={riskFilter} onChange={(event) => setRiskFilter(event.target.value)}>
-            {riskOptions.map((risk) => <option key={risk} value={risk}>{riskLabel(risk, t)}</option>)}
-          </select>
-        </label>
-        <label>
-          GPS Trust Status
-          <select value={gpsTrustFilter} onChange={(event) => setGpsTrustFilter(event.target.value)}>
-            {["All", "Valid", "Suspicious", "Spoofing Suspected", "Unknown"].map((status) => <option key={status} value={status}>{status}</option>)}
-          </select>
-        </label>
+        <div className="claims-toolbar-filters">
+          <label>
+            {t("status")}
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+              {statusOptions.map((status) => <option key={status} value={status}>{statusLabel(status, t)}</option>)}
+            </select>
+          </label>
+          <label>
+            {t("riskScore")}
+            <select value={riskFilter} onChange={(event) => setRiskFilter(event.target.value)}>
+              {riskOptions.map((risk) => <option key={risk} value={risk}>{riskLabel(risk, t)}</option>)}
+            </select>
+          </label>
+          <label>
+            GPS Trust Status
+            <select value={gpsTrustFilter} onChange={(event) => setGpsTrustFilter(event.target.value)}>
+              {["All", "Valid", "Suspicious", "Spoofing Suspected", "Unknown"].map((status) => <option key={status} value={status}>{status}</option>)}
+            </select>
+          </label>
+        </div>
       </div>
 
       {mode === "overview" ? (

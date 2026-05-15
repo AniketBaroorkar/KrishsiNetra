@@ -63,16 +63,18 @@ export default function SatelliteVerificationWorkspace() {
           <Search size={17} aria-hidden="true" />
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search farmer, phone, village, district, crop" />
         </label>
-        <label>
-          Select Farmer
-          <select value={selectedFarmer?.farmerId || ""} onChange={(event) => setSelectedFarmerId(event.target.value)}>
-            {filteredFarmers.map((farmer) => (
-              <option key={farmer.farmerId} value={farmer.farmerId}>
-                {farmer.farmerName} - {farmer.cropType}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="claims-toolbar-filters">
+          <label>
+            Select Farmer
+            <select value={selectedFarmer?.farmerId || ""} onChange={(event) => setSelectedFarmerId(event.target.value)}>
+              {filteredFarmers.map((farmer) => (
+                <option key={farmer.farmerId} value={farmer.farmerId}>
+                  {farmer.farmerName} - {farmer.cropType}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
 
       <div className="satellite-overview-grid">
