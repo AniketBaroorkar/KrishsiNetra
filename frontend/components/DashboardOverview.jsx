@@ -6,6 +6,7 @@ import { useLanguage } from "./LanguageProvider";
 import FarmerDataWorkspace from "./FarmerDataWorkspace";
 import RiskBarChart from "./charts/RiskBarChart";
 import GpsTrustDonut from "./charts/GpsTrustDonut";
+import CategoryBarChart from "./charts/CategoryBarChart";
 import { demoAlerts } from "../data/alertsData";
 import { getDemoFarmers, uniqueValues } from "../utils/farmers";
 
@@ -150,24 +151,16 @@ export default function DashboardOverview() {
         <section className="gov-card">
           <div className="friendly-card-heading">
             <h2>{t("cropDistribution")}</h2>
-            <p>Claims by crop type</p>
+            <p>Claims grouped by crop, ranked by volume</p>
           </div>
-          <div className="chip-grid">
-            {cropSummary.map((item) => (
-              <span className="crop-chip" key={item.crop}>{item.crop}: {item.count}</span>
-            ))}
-          </div>
+          <CategoryBarChart data={cropSummary} labelKey="crop" valueKey="count" color="#166534" />
         </section>
         <section className="gov-card">
           <div className="friendly-card-heading">
             <h2>{t("districtSummary")}</h2>
-            <p>Claims by district</p>
+            <p>Claims grouped by district, ranked by volume</p>
           </div>
-          <div className="chip-grid">
-            {districtSummary.map((item) => (
-              <span className="district-chip" key={item.district}>{item.district}: {item.count}</span>
-            ))}
-          </div>
+          <CategoryBarChart data={districtSummary} labelKey="district" valueKey="count" color="#0369a1" />
         </section>
       </div>
 
