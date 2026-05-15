@@ -105,6 +105,7 @@ export const translations = {
     missingGps: "GPS missing",
     satelliteResult: "Satellite Verification Result",
     satelliteVerification: "Satellite Verification",
+    locationCheck: "Location Check",
     claimDetails: "Claim Details",
     claimsTitle: "All Farmer Claims",
     claimsSubtitle: "Review crop claims, AI predictions, GPS evidence, risk scores, and officer decisions from one clean government agriculture console.",

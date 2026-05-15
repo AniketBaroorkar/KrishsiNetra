@@ -49,7 +49,17 @@ function riskLabel(level, t) {
   return t("all");
 }
 
-function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAlert, t }) {
+function buildLocationUrl(farmer) {
+  const params = new URLSearchParams();
+  if (farmer.latitude) params.set("lat", farmer.latitude);
+  if (farmer.longitude) params.set("lng", farmer.longitude);
+  if (farmer.cropType) params.set("crop", farmer.cropType);
+  if (farmer.farmerName) params.set("farmer", farmer.farmerName);
+  if (farmer.surveyNumber) params.set("survey", farmer.surveyNumber);
+  return `/dashboard/location-check?${params.toString()}`;
+}
+
+function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAlert, onViewMap, t }) {
   if (!farmer) return null;
 
   return (
@@ -145,6 +155,7 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
             <button type="button" className="approve" onClick={() => onStatusChange(farmer, "Approved")}><ThumbsUp size={15} />{t("approveClaim")}</button>
             <button type="button" className="reject" onClick={() => onStatusChange(farmer, "Rejected")}><ThumbsDown size={15} />{t("rejectClaim")}</button>
             <button type="button" className="flag" onClick={() => onStatusChange(farmer, "Flagged")}><Flag size={15} />{t("flagAsFraud")}</button>
+            <button type="button" onClick={() => onViewMap(farmer)} disabled={!farmer.latitude || !farmer.longitude}><MapPin size={15} />View on Map</button>
             <button type="button" onClick={() => onSendAlert(farmer)}><Bell size={15} />{t("sendAlert")}</button>
           </div>
         </div>
@@ -247,6 +258,10 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         router.push("/dashboard/farmers");
       }
     }
+  }
+
+  function viewFarmerOnMap(farmer) {
+    router.push(buildLocationUrl(farmer));
   }
 
   const visibleFarmers = compact ? filtered.slice(0, 5) : filtered;
@@ -356,6 +371,10 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                       <Eye size={15} aria-hidden="true" />
                       {t("viewDetails")}
                     </button>
+                    <button className="view-detail-btn" type="button" onClick={() => viewFarmerOnMap(farmer)} disabled={!farmer.latitude || !farmer.longitude}>
+                      <MapPin size={15} aria-hidden="true" />
+                      View on Map
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -370,6 +389,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         onClose={() => setSelectedFarmer(null)}
         onStatusChange={updateStatus}
         onSendAlert={sendQuickAlert}
+        onViewMap={viewFarmerOnMap}
         t={t}
       />
     </section>

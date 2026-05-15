@@ -1,0 +1,162 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import { Loader2, MapPin, Satellite } from "lucide-react";
+
+const LocationLeafletMap = dynamic(() => import("./LocationLeafletMap"), {
+  ssr: false,
+  loading: () => <div className="location-map-loading">Loading map...</div>,
+});
+
+function cleanNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function riskClass(riskLevel = "") {
+  if (riskLevel.toLowerCase().includes("high")) return "high";
+  if (riskLevel.toLowerCase().includes("medium")) return "medium";
+  return "low";
+}
+
+export default function LocationCheckWorkspace() {
+  const searchParams = useSearchParams();
+  const initial = useMemo(() => ({
+    latitude: searchParams.get("lat") || "18.5204",
+    longitude: searchParams.get("lng") || "73.8567",
+    cropType: searchParams.get("crop") || "Sugarcane",
+    farmerName: searchParams.get("farmer") || "",
+    surveyNumber: searchParams.get("survey") || "",
+  }), [searchParams]);
+
+  const [form, setForm] = useState(initial);
+  const [mapLocation, setMapLocation] = useState(initial);
+  const [satelliteResult, setSatelliteResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const latitude = cleanNumber(mapLocation.latitude);
+  const longitude = cleanNumber(mapLocation.longitude);
+  const hasValidLocation = latitude !== null && longitude !== null;
+
+  function updateField(key, value) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function showLocation() {
+    const nextLat = cleanNumber(form.latitude);
+    const nextLng = cleanNumber(form.longitude);
+    if (nextLat === null || nextLng === null) {
+      setMessage("Please enter valid latitude and longitude.");
+      return;
+    }
+    setMessage("");
+    setMapLocation(form);
+  }
+
+  async function runSatelliteVerification() {
+    const nextLat = cleanNumber(mapLocation.latitude);
+    const nextLng = cleanNumber(mapLocation.longitude);
+    if (nextLat === null || nextLng === null) {
+      setMessage("Please show a valid map location before running satellite verification.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/satellite/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          latitude: nextLat,
+          longitude: nextLng,
+          cropType: mapLocation.cropType,
+          farmerName: mapLocation.farmerName,
+        }),
+      });
+      const result = await response.json();
+      setSatelliteResult(result);
+    } catch (error) {
+      setMessage(error.message || "Satellite verification failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="gov-page location-check-page">
+      <div className="gov-page-header">
+        <div>
+          <span className="gov-kicker"><MapPin size={16} aria-hidden="true" />Location Check</span>
+          <h1>Location & Satellite Area Check</h1>
+          <p>Enter GPS coordinates to center the map on the exact farm area and run Sentinel-2 NDVI verification.</p>
+        </div>
+        <span className="api-notice">Contact: 9579207219</span>
+      </div>
+
+      <div className="location-check-layout">
+        <form className="gov-card location-check-form">
+          <label>Latitude<input value={form.latitude} onChange={(event) => updateField("latitude", event.target.value)} placeholder="18.5204" /></label>
+          <label>Longitude<input value={form.longitude} onChange={(event) => updateField("longitude", event.target.value)} placeholder="73.8567" /></label>
+          <label>Crop Type<input value={form.cropType} onChange={(event) => updateField("cropType", event.target.value)} placeholder="Sugarcane" /></label>
+          <label>Farmer Name optional<input value={form.farmerName} onChange={(event) => updateField("farmerName", event.target.value)} placeholder="Ramesh Patil" /></label>
+          <label>Survey Number optional<input value={form.surveyNumber} onChange={(event) => updateField("surveyNumber", event.target.value)} placeholder="SN-42/2" /></label>
+          <button className="download-csv-btn" type="button" onClick={showLocation}>
+            <MapPin size={16} aria-hidden="true" />
+            Show Location on Map
+          </button>
+          {message ? <p className="upload-status error">{message}</p> : null}
+        </form>
+
+        <section className="gov-card location-map-card">
+          <div className="friendly-card-heading">
+            <h2>Map Display</h2>
+            <p>{hasValidLocation ? `Centered at ${latitude}, ${longitude}` : "Enter valid coordinates to show marker."}</p>
+          </div>
+          <LocationLeafletMap
+            latitude={latitude}
+            longitude={longitude}
+            cropType={mapLocation.cropType}
+            farmerName={mapLocation.farmerName}
+          />
+        </section>
+      </div>
+
+      <section className="gov-card location-satellite-card">
+        <div className="friendly-card-heading table-heading-row">
+          <div>
+            <h2>Satellite Verification</h2>
+            <p>Run NDVI verification for the currently selected GPS point.</p>
+          </div>
+          <button className="download-csv-btn" type="button" onClick={runSatelliteVerification} disabled={loading}>
+            {loading ? <Loader2 className="spin" size={16} aria-hidden="true" /> : <Satellite size={16} aria-hidden="true" />}
+            {loading ? "Running..." : "Run Satellite Verification"}
+          </button>
+        </div>
+
+        {satelliteResult?.isDemo ? (
+          <p className="demo-satellite-note">
+            {satelliteResult.demoReason || "Demo satellite result shown because Sentinel API credentials are not configured."}
+          </p>
+        ) : null}
+
+        {satelliteResult ? (
+          <div className="satellite-result-grid">
+            <span>NDVI Score<strong>{Number(satelliteResult.ndviScore).toFixed(2)}</strong></span>
+            <span>Vegetation Status<strong>{satelliteResult.vegetationStatus}</strong></span>
+            <span>Crop Health<strong>{satelliteResult.cropHealth}</strong></span>
+            <span>Risk Level<strong className={`risk-badge ${riskClass(satelliteResult.riskLevel)}`}>{satelliteResult.riskLevel}</strong></span>
+            <span>Satellite Date<strong>{satelliteResult.satelliteDate}</strong></span>
+            <span>Cloud Cover Status<strong>{satelliteResult.cloudCoverStatus}</strong></span>
+            <p className="satellite-risk-reason">{satelliteResult.riskReason}</p>
+          </div>
+        ) : (
+          <p className="location-empty-result">No satellite result yet. Click Run Satellite Verification after confirming the map location.</p>
+        )}
+      </section>
+    </section>
+  );
+}
