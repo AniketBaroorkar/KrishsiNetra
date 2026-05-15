@@ -1,6 +1,15 @@
 "use client";
 
-import { AlertTriangle, Flag, MapPinOff, Radar, ShieldAlert } from "lucide-react";
+import {
+  AlertTriangle,
+  Flag,
+  MapPin,
+  MapPinOff,
+  Radar,
+  Satellite,
+  ShieldAlert,
+  Sprout,
+} from "lucide-react";
 
 import { useLanguage } from "../../../components/LanguageProvider";
 import { getDemoFarmers } from "../../../utils/farmers";
@@ -38,6 +47,38 @@ export default function FraudAlertsPage() {
   const lowNdvi = farmers.filter((farmer) => Number(farmer.satelliteVerification?.ndviScore || 1) < 0.2);
   const cropMismatch = farmers.filter((farmer) => farmer.cropType !== farmer.predictedCrop);
 
+  const signals = [
+    { tone: "high", icon: AlertTriangle, label: t("highRiskClaims"), value: highRisk.length },
+    { tone: "high", icon: ShieldAlert, label: "GPS Spoofing", value: spoofingSuspected.length },
+    { tone: "medium", icon: MapPinOff, label: "GPS Missing", value: missingGps.length },
+    { tone: "medium", icon: Radar, label: "Low NDVI", value: lowNdvi.length },
+    { tone: "medium", icon: Flag, label: "Crop Mismatch", value: cropMismatch.length },
+  ];
+
+  const reasons = [
+    {
+      tone: "high",
+      icon: MapPin,
+      badge: "High Priority",
+      title: "Location Integrity",
+      copy: "GPS spoofing or missing coordinates flag claims for review.",
+    },
+    {
+      tone: "medium",
+      icon: Satellite,
+      badge: "Satellite",
+      title: "NDVI & SAR Signals",
+      copy: "Low vegetation or cloudy Sentinel data triggers verification.",
+    },
+    {
+      tone: "low",
+      icon: Sprout,
+      badge: "Crop Evidence",
+      title: "AI Crop Match",
+      copy: "Claimed crop vs AI prediction, weighed against the photo.",
+    },
+  ];
+
   return (
     <section className="gov-page">
       <div className="gov-page-header">
@@ -49,30 +90,25 @@ export default function FraudAlertsPage() {
         <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
 
-      <div className="analytics-summary-grid fraud-summary-grid">
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><AlertTriangle size={20} /></span><span>{t("highRiskClaims")}</span><strong>{highRisk.length}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><ShieldAlert size={20} /></span><span>GPS Spoofing Suspected</span><strong>{spoofingSuspected.length}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><MapPinOff size={20} /></span><span>{t("missingGps")}</span><strong>{missingGps.length}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><Radar size={20} /></span><span>Low NDVI</span><strong>{lowNdvi.length}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span className="gov-stat-icon"><Flag size={20} /></span><span>Crop Mismatch</span><strong>{cropMismatch.length}</strong></article>
+      <div className="fraud-signal-grid">
+        {signals.map(({ tone, icon: Icon, label, value }) => (
+          <article className={`fraud-signal-card fraud-signal-${tone}`} key={label}>
+            <span className="fraud-signal-icon"><Icon size={20} aria-hidden="true" /></span>
+            <span className="fraud-signal-label">{label}</span>
+            <strong>{value}</strong>
+          </article>
+        ))}
       </div>
 
       <div className="fraud-reason-grid">
-        <article className="gov-card">
-          <span className="risk-badge high">High Priority</span>
-          <h2>Location Integrity Review</h2>
-          <p>GPS spoofing signals, missing coordinates, or poor GPS accuracy move the claim into officer review.</p>
-        </article>
-        <article className="gov-card">
-          <span className="risk-badge medium">Satellite Review</span>
-          <h2>NDVI and SAR Signals</h2>
-          <p>Low vegetation score or uncertain Sentinel evidence is highlighted without automatically rejecting the claim.</p>
-        </article>
-        <article className="gov-card">
-          <span className="risk-badge low">Crop Evidence</span>
-          <h2>AI Crop Match</h2>
-          <p>Claimed crop and predicted crop are compared with farmer photo and satellite evidence for final risk scoring.</p>
-        </article>
+        {reasons.map(({ tone, icon: Icon, badge, title, copy }) => (
+          <article className={`fraud-reason-card fraud-reason-${tone}`} key={title}>
+            <div className="fraud-reason-icon"><Icon size={22} aria-hidden="true" /></div>
+            <span className={`risk-badge ${tone}`}>{badge}</span>
+            <h2>{title}</h2>
+            <p>{copy}</p>
+          </article>
+        ))}
       </div>
 
       <section className="gov-card">

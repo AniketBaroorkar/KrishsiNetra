@@ -2630,35 +2630,128 @@ body {
   .location-check-layout { grid-template-columns: 1fr; }
 }
 
-/* Fraud page */
+/* Fraud page — signal grid (5 metric cards) */
+.fraud-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.fraud-signal-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid #d9e9d9;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(57, 91, 62, 0.06);
+}
+
+.fraud-signal-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 10px;
+}
+
+.fraud-signal-card.fraud-signal-high .fraud-signal-icon {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.fraud-signal-card.fraud-signal-medium .fraud-signal-icon {
+  background: #fef3c7;
+  color: #92400e;
+}
+.fraud-signal-card.fraud-signal-low .fraud-signal-icon {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.fraud-signal-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #5f7066;
+}
+
+.fraud-signal-card strong {
+  font-size: clamp(1.5rem, 1vw + 1.2rem, 2rem);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--tracking-tight);
+  color: #102018;
+  line-height: 1;
+}
+
+@media (max-width: 1100px) {
+  .fraud-signal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .fraud-signal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Fraud reason cards (3 categorical cards with icon) */
 .fraud-reason-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 16px;
 }
-.fraud-reason-grid .gov-card {
+
+.fraud-reason-card {
   display: grid;
   gap: 10px;
   padding: 22px;
+  border: 1px solid #d9e9d9;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(57, 91, 62, 0.06);
 }
-.fraud-reason-grid .gov-card h2 {
+
+.fraud-reason-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+
+.fraud-reason-card.fraud-reason-high .fraud-reason-icon {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.fraud-reason-card.fraud-reason-medium .fraud-reason-icon {
+  background: #fef3c7;
+  color: #92400e;
+}
+.fraud-reason-card.fraud-reason-low .fraud-reason-icon {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.fraud-reason-card .risk-badge {
+  align-self: start;
+}
+
+.fraud-reason-card h2 {
   margin: 0;
   font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
   letter-spacing: var(--tracking-tight);
   color: #102018;
 }
-.fraud-reason-grid .gov-card p {
+
+.fraud-reason-card p {
   margin: 0;
   font-size: var(--fs-sm);
   font-weight: var(--fw-regular);
-  line-height: 1.55;
+  line-height: 1.5;
   color: #5f7066;
 }
-.fraud-reason-grid .risk-badge {
-  align-self: start;
-}
+
 @media (max-width: 900px) {
   .fraud-reason-grid { grid-template-columns: 1fr; }
 }
