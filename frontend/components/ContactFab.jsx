@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mail, MessageCircle, Phone, X } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
+import { useToast } from "./ToastProvider";
 import { siteContact } from "../data/site";
+import { useFocusTrap } from "../utils/useFocusTrap";
 
 export default function ContactFab() {
   const { t } = useLanguage();
+  const { addToast } = useToast();
   const [open, setOpen] = useState(false);
+  const popupRef = useRef(null);
+  useFocusTrap(popupRef, open);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -38,6 +43,7 @@ export default function ContactFab() {
           onClick={() => setOpen(false)}
         >
           <section
+            ref={popupRef}
             className="contact-popup"
             role="dialog"
             aria-modal="true"
@@ -80,23 +86,30 @@ export default function ContactFab() {
               onSubmit={(event) => {
                 event.preventDefault();
                 setOpen(false);
+                addToast("Message sent. We'll be in touch shortly.", "success");
               }}
             >
               <label>
                 {t("fullName")}
-                <input placeholder={t("farmerName")} />
+                <input placeholder={t("farmerName")} required minLength={2} />
               </label>
               <label>
                 {t("phoneNumber")}
-                <input placeholder="9579207219" />
+                <input
+                  type="tel"
+                  placeholder="9579207219"
+                  required
+                  pattern="[0-9 +\-]{7,15}"
+                  title="Enter a valid phone number"
+                />
               </label>
               <label>
                 {t("district")}
-                <input placeholder="Pune" />
+                <input placeholder="Pune" required />
               </label>
               <label>
                 {t("requestType")}
-                <select defaultValue="Dashboard">
+                <select defaultValue="Dashboard" required>
                   <option>{t("dashboard")}</option>
                   <option>{t("farmerData")}</option>
                   <option>{t("disasterAlerts")}</option>
@@ -104,7 +117,7 @@ export default function ContactFab() {
               </label>
               <label className="wide">
                 {t("message")}
-                <textarea placeholder={t("messageBody")} />
+                <textarea placeholder={t("messageBody")} required minLength={10} />
               </label>
               <button className="krishi-cta primary" type="submit">
                 {t("submit")}

@@ -161,14 +161,14 @@ export default function LocationCheckWorkspace() {
             </select>
           </label>
           <label>Farmer ID<input value={form.farmerId} onChange={(event) => updateField("farmerId", event.target.value)} placeholder="F001" /></label>
-          <label>Latitude<input value={form.latitude} onChange={(event) => updateField("latitude", event.target.value)} placeholder="18.5204" /></label>
-          <label>Longitude<input value={form.longitude} onChange={(event) => updateField("longitude", event.target.value)} placeholder="73.8567" /></label>
+          <label>Latitude<input value={form.latitude} onChange={(event) => updateField("latitude", event.target.value)} placeholder="18.5204" type="number" step="any" min="-90" max="90" required /></label>
+          <label>Longitude<input value={form.longitude} onChange={(event) => updateField("longitude", event.target.value)} placeholder="73.8567" type="number" step="any" min="-180" max="180" required /></label>
           <label>Crop Type<input value={form.cropType} onChange={(event) => updateField("cropType", event.target.value)} placeholder="Sugarcane" /></label>
           <label>Farmer Name optional<input value={form.farmerName} onChange={(event) => updateField("farmerName", event.target.value)} placeholder="Ramesh Patil" /></label>
           <label>Village<input value={form.village} onChange={(event) => updateField("village", event.target.value)} placeholder="Malegaon" /></label>
           <label>District<input value={form.district} onChange={(event) => updateField("district", event.target.value)} placeholder="Pune" /></label>
           <label>Survey Number optional<input value={form.surveyNumber} onChange={(event) => updateField("surveyNumber", event.target.value)} placeholder="SN-42/2" /></label>
-          <button className="download-csv-btn" type="button" onClick={showLocation}>
+          <button className="btn-primary" type="button" onClick={showLocation}>
             <MapPin size={16} aria-hidden="true" />
             Show Location on Map
           </button>
@@ -215,7 +215,7 @@ export default function LocationCheckWorkspace() {
             <h2>Satellite Verification</h2>
             <p>Run NDVI verification for the currently selected GPS point.</p>
           </div>
-          <button className="download-csv-btn" type="button" onClick={runSatelliteVerification} disabled={loading}>
+          <button className="btn-primary" type="button" onClick={runSatelliteVerification} disabled={loading}>
             {loading ? <Loader2 className="spin" size={16} aria-hidden="true" /> : <Satellite size={16} aria-hidden="true" />}
             {loading ? "Running..." : "Run Satellite Verification"}
           </button>

@@ -2,6 +2,7 @@ import "./globals.css";
 import "./platform-polish.css";
 import { Inter } from "next/font/google";
 import { LanguageProvider } from "../components/LanguageProvider";
+import { ToastProvider } from "../components/ToastProvider";
 import ContactFab from "../components/ContactFab";
 
 const inter = Inter({
@@ -21,8 +22,10 @@ export default function RootLayout({ children }) {
     <html lang="en" className={inter.variable}>
       <body>
         <LanguageProvider>
-          {children}
-          <ContactFab />
+          <ToastProvider>
+            {children}
+            <ContactFab />
+          </ToastProvider>
         </LanguageProvider>
       </body>
     </html>

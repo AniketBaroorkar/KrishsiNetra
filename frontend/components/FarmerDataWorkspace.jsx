@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Bell, Download, Eye, Flag, Image as ImageIcon, MapPin, Search, ThumbsDown, ThumbsUp, X } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
+import { useToast } from "./ToastProvider";
 import SatelliteVerificationPanel from "./SatelliteVerificationPanel";
 import {
   downloadFarmersCsv,
@@ -14,6 +15,8 @@ import {
   getDemoFarmers,
   uniqueValues,
 } from "../utils/farmers";
+import { formatDate } from "../utils/format";
+import { useFocusTrap } from "../utils/useFocusTrap";
 
 function riskClass(level) {
   if (level === "High") return "high";
@@ -74,11 +77,21 @@ function buildLocationUrl(farmer) {
 }
 
 function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAlert, onViewMap, t }) {
+  const modalRef = useRef(null);
+  useFocusTrap(modalRef, Boolean(farmer));
+  useEffect(() => {
+    if (!farmer) return undefined;
+    function onKey(event) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [farmer, onClose]);
   if (!farmer) return null;
 
   return (
-    <div className="claim-modal-backdrop">
-      <section className="claim-modal farmer-modal" role="dialog" aria-modal="true">
+    <div className="claim-modal-backdrop" role="presentation" onClick={onClose}>
+      <section ref={modalRef} className="claim-modal farmer-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
         <div className="claim-modal-header">
           <div>
             <span className="gov-kicker">{t("farmerData")}</span>
@@ -199,6 +212,7 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
 
 export default function FarmerDataWorkspace({ compact = false, onFarmersChange }) {
   const { t } = useLanguage();
+  const { addToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const [farmers, setFarmers] = useState(() => getDemoFarmers());
@@ -266,11 +280,25 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
     setFilters((current) => ({ ...current, [key]: value }));
   }
 
+  function resetFilters() {
+    setFilters({ query: "", district: "All", crop: "All", risk: "All", status: "All", gpsTrust: "All" });
+  }
+
+  const filtersAreActive =
+    filters.query !== "" ||
+    filters.district !== "All" ||
+    filters.crop !== "All" ||
+    filters.risk !== "All" ||
+    filters.status !== "All" ||
+    filters.gpsTrust !== "All";
+
   function updateStatus(farmer, status) {
     setFarmers((current) => current.map((item) => (
       item.farmerId === farmer.farmerId ? { ...item, claimStatus: status } : item
     )));
     setSelectedFarmer((current) => current?.farmerId === farmer.farmerId ? { ...current, claimStatus: status } : current);
+    const tone = status === "Approved" ? "success" : status === "Rejected" ? "error" : "warning";
+    addToast(`${farmer.farmerName} marked as ${status}.`, tone);
   }
 
   function sendQuickAlert(farmer) {
@@ -290,6 +318,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
     setSelectedFarmer((current) => current?.farmerId === farmer.farmerId
       ? { ...current, disasterAlertStatus: "Sent", alertHistory: [alert, ...current.alertHistory] }
       : current);
+    addToast(`Alert sent to ${farmer.farmerName}.`, "success");
   }
 
   function handleBackFromDetails() {
@@ -320,7 +349,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
           </div>
           <div className="page-actions farmer-header-actions">
             <span className="api-notice">{t("contact")}: 9579207219</span>
-            <button className="download-csv-btn" type="button" onClick={() => downloadFarmersCsv(farmers)}>
+            <button className="btn-primary" type="button" onClick={() => downloadFarmersCsv(farmers)}>
               <Download size={17} aria-hidden="true" />
               {t("downloadFarmerData")}
             </button>
@@ -373,7 +402,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
             <h2>{compact ? t("farmerTablePreview") : t("farmerRecords")}</h2>
             <p>{filtered.length} {t("farmerRecordsCount")}</p>
           </div>
-          <button className="download-csv-btn" type="button" onClick={() => downloadFarmersXlsx(farmers)}>
+          <button className="btn-primary" type="button" onClick={() => downloadFarmersXlsx(farmers)}>
             <Download size={16} aria-hidden="true" />
             Export to Excel
           </button>
@@ -407,6 +436,16 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
               </tr>
             </thead>
             <tbody>
+              {visibleFarmers.length === 0 ? (
+                <tr>
+                  <td colSpan={22} className="table-empty-state">
+                    <strong>No farmers match these filters.</strong>
+                    {filtersAreActive ? (
+                      <button type="button" onClick={resetFilters}>Clear filters</button>
+                    ) : null}
+                  </td>
+                </tr>
+              ) : null}
               {visibleFarmers.map((farmer) => (
                 <tr key={farmer.farmerId}>
                   <td>
@@ -436,7 +475,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                   <td>{farmer.surveyNumber}</td>
                   <td>{farmer.latitude ?? t("missingGps")}</td>
                   <td>{farmer.longitude ?? t("missingGps")}</td>
-                  <td>{farmer.submissionDate}</td>
+                  <td>{formatDate(farmer.submissionDate)}</td>
                   <td>{statusLabel(farmer.disasterAlertStatus, t)}</td>
                   <td><span className={`gps-trust-badge ${gpsTrustClass(farmer.gpsTrustStatus)}`}>{farmer.gpsTrustStatus}</span></td>
                   <td>{mockLocationLabel(farmer.isMockLocation)}</td>

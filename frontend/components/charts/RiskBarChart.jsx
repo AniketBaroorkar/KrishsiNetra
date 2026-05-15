@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const COLORS = {
@@ -9,6 +10,9 @@ const COLORS = {
 };
 
 export default function RiskBarChart({ data, height = 200 }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return <div className="dash-chart dash-chart-loading" style={{ width: "100%", height }} />;
   return (
     <div className="dash-chart" style={{ width: "100%", height }}>
       <ResponsiveContainer width="100%" height="100%">

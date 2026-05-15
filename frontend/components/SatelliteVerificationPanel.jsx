@@ -73,7 +73,7 @@ export default function SatelliteVerificationPanel({ record, uploadedPhotoUrl, t
           <h3>{title}</h3>
           <p>NDVI = (B08 - B04) / (B08 + B04), using Near Infrared and Red bands.</p>
         </div>
-        <button className="download-csv-btn satellite-run-button" type="button" onClick={handleRun} disabled={loading}>
+        <button className="btn-primary satellite-run-button" type="button" onClick={handleRun} disabled={loading}>
           {loading ? <Loader2 className="spin" size={16} aria-hidden="true" /> : <Satellite size={16} aria-hidden="true" />}
           {loading ? "Running..." : "Run Satellite Verification"}
         </button>

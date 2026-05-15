@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export default function CategoryBarChart({
@@ -11,6 +12,9 @@ export default function CategoryBarChart({
 }) {
   const sorted = [...data].sort((a, b) => (b[valueKey] || 0) - (a[valueKey] || 0));
   const computedHeight = height || Math.max(200, sorted.length * 30 + 40);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return <div className="dash-chart dash-chart-loading" style={{ width: "100%", height: computedHeight }} />;
 
   return (
     <div className="dash-chart" style={{ width: "100%", height: computedHeight }}>

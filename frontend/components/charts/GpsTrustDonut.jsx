@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const COLORS = {
@@ -10,6 +11,9 @@ const COLORS = {
 };
 
 export default function GpsTrustDonut({ data, height = 220 }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return <div className="dash-chart dash-chart-loading" style={{ width: "100%", height }} />;
   return (
     <div className="dash-chart" style={{ width: "100%", height }}>
       <ResponsiveContainer width="100%" height="100%">

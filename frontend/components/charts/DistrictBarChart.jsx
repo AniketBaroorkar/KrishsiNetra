@@ -1,9 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export default function DistrictBarChart({ data, height }) {
   const computedHeight = height || Math.max(200, data.length * 36 + 40);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return <div className="dash-chart dash-chart-loading" style={{ width: "100%", height: computedHeight }} />;
   return (
     <div className="dash-chart" style={{ width: "100%", height: computedHeight }}>
       <ResponsiveContainer width="100%" height="100%">

@@ -92,7 +92,7 @@ export default function SatelliteVerificationWorkspace() {
             <span>Submitted Date<strong>{selectedFarmer?.submissionDate}</strong></span>
           </div>
           <div className="satellite-action-row">
-            <button className="download-csv-btn" type="button" onClick={() => openLocationCheck(selectedFarmer)}>
+            <button className="btn-primary" type="button" onClick={() => openLocationCheck(selectedFarmer)}>
               <MapPin size={16} aria-hidden="true" />
               Open in Location Check
             </button>

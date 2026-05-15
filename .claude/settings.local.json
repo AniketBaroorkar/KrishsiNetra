@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"D:/krishinetra\" add frontend/app/about/page.jsx frontend/app/page.jsx frontend/app/platform-polish.css frontend/components/SiteHeader.jsx frontend/components/SiteFooter.jsx frontend/components/FloatingSocials.jsx frontend/data/site.js)",
+      "Bash(git -C D:/krishinetra commit -m ' *)",
+      "Bash(git -C \"D:/krishinetra\" push -u origin about-page-redesign)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/app/platform-polish.css)",
+      "Bash(git -C \"D:/krishinetra\" push)",
+      "Bash(curl -s -o NUL -w \"/disaster-alerts: HTTP %{http_code}\\\\n\" http://localhost:3000/disaster-alerts)",
+      "Bash(curl -s -o NUL -w \"/dashboard: HTTP %{http_code}\\\\n\" http://localhost:3000/dashboard)",
+      "Bash(curl -s -o NUL -w \"/dashboard/farmers: HTTP %{http_code}\\\\n\" http://localhost:3000/dashboard/farmers)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/app/dashboard/layout.jsx frontend/app/disaster-alerts/page.jsx)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/components/charts/CategoryBarChart.jsx frontend/components/DashboardOverview.jsx)",
+      "Bash(curl -s -o NUL -w \"/dashboard: HTTP %{http_code}\\\\n/dashboard/farmers: HTTP %{http_code}\\\\n/dashboard/claims: HTTP %{http_code}\\\\n\" http://localhost:3000/dashboard)",
+      "Bash(curl -s -o NUL -w \"/dashboard/claims: HTTP %{http_code}\\\\n\" http://localhost:3000/dashboard/claims)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/components/FarmerDataWorkspace.jsx frontend/components/ClaimsWorkspace.jsx frontend/components/SatelliteVerificationWorkspace.jsx frontend/app/platform-polish.css)",
+      "Bash(curl -s -o NUL -w \"/dashboard: HTTP %{http_code}\\\\n/dashboard/farmers: HTTP %{http_code}\\\\n\" http://localhost:3000/dashboard)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/utils/farmers.js frontend/components/FarmerDataWorkspace.jsx frontend/package.json frontend/package-lock.json)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/components/FarmerDataWorkspace.jsx)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/components/ClaimsWorkspace.jsx)",
+      "Bash(curl -s -o NUL -w \"/dashboard/fraud: HTTP %{http_code}\\\\n\" http://localhost:3000/dashboard/fraud)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/app/dashboard/fraud/page.jsx frontend/app/platform-polish.css)",
+      "Bash(curl -s -o NUL -w \"/: HTTP %{http_code}\\\\n/about: HTTP %{http_code}\\\\n/dashboard: HTTP %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o NUL -w \"/about: HTTP %{http_code}\\\\n\" http://localhost:3000/about)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/components/ContactFab.jsx frontend/components/SiteHeader.jsx frontend/app/page.jsx frontend/app/layout.jsx frontend/app/platform-polish.css)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/components/charts/RiskBarChart.jsx frontend/components/charts/GpsTrustDonut.jsx frontend/components/DashboardOverview.jsx frontend/components/ClaimsWorkspace.jsx frontend/app/platform-polish.css)",
+      "Bash(git -C \"D:/krishinetra\" add frontend/components/ContactFab.jsx frontend/app/platform-polish.css)",
+      "Bash(git -C \"D:/krishinetra\" ls-tree --name-only HEAD frontend/data/)",
+      "Bash(git -C \"D:/krishinetra\" show 4739e15:frontend/data/farmersData.js)",
+      "Bash(git -C \"D:/krishinetra\" show HEAD:frontend/data/farmersData.js)",
+      "Bash(git -C \"D:/krishinetra\" show 4739e15:frontend/data/claimsData.js)",
+      "Bash(git -C \"D:/krishinetra\" show HEAD:frontend/data/claimsData.js)",
+      "Bash(git -C \"D:/krishinetra\" show 4739e15:frontend/data/alertsData.js)",
+      "Bash(git -C \"D:/krishinetra\" show HEAD:frontend/data/alertsData.js)"
+    ]
+  }
+}

@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import { Bell, Send } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
+import { useToast } from "./ToastProvider";
 import { demoAlerts } from "../data/alertsData";
 import { getDemoFarmers, uniqueValues } from "../utils/farmers";
+import { formatDateTime } from "../utils/format";
 
 const disasterTypes = ["Heavy Rain", "Flood", "Drought", "Pest Attack", "Crop Disease", "Heat Wave", "Unseasonal Rain"];
 
@@ -52,6 +54,7 @@ function gpsTrustClass(status) {
 
 export default function DisasterAlertsWorkspace() {
   const { t } = useLanguage();
+  const { addToast } = useToast();
   const [farmers, setFarmers] = useState(() => getDemoFarmers());
   const [alerts, setAlerts] = useState(demoAlerts);
   const [confirmation, setConfirmation] = useState("");
@@ -122,6 +125,7 @@ export default function DisasterAlertsWorkspace() {
         : farmer
     )));
     setConfirmation(t("alertSentConfirmation").replace("{count}", farmerIds.length));
+    addToast(`Alert sent to ${farmerIds.length} farmer${farmerIds.length === 1 ? "" : "s"}.`, "success");
   }
 
   return (
@@ -154,9 +158,9 @@ export default function DisasterAlertsWorkspace() {
           <label>{t("selectFarmer")}<select value={form.farmerId} onChange={(event) => updateField("farmerId", event.target.value)}><option value="All">{t("all")}</option>{filteredFarmers.map((farmer) => <option value={farmer.farmerId} key={farmer.farmerId}>{farmer.farmerName}</option>)}</select></label>
           <label>{t("disasterType")}<select value={form.disasterType} onChange={(event) => updateField("disasterType", event.target.value)}>{disasterTypes.map((item) => <option key={item} value={item}>{disasterLabel(item, t)}</option>)}</select></label>
           <label>{t("language")}<select value={form.language} onChange={(event) => updateField("language", event.target.value)}>{["English", "Marathi", "Hindi"].map((item) => <option key={item}>{item}</option>)}</select></label>
-          <label className="wide">{t("messageTitle")}<input value={form.title} onChange={(event) => updateField("title", event.target.value)} /></label>
-          <label className="wide">{t("messageBody")}<textarea value={form.message} onChange={(event) => updateField("message", event.target.value)} /></label>
-          <button className="download-csv-btn" type="button" onClick={sendAlert}>
+          <label className="wide">{t("messageTitle")}<input value={form.title} onChange={(event) => updateField("title", event.target.value)} required minLength={3} /></label>
+          <label className="wide">{t("messageBody")}<textarea value={form.message} onChange={(event) => updateField("message", event.target.value)} required minLength={10} /></label>
+          <button className="btn-primary" type="button" onClick={sendAlert}>
             <Send size={17} aria-hidden="true" />
             {t("sendAlert")}
           </button>
@@ -211,7 +215,7 @@ export default function DisasterAlertsWorkspace() {
                   <td>{alert.message}</td>
                   <td>{alert.farmerIds?.length || 0}</td>
                   <td>{alert.language}</td>
-                  <td>{alert.sentAt}</td>
+                  <td>{formatDateTime(alert.sentAt)}</td>
                   <td><span className="status-badge approved">{statusLabel(alert.status, t)}</span></td>
                 </tr>
               ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   Eye,
@@ -15,8 +15,11 @@ import {
 } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
+import { useToast } from "./ToastProvider";
 import SatelliteVerificationPanel from "./SatelliteVerificationPanel";
 import { fetchClaims, getDemoClaims, getRiskLevel, patchClaimStatus } from "../utils/claims";
+import { formatDate } from "../utils/format";
+import { useFocusTrap } from "../utils/useFocusTrap";
 
 const riskOptions = ["All", "Low", "Medium", "High"];
 const statusOptions = ["All", "Pending", "Verified", "Approved", "Rejected", "Flagged", "High Risk"];
@@ -93,11 +96,21 @@ function ClaimActions({ claim, onStatusChange, t }) {
 }
 
 function ClaimDetailsModal({ claim, onClose, onStatusChange, t }) {
+  const modalRef = useRef(null);
+  useFocusTrap(modalRef, Boolean(claim));
+  useEffect(() => {
+    if (!claim) return undefined;
+    function onKey(event) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [claim, onClose]);
   if (!claim) return null;
 
   return (
-    <div className="claim-modal-backdrop" role="presentation">
-      <section className="claim-modal" role="dialog" aria-modal="true" aria-labelledby="claim-modal-title">
+    <div className="claim-modal-backdrop" role="presentation" onClick={onClose}>
+      <section ref={modalRef} className="claim-modal" role="dialog" aria-modal="true" aria-labelledby="claim-modal-title" onClick={(event) => event.stopPropagation()}>
         <div className="claim-modal-header">
           <div>
             <span className="gov-kicker">{t("claimDetails")}</span>
@@ -135,7 +148,7 @@ function ClaimDetailsModal({ claim, onClose, onStatusChange, t }) {
               <span>{t("village")} <strong>{claim.village}</strong></span>
               <span>{t("district")} <strong>{claim.district}</strong></span>
               <span>Claim Amount <strong>{claim.claimAmount}</strong></span>
-              <span>{t("submittedDate")} <strong>{claim.submittedDate}</strong></span>
+              <span>{t("submittedDate")} <strong>{formatDate(claim.submittedDate)}</strong></span>
             </div>
           </div>
         </div>
@@ -209,6 +222,7 @@ function ClaimDetailsModal({ claim, onClose, onStatusChange, t }) {
 
 export default function ClaimsWorkspace({ mode = "overview" }) {
   const { t } = useLanguage();
+  const { addToast } = useToast();
   const [claims, setClaims] = useState(() => getDemoClaims());
   const [apiNoticeKey, setApiNoticeKey] = useState("usingDemo");
   const [query, setQuery] = useState("");
@@ -274,6 +288,19 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
     };
   }, [claims]);
 
+  function resetFilters() {
+    setQuery("");
+    setStatusFilter("All");
+    setRiskFilter("All");
+    setGpsTrustFilter("All");
+  }
+
+  const filtersAreActive =
+    query !== "" ||
+    statusFilter !== "All" ||
+    riskFilter !== "All" ||
+    gpsTrustFilter !== "All";
+
   async function updateStatus(claim, status) {
     const previousClaims = claims;
     const nextClaims = claims.map((item) => (item.id === claim.id ? { ...item, status } : item));
@@ -285,10 +312,13 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
       setClaims((current) => current.map((item) => (item.id === claim.id ? { ...item, ...updated, status } : item)));
       setSelectedClaim((current) => (current?.id === claim.id ? { ...current, ...updated, status } : current));
       setApiNoticeKey(claim.apiId ? "connectedBackend" : "usingDemo");
+      const tone = status === "Approved" ? "success" : status === "Rejected" ? "error" : "warning";
+      addToast(`Claim ${claim.id} marked as ${status}.`, tone);
     } catch (error) {
       setClaims(previousClaims);
       setSelectedClaim(claim);
       setApiNoticeKey("usingDemo");
+      addToast(`Could not update ${claim.id}. Please try again.`, "error");
     }
   }
 
@@ -459,6 +489,16 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
               </tr>
             </thead>
             <tbody>
+              {recentClaims.length === 0 ? (
+                <tr>
+                  <td colSpan={17} className="table-empty-state">
+                    <strong>No claims match these filters.</strong>
+                    {filtersAreActive ? (
+                      <button type="button" onClick={resetFilters}>Clear filters</button>
+                    ) : null}
+                  </td>
+                </tr>
+              ) : null}
               {recentClaims.map((claim) => {
                 const riskLevel = claim.riskLevel || getRiskLevel(claim.riskScore);
                 return (
@@ -495,7 +535,7 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
                     <td>{mockLocationLabel(claim.isMockLocation)}</td>
                     <td>{claim.gpsAccuracy ? `${claim.gpsAccuracy} m` : "Unknown"}</td>
                     <td>{claim.locationRiskReason}</td>
-                    <td>{claim.submittedDate}</td>
+                    <td>{formatDate(claim.submittedDate)}</td>
                   </tr>
                 );
               })}
