@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./platform-polish.css";
 import { LanguageProvider } from "../components/LanguageProvider";
 
 export const metadata = {
