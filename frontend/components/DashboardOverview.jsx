@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Bell, CheckCircle2, Clock, Flag, ShieldAlert, Users } from "lucide-react";
+import { Bell, ShieldAlert, Users } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
 import FarmerDataWorkspace from "./FarmerDataWorkspace";
@@ -8,6 +8,13 @@ import RiskBarChart from "./charts/RiskBarChart";
 import GpsTrustDonut from "./charts/GpsTrustDonut";
 import { demoAlerts } from "../data/alertsData";
 import { getDemoFarmers, uniqueValues } from "../utils/farmers";
+
+const STATUS_TONES = [
+  { key: "verified", label: "Verified", color: "#166534" },
+  { key: "pending", label: "Pending", color: "#0369a1" },
+  { key: "flagged", label: "Flagged", color: "#b45309" },
+  { key: "highRisk", label: "High Risk", color: "#991b1b" },
+];
 
 export default function DashboardOverview() {
   const { t } = useLanguage();
@@ -48,6 +55,15 @@ export default function DashboardOverview() {
     count: farmers.filter((farmer) => farmer.district === district).length,
   }));
 
+  const claimStatusBreakdown = STATUS_TONES.map((tone) => ({
+    ...tone,
+    count: stats[tone.key],
+    pct: stats.totalClaims ? (stats[tone.key] / stats.totalClaims) * 100 : 0,
+  }));
+
+  const districtCount = districtSummary.length;
+  const cropCount = cropSummary.length;
+
   return (
     <section className="gov-page">
       <div className="gov-page-header">
@@ -59,30 +75,62 @@ export default function DashboardOverview() {
         <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
 
-      <div className="gov-stat-grid dashboard-seven">
-        {[
-          { label: t("totalFarmers"), value: stats.totalFarmers, icon: Users },
-          { label: t("totalClaims"), value: stats.totalClaims, icon: ShieldAlert },
-          { label: t("verifiedClaims"), value: stats.verified, icon: CheckCircle2 },
-          { label: t("pendingClaims"), value: stats.pending, icon: Clock },
-          { label: t("flaggedClaims"), value: stats.flagged, icon: Flag },
-          { label: t("highRiskClaims"), value: stats.highRisk, icon: AlertTriangle },
-          { label: t("alertsSent"), value: stats.alerts, icon: Bell },
-        ].map(({ label, value, icon: Icon }) => (
-          <article className="gov-stat-card" key={label}>
-            <span className="gov-stat-icon"><Icon size={20} aria-hidden="true" /></span>
-            <span>{label}</span>
-            <strong>{value}</strong>
-          </article>
-        ))}
+      <div className="hero-kpi-grid">
+        <article className="hero-kpi-card">
+          <span className="hero-kpi-icon"><Users size={22} aria-hidden="true" /></span>
+          <div className="hero-kpi-body">
+            <span className="hero-kpi-label">{t("totalFarmers")}</span>
+            <strong>{stats.totalFarmers}</strong>
+            <small>Across {districtCount} districts &middot; {cropCount} crops</small>
+          </div>
+        </article>
+        <article className="hero-kpi-card">
+          <span className="hero-kpi-icon"><ShieldAlert size={22} aria-hidden="true" /></span>
+          <div className="hero-kpi-body">
+            <span className="hero-kpi-label">{t("totalClaims")}</span>
+            <strong>{stats.totalClaims}</strong>
+            <small>{stats.verified} verified &middot; {stats.pending + stats.flagged + stats.highRisk} awaiting review</small>
+          </div>
+        </article>
+        <article className="hero-kpi-card">
+          <span className="hero-kpi-icon"><Bell size={22} aria-hidden="true" /></span>
+          <div className="hero-kpi-body">
+            <span className="hero-kpi-label">{t("alertsSent")}</span>
+            <strong>{stats.alerts}</strong>
+            <small>Disaster advisories dispatched</small>
+          </div>
+        </article>
       </div>
 
-      <div className="analytics-summary-grid">
-        <article className="gov-stat-card analytics-stat-card"><span>Valid GPS Claims</span><strong>{stats.validGps}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span>Suspicious GPS Claims</span><strong>{stats.suspiciousGps}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span>Spoofing Suspected</span><strong>{stats.spoofingGps}</strong></article>
-        <article className="gov-stat-card analytics-stat-card"><span>Unknown GPS Status</span><strong>{stats.unknownGps}</strong></article>
-      </div>
+      <section className="gov-card claim-status-card">
+        <div className="friendly-card-heading">
+          <h2>Claim Status Overview</h2>
+          <p>Where the {stats.totalClaims} claims sit in the review pipeline.</p>
+        </div>
+        <div className="status-bar-row" role="img" aria-label="Claim status distribution">
+          {claimStatusBreakdown.map(({ key, label, color, count, pct }) => (
+            count ? (
+              <span
+                className="status-bar-segment"
+                key={key}
+                style={{ flex: count, background: color }}
+                title={`${label}: ${count} (${pct.toFixed(0)}%)`}
+              />
+            ) : null
+          ))}
+        </div>
+        <div className="status-chip-grid">
+          {claimStatusBreakdown.map(({ key, label, color, count, pct }) => (
+            <div className="status-chip" key={key}>
+              <span className="status-chip-dot" style={{ background: color }} />
+              <div>
+                <strong>{count}</strong>
+                <small>{label} &middot; {pct.toFixed(0)}%</small>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="dashboard-insight-grid">
         <section className="gov-card">
