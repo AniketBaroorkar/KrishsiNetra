@@ -2438,6 +2438,7 @@ tr.risk-clean td {
   display: inline-flex;
   align-items: center;
   gap: 12px;
+  min-height: 60px;
 }
 
 .krishi-logo-mark {
@@ -2454,8 +2455,9 @@ tr.risk-clean td {
 .krishi-brand-lockup strong {
   display: block;
   color: #123820;
-  font-size: 24px;
+  font-size: clamp(26px, 3vw, 34px);
   font-weight: 950;
+  line-height: 1;
 }
 
 .krishi-brand-lockup small {

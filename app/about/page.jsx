@@ -13,7 +13,7 @@ export default function AboutPage() {
       <section className="gov-page about-gov-page">
         <Link className="krishi-brand-lockup" href="/">
           <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
-          <span><strong>{t("appName")}</strong><small>{t("subtitle")}</small></span>
+          <span><strong>{t("appName")}</strong></span>
         </Link>
         <BackButton fallbackPath="/dashboard" />
 

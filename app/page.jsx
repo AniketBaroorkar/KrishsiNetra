@@ -22,7 +22,6 @@ export default function HomePage() {
     { href: "/", label: t("home") },
     { href: "/about", label: t("aboutUs") },
     { href: "/#features", label: t("features") },
-    { href: "/farmers", label: t("farmerData") },
     { href: "/dashboard", label: t("dashboard") },
     { href: "/disaster-alerts", label: t("disasterAlerts") },
     { href: "/#contact", label: t("contact") },
@@ -45,7 +44,6 @@ export default function HomePage() {
             <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
             <span>
               <strong>{t("appName")}</strong>
-              <small>{t("subtitle")}</small>
             </span>
           </Link>
           <div className="krishi-contact-strip" aria-label="Contact details">
