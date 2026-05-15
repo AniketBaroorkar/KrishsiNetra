@@ -1,4 +1,14 @@
-# React + Vite
+# KrishiNetra
+
+Repository layout:
+
+- `backend/` — Django API (Python)
+- `frontend/` — web frontend (Next.js + Vite)
+- `mobile_app` branch — mobile client
+
+---
+
+## React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
