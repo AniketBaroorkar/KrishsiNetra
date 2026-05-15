@@ -5006,6 +5006,7 @@ tr.risk-clean td {
   min-height: 100vh;
   padding: 24px;
   background: #f4f9f1;
+  overflow-x: hidden;
 }
 
 .public-disaster-shell {
@@ -5050,6 +5051,8 @@ tr.risk-clean td {
 .about-gov-page {
   display: grid;
   gap: 16px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .about-topbar {
@@ -5080,11 +5083,13 @@ tr.risk-clean td {
 .about-major-section {
   display: grid;
   gap: 16px;
+  min-width: 0;
 }
 
 .about-card-grid {
   display: grid;
   gap: 16px;
+  min-width: 0;
 }
 
 .about-card-grid.two {
@@ -5135,6 +5140,7 @@ tr.risk-clean td {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
+  overflow: hidden;
 }
 
 .about-flow-step {
@@ -5163,7 +5169,7 @@ tr.risk-clean td {
 
 .about-flow-step i {
   position: absolute;
-  right: -18px;
+  right: -12px;
   top: 50%;
   z-index: 2;
   display: grid;
@@ -5200,6 +5206,7 @@ tr.risk-clean td {
 }
 
 .satellite-about-card {
+  min-width: 0;
   border: 1px solid #d9e9d9;
   border-radius: 8px;
   padding: 16px;
@@ -5296,7 +5303,21 @@ tr.risk-clean td {
 }
 
 .satellite-comparison-card {
+  min-width: 0;
   box-shadow: none;
+}
+
+.about-platform-page .friendly-table {
+  min-width: 760px;
+}
+
+.about-platform-page .verification-flow {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.about-platform-page .verification-flow-step {
+  border-right: 0;
+  border-bottom: 1px solid #d9e9d9;
 }
 
 .gps-status-grid {

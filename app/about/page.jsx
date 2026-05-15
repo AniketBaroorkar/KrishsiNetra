@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import {
-  AlertTriangle,
   Camera,
   CheckCircle2,
-  Cloud,
   Database,
   Lock,
   MapPin,
@@ -222,18 +220,6 @@ export default function AboutPage() {
                 <h3>{title}</h3>
                 <p>{text}</p>
               </article>
-            ))}
-          </div>
-
-          <div className="about-risk-grid">
-            {[
-              [AlertTriangle, "Missing GPS = High Risk"],
-              [AlertTriangle, "Mock location detected = High Risk"],
-              [Cloud, "Poor GPS accuracy = Medium/High Risk"],
-              [Camera, "Gallery upload = Warning"],
-              [CheckCircle2, "Valid GPS + live photo + satellite support = Low Risk"],
-            ].map(([Icon, item]) => (
-              <span key={item}><Icon size={16} aria-hidden="true" />{item}</span>
             ))}
           </div>
 
