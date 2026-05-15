@@ -168,6 +168,114 @@ body {
 }
 
 /* ============================================================
+   Site header — single row: logo + nav + contact
+   ============================================================ */
+
+.krishi-header-row {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-height: 72px;
+}
+
+.krishi-header-row .krishi-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.krishi-header-row .krishi-logo-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #14532d, #2fa15f);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(20, 83, 45, 0.18);
+}
+
+.krishi-header-row .krishi-brand-lockup strong {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--tracking-tight);
+  color: #102018;
+  line-height: 1;
+}
+
+.krishi-header-row .krishi-nav-bar {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 0;
+}
+
+.krishi-header-row .krishi-nav-bar a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 14px;
+  color: #385343;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0;
+  transition: color 120ms ease;
+}
+
+.krishi-header-row .krishi-nav-bar a:hover {
+  color: #14532d;
+}
+
+.krishi-header-row .krishi-nav-bar a[aria-current="page"] {
+  color: #14532d;
+  font-weight: var(--fw-semibold);
+}
+
+.krishi-header-row .krishi-nav-bar a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  height: 2px;
+  background: #14532d;
+  border-radius: 2px;
+}
+
+.krishi-header-row .krishi-header-aux {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .krishi-header-row {
+    flex-wrap: wrap;
+    padding: 12px 0;
+    gap: 12px;
+  }
+  .krishi-header-row .krishi-nav-bar {
+    order: 3;
+    width: 100%;
+  }
+  .krishi-header-row .krishi-nav-bar a {
+    height: 40px;
+  }
+}
+
+/* ============================================================
    About page
    ============================================================ */
 

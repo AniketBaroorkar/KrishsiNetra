@@ -1,17 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone, Sprout } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Sprout } from "lucide-react";
 
 import { LanguageSelector, useLanguage } from "./LanguageProvider";
-import { siteContact } from "../data/site";
+
+function isActive(pathname, href) {
+  if (href.includes("#")) return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 export default function SiteHeader() {
   const { t } = useLanguage();
+  const pathname = usePathname();
+
   const navLinks = [
     { href: "/", label: t("home") },
     { href: "/about", label: t("aboutUs") },
-    { href: "/#features", label: t("features") },
     { href: "/dashboard", label: t("dashboard") },
     { href: "/disaster-alerts", label: t("disasterAlerts") },
     { href: "/#contact", label: t("contact") },
@@ -19,22 +26,31 @@ export default function SiteHeader() {
 
   return (
     <header className="krishi-header">
-      <div className="krishi-header-top">
+      <div className="krishi-header-row">
         <Link className="krishi-brand-lockup" href="/">
-          <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
-          <span>
-            <strong>{t("appName")}</strong>
-          </span>
+          <span className="krishi-logo-mark"><Sprout size={22} aria-hidden="true" /></span>
+          <strong>{t("appName")}</strong>
         </Link>
-        <div className="krishi-contact-strip" aria-label="Contact details">
+
+        <nav className="krishi-nav-bar" aria-label="Main navigation">
+          {navLinks.map((link) => {
+            const active = isActive(pathname, link.href);
+            return (
+              <Link
+                href={link.href}
+                key={link.label}
+                aria-current={active ? "page" : undefined}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="krishi-header-aux">
           <LanguageSelector />
-          <a href={`mailto:${siteContact.email}`}><Mail size={16} aria-hidden="true" />{siteContact.email}</a>
-          <a href={siteContact.tel}><Phone size={16} aria-hidden="true" />{siteContact.phone}</a>
         </div>
       </div>
-      <nav className="krishi-nav-bar" aria-label="Main navigation">
-        {navLinks.map((link) => <Link href={link.href} key={link.label}>{link.label}</Link>)}
-      </nav>
     </header>
   );
 }
