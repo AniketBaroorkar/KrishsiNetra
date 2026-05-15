@@ -39,7 +39,10 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
             <p>{farmer.farmerId} - {farmer.village}, {farmer.district}</p>
           </div>
           <div className="modal-header-actions">
-            <button className="back-button" type="button" onClick={onBack}>← Back</button>
+            <button className="back-button" type="button" onClick={onBack}>
+              <span aria-hidden="true">&larr;</span>
+              Back
+            </button>
             <button type="button" onClick={onClose} aria-label="Close">
               <X size={20} aria-hidden="true" />
             </button>

@@ -65,7 +65,10 @@ function ClaimDetailsModal({ claim, onClose, onStatusChange }) {
             <p>{claim.farmerName} - {claim.village}, {claim.district}</p>
           </div>
           <div className="modal-header-actions">
-            <button className="back-button" type="button" onClick={onClose}>← Back</button>
+            <button className="back-button" type="button" onClick={onClose}>
+              <span aria-hidden="true">&larr;</span>
+              Back
+            </button>
             <button type="button" onClick={onClose} aria-label="Close claim details">
               <X size={20} aria-hidden="true" />
             </button>

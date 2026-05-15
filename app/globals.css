@@ -4261,13 +4261,23 @@ tr.risk-clean td {
   padding: 24px;
 }
 
+.dashboard-content-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.dashboard-content-container > .back-button {
+  margin-bottom: 16px;
+}
+
 .gov-page,
 .page,
 .friendly-page,
 .disaster-page {
   width: 100%;
   max-width: 1240px;
-  margin: 0;
+  margin: 0 auto;
   padding: 0 0 48px;
 }
 
