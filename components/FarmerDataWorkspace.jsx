@@ -317,7 +317,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
             <h1>{t("farmerDataTitle")}</h1>
             <p>{t("farmerDataSubtitle")}</p>
           </div>
-          <div className="farmer-header-actions">
+          <div className="page-actions farmer-header-actions">
             <span className="api-notice">{t("contact")}: 9579207219</span>
             <button className="download-csv-btn" type="button" onClick={() => downloadFarmersCsv(farmers)}>
               <Download size={17} aria-hidden="true" />

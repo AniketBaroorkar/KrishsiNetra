@@ -1,5 +1,5 @@
-import FarmerDataWorkspace from "../../components/FarmerDataWorkspace";
+import { redirect } from "next/navigation";
 
 export default function FarmerDataPage() {
-  return <FarmerDataWorkspace />;
+  redirect("/dashboard/farmers");
 }

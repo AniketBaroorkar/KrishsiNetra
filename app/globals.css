@@ -3953,6 +3953,11 @@ tr.risk-clean td {
   gap: 14px;
 }
 
+.alert-form-heading {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+}
+
 .alert-form label {
   display: grid;
   gap: 7px;
@@ -3990,27 +3995,38 @@ tr.risk-clean td {
   font-weight: 950;
 }
 
-.targeted-farmers h2 {
-  margin-top: 0;
-  color: #123820;
-}
-
 .target-list {
   display: grid;
   gap: 10px;
   margin-top: 14px;
 }
 
-.target-list span {
-  display: flex;
-  align-items: center;
+.target-farmer-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
+  align-items: center;
   border-radius: 8px;
-  padding: 10px;
+  padding: 12px;
   background: #f4faf5;
   color: #365343;
-  font-size: 13px;
+}
+
+.target-farmer-card strong,
+.target-farmer-card small {
+  display: block;
+}
+
+.target-farmer-card small {
+  margin-top: 3px;
+  color: #607466;
+  font-size: 12px;
   font-weight: 850;
+}
+
+.target-farmer-card .gps-trust-badge {
+  grid-column: 1 / -1;
+  width: fit-content;
 }
 
 .farmer-header-actions {
@@ -4019,6 +4035,14 @@ tr.risk-clean td {
   justify-content: flex-end;
   gap: 10px;
   max-width: 620px;
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .download-csv-btn,

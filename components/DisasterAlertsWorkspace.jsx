@@ -37,6 +37,19 @@ function statusLabel(status, t) {
   return status || "";
 }
 
+function riskClass(level) {
+  if (level === "High") return "high";
+  if (level === "Medium") return "medium";
+  return "low";
+}
+
+function gpsTrustClass(status) {
+  if (status === "Valid") return "valid";
+  if (status === "Spoofing Suspected") return "spoofing";
+  if (status === "Suspicious") return "suspicious";
+  return "unknown";
+}
+
 export default function DisasterAlertsWorkspace() {
   const { t } = useLanguage();
   const [farmers, setFarmers] = useState(() => getDemoFarmers());
@@ -115,9 +128,9 @@ export default function DisasterAlertsWorkspace() {
     <section className="gov-page disaster-alert-page">
       <div className="gov-page-header">
         <div>
-          <span className="gov-kicker">{t("disasterAlerts")}</span>
-          <h1>{t("disasterAlerts")}</h1>
-          <p>{t("disasterSubtitle")}</p>
+          <span className="gov-kicker">Disaster Impact</span>
+          <h1>Disaster Impact & Farmer Alerts</h1>
+          <p>Send disaster impact messages to selected farmers based on district, crop, and risk level.</p>
         </div>
         <span className="api-notice">{t("contact")}: 9579207219</span>
       </div>
@@ -131,6 +144,10 @@ export default function DisasterAlertsWorkspace() {
 
       <div className="alert-layout">
         <form className="gov-card alert-form">
+          <div className="friendly-card-heading alert-form-heading">
+            <h2>Alert Configuration</h2>
+            <p>Choose farmer segments and prepare a clear advisory message for the mobile app.</p>
+          </div>
           <label>{t("district")}<select value={form.district} onChange={(event) => updateField("district", event.target.value)}>{districts.map((item) => <option key={item} value={item}>{item === "All" ? t("all") : item}</option>)}</select></label>
           <label>{t("cropType")}<select value={form.cropType} onChange={(event) => updateField("cropType", event.target.value)}>{crops.map((item) => <option key={item} value={item}>{item === "All" ? t("all") : item}</option>)}</select></label>
           <label>{t("riskScore")}<select value={form.riskLevel} onChange={(event) => updateField("riskLevel", event.target.value)}>{["All", "Low", "Medium", "High"].map((item) => <option key={item} value={item}>{riskLabel(item, t)}</option>)}</select></label>
@@ -147,14 +164,20 @@ export default function DisasterAlertsWorkspace() {
         </form>
 
         <aside className="gov-card targeted-farmers">
-          <h2>{t("targetFarmers")}</h2>
-          <p>{filteredFarmers.length} {t("farmerRecordsCount")}</p>
+          <div className="friendly-card-heading">
+            <h2>{t("targetFarmers")}</h2>
+            <p>{filteredFarmers.length} {t("farmerRecordsCount")}</p>
+          </div>
           <div className="target-list">
             {filteredFarmers.slice(0, 8).map((farmer) => (
-              <span key={farmer.farmerId}>
-                <Bell size={15} aria-hidden="true" />
-                {farmer.farmerName} - {farmer.cropType} - {farmer.district}
-              </span>
+              <article className="target-farmer-card" key={farmer.farmerId}>
+                <div>
+                  <strong>{farmer.farmerName}</strong>
+                  <small>{farmer.cropType} - {farmer.district}</small>
+                </div>
+                <span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)}</span>
+                <span className={`gps-trust-badge ${gpsTrustClass(farmer.gpsTrustStatus)}`}>{farmer.gpsTrustStatus || "Unknown"}</span>
+              </article>
             ))}
           </div>
         </aside>
@@ -170,26 +193,26 @@ export default function DisasterAlertsWorkspace() {
             <thead>
               <tr>
                 <th>{t("alertId")}</th>
-                <th>{t("disasterType")}</th>
                 <th>{t("messageTitle")}</th>
+                <th>{t("disasterType")}</th>
                 <th>{t("messageBody")}</th>
+                <th>Target Farmers</th>
                 <th>{t("language")}</th>
-                <th>{t("farmers")}</th>
+                <th>Sent Time</th>
                 <th>{t("status")}</th>
-                <th>{t("timestamp")}</th>
               </tr>
             </thead>
             <tbody>
               {alerts.map((alert) => (
                 <tr key={alert.id}>
                   <td><strong>{alert.id}</strong></td>
-                  <td>{disasterLabel(alert.disasterType, t)}</td>
                   <td>{alert.title}</td>
+                  <td>{disasterLabel(alert.disasterType, t)}</td>
                   <td>{alert.message}</td>
-                  <td>{alert.language}</td>
                   <td>{alert.farmerIds?.length || 0}</td>
-                  <td><span className="status-badge approved">{statusLabel(alert.status, t)}</span></td>
+                  <td>{alert.language}</td>
                   <td>{alert.sentAt}</td>
+                  <td><span className="status-badge approved">{statusLabel(alert.status, t)}</span></td>
                 </tr>
               ))}
             </tbody>
