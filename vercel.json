@@ -1,0 +1,5 @@
+{
+  "installCommand": "cd frontend && npm install",
+  "buildCommand": "npm run vercel-build",
+  "framework": "nextjs"
+}
