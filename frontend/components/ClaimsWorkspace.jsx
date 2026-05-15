@@ -439,8 +439,11 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
           <table className="friendly-table gov-table claims-table">
             <thead>
               <tr>
+                <th>{t("action")}</th>
                 <th>{t("claimId")}</th>
                 <th>{t("farmerName")}</th>
+                <th>{t("status")}</th>
+                <th>{t("riskScore")}</th>
                 <th>{t("phoneNumber")}</th>
                 <th>{t("village")}</th>
                 <th>{t("district")}</th>
@@ -448,14 +451,11 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
                 <th>{t("predictedCrop")}</th>
                 <th>{t("gpsLatitude")}</th>
                 <th>{t("gpsLongitude")}</th>
-                <th>{t("riskScore")}</th>
-                <th>{t("status")}</th>
                 <th>GPS Trust Status</th>
                 <th>Mock Location</th>
                 <th>GPS Accuracy</th>
                 <th>Location Risk</th>
                 <th>{t("submittedDate")}</th>
-                <th>{t("action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -463,30 +463,6 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
                 const riskLevel = claim.riskLevel || getRiskLevel(claim.riskScore);
                 return (
                   <tr key={claim.id}>
-                    <td><strong>{claim.id}</strong></td>
-                    <td>{claim.farmerName}</td>
-                    <td>{claim.phone}</td>
-                    <td>{claim.village}</td>
-                    <td>{claim.district}</td>
-                    <td>{claim.cropClaimed}</td>
-                    <td>{claim.predictedCrop}</td>
-                    <td>{claim.gpsLat ?? t("missingGps")}</td>
-                    <td>{claim.gpsLon ?? t("missingGps")}</td>
-                    <td>
-                      <span className={`risk-badge ${riskBadgeClass(riskLevel)}`}>
-                        {riskLabel(riskLevel, t)} {claim.riskScore.toFixed(2)}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`status-badge ${statusBadgeClass(claim.status)}`}>
-                        {statusLabel(claim.status, t)}
-                      </span>
-                    </td>
-                    <td><span className={`gps-trust-badge ${gpsTrustClass(claim.gpsTrustStatus)}`}>{claim.gpsTrustStatus}</span></td>
-                    <td>{mockLocationLabel(claim.isMockLocation)}</td>
-                    <td>{claim.gpsAccuracy ? `${claim.gpsAccuracy} m` : "Unknown"}</td>
-                    <td>{claim.locationRiskReason}</td>
-                    <td>{claim.submittedDate}</td>
                     <td>
                       <div className="table-actions">
                         <button type="button" onClick={() => setSelectedClaim(claim)}>
@@ -496,6 +472,30 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
                         <ClaimActions claim={claim} onStatusChange={updateStatus} t={t} />
                       </div>
                     </td>
+                    <td><strong>{claim.id}</strong></td>
+                    <td>{claim.farmerName}</td>
+                    <td>
+                      <span className={`status-badge ${statusBadgeClass(claim.status)}`}>
+                        {statusLabel(claim.status, t)}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`risk-badge ${riskBadgeClass(riskLevel)}`}>
+                        {riskLabel(riskLevel, t)} {claim.riskScore.toFixed(2)}
+                      </span>
+                    </td>
+                    <td>{claim.phone}</td>
+                    <td>{claim.village}</td>
+                    <td>{claim.district}</td>
+                    <td>{claim.cropClaimed}</td>
+                    <td>{claim.predictedCrop}</td>
+                    <td>{claim.gpsLat ?? t("missingGps")}</td>
+                    <td>{claim.gpsLon ?? t("missingGps")}</td>
+                    <td><span className={`gps-trust-badge ${gpsTrustClass(claim.gpsTrustStatus)}`}>{claim.gpsTrustStatus}</span></td>
+                    <td>{mockLocationLabel(claim.isMockLocation)}</td>
+                    <td>{claim.gpsAccuracy ? `${claim.gpsAccuracy} m` : "Unknown"}</td>
+                    <td>{claim.locationRiskReason}</td>
+                    <td>{claim.submittedDate}</td>
                   </tr>
                 );
               })}
