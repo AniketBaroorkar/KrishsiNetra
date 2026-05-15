@@ -6,7 +6,7 @@ import { ArrowRight, BarChart3, Bell, BriefcaseBusiness, Camera, Mail, MessageCi
 import { LanguageSelector, useLanguage } from "../components/LanguageProvider";
 
 const contact = {
-  email: "info@krishinetra.ai",
+  email: "krishinetra.ai@gmail.com",
   phone: "9579207219",
   linkedin: "https://www.linkedin.com/",
   instagram: "https://www.instagram.com/",
@@ -130,7 +130,7 @@ export default function HomePage() {
         </form>
       </section>
 
-      <footer className="krishi-footer">KrishiNetra | {t("contact")}: 9579207219 | info@krishinetra.ai</footer>
+      <footer className="krishi-footer">KrishiNetra | {t("contact")}: 9579207219 | krishinetra.ai@gmail.com</footer>
     </main>
   );
 }
