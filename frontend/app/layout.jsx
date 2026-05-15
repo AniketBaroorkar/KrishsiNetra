@@ -1,6 +1,14 @@
 import "./globals.css";
 import "./platform-polish.css";
+import { Inter } from "next/font/google";
 import { LanguageProvider } from "../components/LanguageProvider";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata = {
   title: "KrishiNetra Government Dashboard",
@@ -9,7 +17,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <body>
         <LanguageProvider>{children}</LanguageProvider>
       </body>

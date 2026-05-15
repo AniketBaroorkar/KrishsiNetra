@@ -80,6 +80,9 @@ export default function HomePage() {
             <Link className="krishi-cta secondary" href="/disaster-alerts">{t("sendDisasterAlert")}<Bell size={18} /></Link>
           </div>
         </div>
+        <svg className="hero-wave" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,100 C360,10 1080,10 1440,100 L1440,100 L0,100 Z" fill="#f6fbf3" />
+        </svg>
       </section>
 
       <section className="krishi-section about-band" id="about">
