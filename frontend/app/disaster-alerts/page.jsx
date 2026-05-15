@@ -1,13 +1,15 @@
+import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 import DisasterAlertsWorkspace from "../../components/DisasterAlertsWorkspace";
-import BackButton from "../../components/BackButton";
 
 export default function PublicDisasterAlertsPage() {
   return (
-    <main className="public-disaster-shell">
-      <div className="public-disaster-container">
-        <BackButton fallbackPath="/" />
+    <div className="dashboard-shell-stacked">
+      <SiteHeader />
+      <main className="dashboard-main-stacked">
         <DisasterAlertsWorkspace />
-      </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }
