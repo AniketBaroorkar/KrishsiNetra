@@ -1,16 +1,12 @@
-import DashboardNav from "../../components/DashboardNav";
-import BackButton from "../../components/BackButton";
+import SiteHeader from "../../components/SiteHeader";
+import DashboardSubNav from "../../components/DashboardSubNav";
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="dashboard-shell gov-dashboard-shell">
-      <DashboardNav />
-      <main className="dashboard-main gov-dashboard-main">
-        <div className="dashboard-content-container">
-          <BackButton fallbackPath="/dashboard" />
-          {children}
-        </div>
-      </main>
+    <div className="dashboard-shell-stacked">
+      <SiteHeader />
+      <DashboardSubNav />
+      <main className="dashboard-main-stacked">{children}</main>
     </div>
   );
 }
