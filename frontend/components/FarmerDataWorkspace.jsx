@@ -382,12 +382,12 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
           <table className="friendly-table gov-table farmer-table">
             <thead>
               <tr>
+                <th>{t("action")}</th>
                 <th>{t("farmerId")}</th>
                 <th>{t("farmerName")}</th>
                 <th>{t("lastPhoto")}</th>
                 <th>{t("claimStatus")}</th>
                 <th>{t("riskScore")}</th>
-                <th>{t("action")}</th>
                 <th>{t("mobileNumber")}</th>
                 <th>{t("village")}</th>
                 <th>{t("taluka")}</th>
@@ -409,11 +409,6 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
             <tbody>
               {visibleFarmers.map((farmer) => (
                 <tr key={farmer.farmerId}>
-                  <td><strong>{farmer.farmerId}</strong></td>
-                  <td>{farmer.farmerName}</td>
-                  <td>{farmer.photoUrl ? <img className="table-photo" src={farmer.photoUrl} alt="" /> : t("missingPhoto")}</td>
-                  <td><span className={`status-badge ${statusClass(farmer.claimStatus)}`}>{statusLabel(farmer.claimStatus, t)}</span></td>
-                  <td><span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</span></td>
                   <td>
                     <div className="table-actions">
                       <button className="view-detail-btn" type="button" onClick={() => setSelectedFarmer(farmer)}>
@@ -426,6 +421,11 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                       </button>
                     </div>
                   </td>
+                  <td><strong>{farmer.farmerId}</strong></td>
+                  <td>{farmer.farmerName}</td>
+                  <td>{farmer.photoUrl ? <img className="table-photo" src={farmer.photoUrl} alt="" /> : t("missingPhoto")}</td>
+                  <td><span className={`status-badge ${statusClass(farmer.claimStatus)}`}>{statusLabel(farmer.claimStatus, t)}</span></td>
+                  <td><span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</span></td>
                   <td>{farmer.mobileNumber}</td>
                   <td>{farmer.village}</td>
                   <td>{farmer.taluka}</td>
