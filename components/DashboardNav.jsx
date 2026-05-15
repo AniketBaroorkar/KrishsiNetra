@@ -10,6 +10,7 @@ import {
   Home,
   LayoutDashboard,
   Map,
+  Satellite,
   ShieldCheck,
 } from "lucide-react";
 
@@ -21,6 +22,7 @@ const links = [
   { href: "/dashboard/farmers", labelKey: "farmerData", icon: ClipboardList },
   { href: "/dashboard/claims", labelKey: "claims", icon: ClipboardList },
   { href: "/dashboard/analytics", labelKey: "analytics", icon: BarChart3 },
+  { href: "/dashboard/satellite", labelKey: "satelliteVerification", icon: Satellite },
   { href: "/dashboard/disaster", labelKey: "disasterImpact", icon: CloudRain },
   { href: "/dashboard/fraud", labelKey: "fraudAlerts", icon: AlertTriangle },
   { href: "/dashboard/map", labelKey: "liveMap", icon: Map },

@@ -4328,6 +4328,173 @@ tr.risk-clean td {
   font-weight: 900;
 }
 
+.claim-modal-section {
+  padding: 16px 20px 0;
+}
+
+.satellite-verification-panel {
+  border: 1px solid #d9e9d9;
+  border-radius: 8px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: 0 16px 34px rgba(57, 91, 62, 0.08);
+}
+
+.satellite-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.satellite-panel-heading h3 {
+  margin: 8px 0 0;
+  color: #123820;
+}
+
+.satellite-panel-heading p {
+  margin: 6px 0 0;
+  color: #607466;
+  line-height: 1.55;
+}
+
+.satellite-run-button:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.satellite-media-grid,
+.satellite-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.satellite-image-card {
+  overflow: hidden;
+  border: 1px solid #d9e9d9;
+  border-radius: 8px;
+  background: #f7fbf5;
+}
+
+.satellite-image-card span {
+  display: block;
+  padding: 10px 12px;
+  color: #365343;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.satellite-image-card img,
+.satellite-empty,
+.satellite-ndvi-placeholder {
+  width: 100%;
+  height: 230px;
+}
+
+.satellite-image-card img {
+  display: block;
+  object-fit: cover;
+}
+
+.satellite-empty,
+.satellite-ndvi-placeholder {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.34) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,0.34) 1px, transparent 1px),
+    #d9edc5;
+  background-size: 34px 34px;
+  color: #14532d;
+  font-weight: 950;
+}
+
+.demo-satellite-note {
+  margin: 14px 0 0;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fffbeb;
+  color: #92400e;
+  font-weight: 900;
+}
+
+.satellite-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.satellite-result-grid span {
+  display: grid;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f4faf5;
+  color: #52635a;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.satellite-result-grid strong {
+  color: #102018;
+  font-size: 15px;
+}
+
+.satellite-risk-reason {
+  grid-column: 1 / -1;
+  margin: 0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #eef8f1;
+  color: #365343;
+  line-height: 1.55;
+  font-weight: 850;
+}
+
+.satellite-page .satellite-toolbar {
+  grid-template-columns: minmax(260px, 1fr) minmax(260px, 0.6fr);
+}
+
+.satellite-overview-grid {
+  margin-bottom: 16px;
+}
+
+.compact-result {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ndvi-explanation-card strong {
+  display: block;
+  border-radius: 8px;
+  padding: 14px;
+  background: #123820;
+  color: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .satellite-media-grid,
+  .satellite-overview-grid,
+  .satellite-page .satellite-toolbar,
+  .satellite-result-grid,
+  .compact-result {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1100px) {
   .gov-dashboard-shell {
     flex-direction: column;

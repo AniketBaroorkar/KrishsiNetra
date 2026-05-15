@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
+import SatelliteVerificationPanel from "./SatelliteVerificationPanel";
 import { fetchClaims, getDemoClaims, getRiskLevel, patchClaimStatus } from "../utils/claims";
 
 const riskOptions = ["All", "Low", "Medium", "High"];
@@ -151,6 +152,14 @@ function ClaimDetailsModal({ claim, onClose, onStatusChange, t }) {
             </div>
             <p className="satellite-result">{claim.satelliteResult}</p>
           </div>
+        </div>
+
+        <div className="claim-modal-section">
+          <SatelliteVerificationPanel
+            record={claim}
+            uploadedPhotoUrl={claim.photoUrl}
+            title={t("satelliteVerification")}
+          />
         </div>
 
         <div className="modal-action-row">

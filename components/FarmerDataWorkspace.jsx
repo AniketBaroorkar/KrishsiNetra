@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Bell, Download, Eye, Flag, Image as ImageIcon, MapPin, Search, ThumbsDown, ThumbsUp, X } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
+import SatelliteVerificationPanel from "./SatelliteVerificationPanel";
 import {
   downloadFarmersCsv,
   downloadFarmersJson,
@@ -129,6 +130,14 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
               )) : <span>{t("noAlertsSent")}</span>}
             </div>
           </div>
+        </div>
+
+        <div className="claim-modal-section">
+          <SatelliteVerificationPanel
+            record={farmer}
+            uploadedPhotoUrl={farmer.photoUrl}
+            title={t("satelliteVerification")}
+          />
         </div>
 
         <div className="modal-action-row">
