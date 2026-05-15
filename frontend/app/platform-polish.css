@@ -160,19 +160,19 @@ body {
 /* Floating contact button — bottom-right FAB on every page */
 .contact-fab {
   position: fixed;
-  right: 22px;
-  bottom: 90px;
+  right: 24px;
+  bottom: 96px;
   z-index: 95;
   display: grid;
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
   place-items: center;
   border: 0;
   border-radius: 50%;
   background: linear-gradient(135deg, #f59e0b, #f97316);
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 14px 32px rgba(245, 158, 11, 0.4), 0 0 0 4px rgba(245, 158, 11, 0.12);
+  box-shadow: 0 16px 36px rgba(245, 158, 11, 0.42), 0 0 0 6px rgba(245, 158, 11, 0.14);
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 

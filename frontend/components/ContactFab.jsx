@@ -28,7 +28,7 @@ export default function ContactFab() {
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
-        <MessageCircle size={22} aria-hidden="true" />
+        <MessageCircle size={28} aria-hidden="true" />
       </button>
 
       {open ? (
