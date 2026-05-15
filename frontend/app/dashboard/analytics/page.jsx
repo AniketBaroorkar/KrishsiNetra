@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 
 import { useLanguage } from "../../../components/LanguageProvider";
+import RiskBarChart from "../../../components/charts/RiskBarChart";
+import DistrictBarChart from "../../../components/charts/DistrictBarChart";
 import { demoAlerts } from "../../../data/alertsData";
 import { getDemoFarmers, uniqueValues } from "../../../utils/farmers";
 
@@ -124,19 +126,10 @@ export default function AnalyticsPage() {
             <h2>{t("riskAnalytics")}</h2>
             <p>{t("riskAnalyticsSubtitle")}</p>
           </div>
-          <div className="analytics-bar-list">
-            {riskRows.map((row) => (
-              <div className="analytics-bar-row" key={row.level}>
-                <div>
-                  <span className={`risk-badge ${riskClass(row.level)}`}>{riskLabel(row.level, t)}</span>
-                  <strong>{row.count}</strong>
-                </div>
-                <i>
-                  <b className={riskClass(row.level)} style={{ width: `${percent(row.count, totalFarmers)}%` }} />
-                </i>
-              </div>
-            ))}
-          </div>
+          <RiskBarChart
+            data={riskRows.map((row) => ({ name: row.level, value: row.count }))}
+            height={220}
+          />
         </section>
 
         <section className="gov-card analytics-card">
@@ -159,18 +152,7 @@ export default function AnalyticsPage() {
             <h2>{t("districtAnalytics")}</h2>
             <p>{t("districtAnalyticsSubtitle")}</p>
           </div>
-          <div className="district-bars analytics-district-bars">
-            {districtRows.map((row) => (
-              <div className="district-row" key={row.district}>
-                <span>{row.district}</span>
-                <div>
-                  <i style={{ width: `${Math.max(8, percent(row.count, totalFarmers))}%` }} />
-                </div>
-                <strong>{row.count}</strong>
-                <em>{t("claims")}</em>
-              </div>
-            ))}
-          </div>
+          <DistrictBarChart data={districtRows} />
         </section>
 
         <section className="gov-card analytics-card">
