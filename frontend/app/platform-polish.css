@@ -1,1 +1,168 @@
-/* Reserved for platform-wide visual polish imported by app/layout.jsx. */
+/* KrishiNetra design system — typography. Reference for all pages. */
+
+:root {
+  --font-sans-stack: var(--font-sans), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.25rem;
+  --fs-2xl: 1.5rem;
+  --fs-3xl: 1.875rem;
+  --fs-4xl: 2.25rem;
+  --fs-5xl: 3rem;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.08em;
+}
+
+html {
+  font-size: clamp(16px, 0.875rem + 0.4vw, 22px);
+}
+
+html,
+body {
+  font-family: var(--font-sans-stack);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Brand wordmark */
+.krishi-brand-lockup strong {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--tracking-tight);
+}
+.krishi-brand-lockup small {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+/* Top contact strip + footer contact links */
+.krishi-contact-strip a,
+.contact-details a {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+/* Primary nav */
+.krishi-nav-bar a {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0;
+}
+
+/* Eyebrows — ABOUT US, FEATURES, CONTACT labels */
+.hero-kicker,
+.section-eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+.hero-kicker {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: var(--fw-medium);
+}
+
+/* Hero headline */
+.krishi-hero h1 {
+  font-size: clamp(2.5rem, 4vw + 1rem, 5rem);
+  font-weight: var(--fw-extrabold);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-tight);
+}
+.krishi-hero p {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-regular);
+  line-height: 1.6;
+}
+
+/* Section H2 */
+.section-copy h2,
+.section-heading h2,
+.contact-details h2 {
+  font-size: clamp(1.75rem, 2vw + 0.75rem, 3rem);
+  font-weight: var(--fw-bold);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Section body copy */
+.section-copy p,
+.premium-feature-card p,
+.contact-details p {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-regular);
+  line-height: 1.65;
+}
+
+/* About proof card */
+.about-proof-card strong {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+}
+.about-proof-card span {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+}
+
+/* Feature cards */
+.premium-feature-card h3 {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* CTAs */
+.krishi-cta {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Contact form */
+.contact-form label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+}
+
+/* Footer */
+.krishi-footer {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+}
+
+/* Hero → page transition: clean curve divider */
+.hero-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: clamp(60px, 7vh, 110px);
+  z-index: 3;
+  pointer-events: none;
+  display: block;
+}
