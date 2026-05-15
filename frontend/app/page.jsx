@@ -1,31 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BarChart3, Bell, BriefcaseBusiness, Camera, Mail, MessageCircle, Phone, Satellite, Sprout, Users } from "lucide-react";
+import { ArrowRight, BarChart3, Bell, Mail, MessageCircle, Phone, Satellite, Sprout, Users } from "lucide-react";
 
-import { LanguageSelector, useLanguage } from "../components/LanguageProvider";
-
-const contact = {
-  email: "krishinetra.ai@gmail.com",
-  phone: "9579207219",
-  linkedin: "https://www.linkedin.com/",
-  instagram: "https://www.instagram.com/",
-  whatsapp: "https://wa.me/919579207219",
-  tel: "tel:+919579207219",
-};
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
+import FloatingSocials from "../components/FloatingSocials";
+import { useLanguage } from "../components/LanguageProvider";
+import { siteContact } from "../data/site";
 
 const heroImage = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1800&q=80";
 
 export default function HomePage() {
   const { t } = useLanguage();
-  const navLinks = [
-    { href: "/", label: t("home") },
-    { href: "/about", label: t("aboutUs") },
-    { href: "/#features", label: t("features") },
-    { href: "/dashboard", label: t("dashboard") },
-    { href: "/disaster-alerts", label: t("disasterAlerts") },
-    { href: "/#contact", label: t("contact") },
-  ];
 
   const features = [
     t("geoTaggedPhoto"),
@@ -38,35 +25,8 @@ export default function HomePage() {
 
   return (
     <main className="krishi-site" id="home">
-      <header className="krishi-header">
-        <div className="krishi-header-top">
-          <Link className="krishi-brand-lockup" href="/">
-            <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
-            <span>
-              <strong>{t("appName")}</strong>
-            </span>
-          </Link>
-          <div className="krishi-contact-strip" aria-label="Contact details">
-            <LanguageSelector />
-            <a href={`mailto:${contact.email}`}><Mail size={16} aria-hidden="true" />{contact.email}</a>
-            <a href={contact.tel}><Phone size={16} aria-hidden="true" />{contact.phone}</a>
-          </div>
-        </div>
-        <nav className="krishi-nav-bar" aria-label="Main navigation">
-          {navLinks.map((link) => <Link href={link.href} key={link.label}>{link.label}</Link>)}
-        </nav>
-      </header>
-
-      <div className="floating-socials" aria-label="Social and contact links">
-        {[
-          { label: "LinkedIn", href: contact.linkedin, icon: BriefcaseBusiness },
-          { label: "Instagram", href: contact.instagram, icon: Camera },
-          { label: "WhatsApp", href: contact.whatsapp, icon: MessageCircle },
-          { label: "Phone", href: contact.tel, icon: Phone },
-        ].map(({ label, href, icon: Icon }) => (
-          <a href={href} key={label} aria-label={label} title={label}><Icon size={19} aria-hidden="true" /></a>
-        ))}
-      </div>
+      <SiteHeader />
+      <FloatingSocials />
 
       <section className="krishi-hero single-hero" style={{ backgroundImage: `url("${heroImage}")` }}>
         <div className="hero-green-overlay" />
@@ -119,9 +79,9 @@ export default function HomePage() {
           <span className="section-eyebrow">{t("contact")}</span>
           <h2>{t("contactSupport")}</h2>
           <p>{t("contactSubtitle")}</p>
-          <a href={`mailto:${contact.email}`}><Mail size={17} />{contact.email}</a>
-          <a href={contact.tel}><Phone size={17} />{contact.phone}</a>
-          <a href={contact.whatsapp}><MessageCircle size={17} />WhatsApp</a>
+          <a href={`mailto:${siteContact.email}`}><Mail size={17} />{siteContact.email}</a>
+          <a href={siteContact.tel}><Phone size={17} />{siteContact.phone}</a>
+          <a href={siteContact.whatsapp}><MessageCircle size={17} />WhatsApp</a>
         </div>
         <form className="contact-form">
           <label>{t("fullName")}<input placeholder={t("farmerName")} /></label>
@@ -133,7 +93,7 @@ export default function HomePage() {
         </form>
       </section>
 
-      <footer className="krishi-footer">KrishiNetra | {t("contact")}: 9579207219 | krishinetra.ai@gmail.com</footer>
+      <SiteFooter />
     </main>
   );
 }
