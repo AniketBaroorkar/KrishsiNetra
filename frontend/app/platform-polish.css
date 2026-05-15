@@ -751,7 +751,7 @@ body {
 }
 
 .dashboard-subnav {
-  width: min(1280px, calc(100% - 48px));
+  width: min(1600px, calc(100% - 48px));
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -922,7 +922,7 @@ body {
 
 /* Page header */
 .gov-page {
-  width: min(1240px, calc(100% - 40px));
+  width: min(1600px, calc(100% - 48px));
   padding: 24px 0 48px;
 }
 
