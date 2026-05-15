@@ -29,12 +29,12 @@ export default function HomePage() {
   ];
 
   const features = [
-    "Geo-tagged mobile crop photo intake",
-    "AI crop prediction and confidence scoring",
-    "Satellite crop-health verification",
-    "Fraud risk scoring for officers",
-    "Farmer monitoring and district summaries",
-    "Disaster alerts sent to farmers",
+    t("geoTaggedPhoto"),
+    t("aiPredictedCrop"),
+    t("satelliteResult"),
+    t("riskScore"),
+    t("districtSummary"),
+    t("alertsSent"),
   ];
 
   return (
@@ -44,7 +44,7 @@ export default function HomePage() {
           <Link className="krishi-brand-lockup" href="/">
             <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
             <span>
-              <strong>{t("title")}</strong>
+              <strong>{t("appName")}</strong>
               <small>{t("subtitle")}</small>
             </span>
           </Link>
@@ -87,30 +87,27 @@ export default function HomePage() {
       <section className="krishi-section about-band" id="about">
         <div className="section-copy">
           <span className="section-eyebrow">{t("aboutUs")}</span>
-          <h2>Fraud detection, crop monitoring, and farmer support in one platform.</h2>
-          <p>
-            KrishiNetra helps officers verify claims with farmer-submitted GPS photos, AI crop
-            prediction, satellite crop-health evidence, and explainable risk scores.
-          </p>
+          <h2>{t("heroHeading")}</h2>
+          <p>{t("heroSubheading")}</p>
         </div>
         <div className="about-proof-card">
           <BarChart3 size={30} aria-hidden="true" />
-          <strong>Government-ready demo workflow</strong>
-          <span>Mobile submission, farmer records, officer dashboard, fraud flags, and disaster alerts.</span>
+          <strong>{t("dashboardTitle")}</strong>
+          <span>{t("dashboardSubtitle")}</span>
         </div>
       </section>
 
       <section className="krishi-section" id="features">
         <div className="section-heading">
           <span className="section-eyebrow">{t("features")}</span>
-          <h2>Built for agriculture departments and hackathon presentation clarity.</h2>
+          <h2>{t("subtitle")}</h2>
         </div>
         <div className="premium-feature-grid">
           {features.map((feature) => (
             <article className="premium-feature-card" key={feature}>
               <span><Sprout size={24} aria-hidden="true" /></span>
               <h3>{feature}</h3>
-              <p>Designed with clean officer workflows, readable badges, and mobile-app integration readiness.</p>
+              <p>{t("dashboardSubtitle")}</p>
             </article>
           ))}
         </div>
@@ -119,23 +116,23 @@ export default function HomePage() {
       <section className="krishi-section contact-section" id="contact">
         <div className="contact-details">
           <span className="section-eyebrow">{t("contact")}</span>
-          <h2>Contact KrishiNetra support</h2>
-          <p>Use these demo contact details in the web dashboard, farmer support flow, and presentation footer.</p>
+          <h2>{t("contactSupport")}</h2>
+          <p>{t("contactSubtitle")}</p>
           <a href={`mailto:${contact.email}`}><Mail size={17} />{contact.email}</a>
           <a href={contact.tel}><Phone size={17} />{contact.phone}</a>
-          <a href={contact.whatsapp}><MessageCircle size={17} />WhatsApp farmer support</a>
+          <a href={contact.whatsapp}><MessageCircle size={17} />WhatsApp</a>
         </div>
         <form className="contact-form">
-          <label>Full Name<input placeholder="Officer or farmer name" /></label>
-          <label>Phone Number<input placeholder="9579207219" /></label>
-          <label>District<input placeholder="Pune" /></label>
-          <label>Request Type<select defaultValue="Dashboard demo"><option>Dashboard demo</option><option>Farmer support</option><option>Disaster alert</option></select></label>
-          <label className="wide">Message<textarea placeholder="Write your message" /></label>
-          <button className="krishi-cta primary" type="button">Submit</button>
+          <label>{t("fullName")}<input placeholder={t("farmerName")} /></label>
+          <label>{t("phoneNumber")}<input placeholder="9579207219" /></label>
+          <label>{t("district")}<input placeholder="Pune" /></label>
+          <label>{t("requestType")}<select defaultValue="Dashboard demo"><option>{t("dashboard")}</option><option>{t("farmerData")}</option><option>{t("disasterAlerts")}</option></select></label>
+          <label className="wide">{t("message")}<textarea placeholder={t("messageBody")} /></label>
+          <button className="krishi-cta primary" type="button">{t("submit")}</button>
         </form>
       </section>
 
-      <footer className="krishi-footer">KrishiNetra | Contact: 9579207219 | info@krishinetra.ai</footer>
+      <footer className="krishi-footer">KrishiNetra | {t("contact")}: 9579207219 | info@krishinetra.ai</footer>
     </main>
   );
 }

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-import { languages, translations } from "../utils/i18n";
+import { languages, translations } from "../app/i18n/translations";
 
 const LanguageContext = createContext(null);
 

@@ -26,6 +26,28 @@ function statusClass(status) {
   return "pending";
 }
 
+function statusLabel(status, t) {
+  const normalized = String(status || "").toLowerCase();
+  if (normalized === "all") return t("all");
+  if (normalized === "approved") return t("approved");
+  if (normalized === "verified") return t("verified");
+  if (normalized === "rejected") return t("rejected");
+  if (normalized === "flagged") return t("flagged");
+  if (normalized === "high risk" || normalized === "high") return t("highRisk");
+  if (normalized === "sent") return t("sent");
+  if (normalized === "delivered") return t("delivered");
+  if (normalized === "pending") return t("pending");
+  if (normalized === "not sent") return t("notSent");
+  return status || "";
+}
+
+function riskLabel(level, t) {
+  if (level === "High") return t("highRisk");
+  if (level === "Medium") return t("mediumRisk");
+  if (level === "Low") return t("lowRisk");
+  return t("all");
+}
+
 function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAlert, t }) {
   if (!farmer) return null;
 
@@ -41,7 +63,7 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
           <div className="modal-header-actions">
             <button className="back-button" type="button" onClick={onBack}>
               <span aria-hidden="true">&larr;</span>
-              Back
+              {t("back")}
             </button>
             <button type="button" onClick={onClose} aria-label="Close">
               <X size={20} aria-hidden="true" />
@@ -56,7 +78,7 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
             ) : (
               <div className="missing-photo">
                 <ImageIcon size={38} aria-hidden="true" />
-                Missing photo
+                {t("missingPhoto")}
               </div>
             )}
           </div>
@@ -67,31 +89,31 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
               <span>{t("village")} <strong>{farmer.village}</strong></span>
               <span>{t("taluka")} <strong>{farmer.taluka}</strong></span>
               <span>{t("district")} <strong>{farmer.district}</strong></span>
-              <span>State <strong>{farmer.state}</strong></span>
-              <span>Survey Number <strong>{farmer.surveyNumber}</strong></span>
-              <span>Farm Area <strong>{farmer.farmArea} acres</strong></span>
+              <span>{t("state")} <strong>{farmer.state}</strong></span>
+              <span>{t("surveyNumber")} <strong>{farmer.surveyNumber}</strong></span>
+              <span>{t("farmArea")} <strong>{farmer.farmArea} acres</strong></span>
             </div>
           </div>
         </div>
 
         <div className="claim-modal-grid">
           <div className="claim-detail-panel">
-            <h3>AI & Claim Verification</h3>
+            <h3>{t("aiClaimVerification")}</h3>
             <div className="detail-list">
               <span>{t("cropType")} <strong>{farmer.cropType}</strong></span>
-              <span>AI Predicted Crop <strong>{farmer.predictedCrop}</strong></span>
-              <span>Confidence <strong>{Math.round(farmer.confidenceScore * 100)}%</strong></span>
-              <span>{t("riskScore")} <strong>{farmer.riskLevel} {farmer.riskScore.toFixed(2)}</strong></span>
-              <span>{t("status")} <strong>{farmer.claimStatus}</strong></span>
+              <span>{t("aiPredictedCrop")} <strong>{farmer.predictedCrop}</strong></span>
+              <span>{t("confidence")} <strong>{Math.round(farmer.confidenceScore * 100)}%</strong></span>
+              <span>{t("riskScore")} <strong>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</strong></span>
+              <span>{t("status")} <strong>{statusLabel(farmer.claimStatus, t)}</strong></span>
             </div>
             <p className="fraud-reason">{farmer.riskReason}</p>
             <p className="satellite-result">{farmer.satelliteResult}</p>
           </div>
           <div className="claim-detail-panel">
-            <h3>GPS Location & Alert History</h3>
+            <h3>{t("gpsLocationAlertHistory")}</h3>
             <div className="mini-map">
               <span className="map-grid-label">
-                {farmer.latitude && farmer.longitude ? `${farmer.latitude}, ${farmer.longitude}` : "GPS missing"}
+                {farmer.latitude && farmer.longitude ? `${farmer.latitude}, ${farmer.longitude}` : t("missingGps")}
               </span>
               {farmer.latitude && farmer.longitude ? <span className="map-pin verified"><MapPin size={18} aria-hidden="true" /></span> : null}
               <i className="map-field one" />
@@ -102,19 +124,19 @@ function FarmerDetailsModal({ farmer, onBack, onClose, onStatusChange, onSendAle
               {farmer.alertHistory.length ? farmer.alertHistory.map((alert, index) => (
                 <span key={`${alert.title}-${index}`}>
                   <strong>{alert.title}</strong>
-                  {alert.type} - {alert.status} - {alert.sentAt}
+                  {alert.type} - {statusLabel(alert.status, t)} - {alert.sentAt}
                 </span>
-              )) : <span>No alerts sent yet</span>}
+              )) : <span>{t("noAlertsSent")}</span>}
             </div>
           </div>
         </div>
 
         <div className="modal-action-row">
           <div className="claim-actions">
-            <button type="button" className="approve" onClick={() => onStatusChange(farmer, "Approved")}><ThumbsUp size={15} />Approve Claim</button>
-            <button type="button" className="reject" onClick={() => onStatusChange(farmer, "Rejected")}><ThumbsDown size={15} />Reject Claim</button>
-            <button type="button" className="flag" onClick={() => onStatusChange(farmer, "Flagged")}><Flag size={15} />Flag as Fraud</button>
-            <button type="button" onClick={() => onSendAlert(farmer)}><Bell size={15} />Send Alert</button>
+            <button type="button" className="approve" onClick={() => onStatusChange(farmer, "Approved")}><ThumbsUp size={15} />{t("approveClaim")}</button>
+            <button type="button" className="reject" onClick={() => onStatusChange(farmer, "Rejected")}><ThumbsDown size={15} />{t("rejectClaim")}</button>
+            <button type="button" className="flag" onClick={() => onStatusChange(farmer, "Flagged")}><Flag size={15} />{t("flagAsFraud")}</button>
+            <button type="button" onClick={() => onSendAlert(farmer)}><Bell size={15} />{t("sendAlert")}</button>
           </div>
         </div>
       </section>
@@ -127,7 +149,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
   const pathname = usePathname();
   const router = useRouter();
   const [farmers, setFarmers] = useState(() => getDemoFarmers());
-  const [notice, setNotice] = useState(t("usingDemo"));
+  const [noticeKey, setNoticeKey] = useState("usingDemo");
   const [selectedFarmer, setSelectedFarmer] = useState(null);
   const [filters, setFilters] = useState({
     query: "",
@@ -144,14 +166,14 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         if (!active) return;
         if (result.farmers.length) {
           setFarmers(result.farmers);
-          setNotice(result.source === "backend" ? "Connected to backend farmer API." : t("usingDemo"));
+          setNoticeKey(result.source === "backend" ? "connectedBackend" : "usingDemo");
         }
       })
-      .catch(() => setNotice(t("usingDemo")));
+      .catch(() => setNoticeKey("usingDemo"));
     return () => {
       active = false;
     };
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     onFarmersChange?.(farmers);
@@ -191,8 +213,8 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
   function sendQuickAlert(farmer) {
     const alert = {
       type: "Heavy Rain",
-      title: "Weather advisory",
-      message: "Please check your crop field and follow local agriculture office guidance.",
+      title: t("disasterAlertSent"),
+      message: t("disasterSubtitle"),
       language: "English",
       status: "Sent",
       sentAt: new Date().toLocaleString(),
@@ -226,18 +248,18 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         <div className="gov-page-header">
           <div>
             <span className="gov-kicker">{t("farmerData")}</span>
-            <h1>Farmer Data</h1>
-            <p>View, search, filter, and export all registered farmer records</p>
+            <h1>{t("farmerDataTitle")}</h1>
+            <p>{t("farmerDataSubtitle")}</p>
           </div>
           <div className="farmer-header-actions">
-            <span className="api-notice">{notice}</span>
+            <span className="api-notice">{t(noticeKey)}</span>
             <button className="download-csv-btn" type="button" onClick={() => downloadFarmersCsv(farmers)}>
               <Download size={17} aria-hidden="true" />
-              Download Farmer Data
+              {t("downloadFarmerData")}
             </button>
             <button className="download-json-btn" type="button" onClick={() => downloadFarmersJson(farmers)}>
               <Download size={17} aria-hidden="true" />
-              Download JSON
+              {t("downloadJson")}
             </button>
           </div>
         </div>
@@ -252,7 +274,7 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                 <strong>{farmer.farmerName}</strong>
                 <span>{farmer.cropType} - {farmer.district}</span>
               </div>
-              <span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{farmer.riskLevel}</span>
+              <span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)}</span>
             </article>
           ))}
         </div>
@@ -265,39 +287,39 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         </label>
         <label>{t("district")}<select value={filters.district} onChange={(event) => updateFilter("district", event.target.value)}>{districts.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label>{t("cropType")}<select value={filters.crop} onChange={(event) => updateFilter("crop", event.target.value)}>{crops.map((item) => <option key={item}>{item}</option>)}</select></label>
-        <label>{t("riskScore")}<select value={filters.risk} onChange={(event) => updateFilter("risk", event.target.value)}>{["All", "Low", "Medium", "High"].map((item) => <option key={item}>{item}</option>)}</select></label>
-        <label>{t("status")}<select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>{statuses.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <label>{t("riskScore")}<select value={filters.risk} onChange={(event) => updateFilter("risk", event.target.value)}>{["All", "Low", "Medium", "High"].map((item) => <option key={item} value={item}>{riskLabel(item, t)}</option>)}</select></label>
+        <label>{t("status")}<select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>{statuses.map((item) => <option key={item} value={item}>{statusLabel(item, t)}</option>)}</select></label>
       </div>
 
       <section className="gov-card">
         <div className="friendly-card-heading table-heading-row">
           <div>
-            <h2>{compact ? "Farmer Table Preview" : "Farmer Records"}</h2>
-            <p>{filtered.length} farmer records</p>
+            <h2>{compact ? t("farmerTablePreview") : t("farmerRecords")}</h2>
+            <p>{filtered.length} {t("farmerRecordsCount")}</p>
           </div>
         </div>
         <div className="friendly-table-wrap">
           <table className="friendly-table gov-table farmer-table">
             <thead>
               <tr>
-                <th>Farmer ID</th>
+                <th>{t("farmerId")}</th>
                 <th>{t("farmerName")}</th>
                 <th>{t("mobileNumber")}</th>
                 <th>{t("village")}</th>
                 <th>{t("taluka")}</th>
                 <th>{t("district")}</th>
-                <th>State</th>
+                <th>{t("state")}</th>
                 <th>{t("cropType")}</th>
-                <th>Farm Area</th>
-                <th>Survey Number</th>
-                <th>GPS Latitude</th>
-                <th>GPS Longitude</th>
-                <th>Last Photo</th>
-                <th>Submission Date</th>
-                <th>Claim Status</th>
-                <th>Risk Score</th>
-                <th>Disaster Alert</th>
-                <th>Action</th>
+                <th>{t("farmArea")}</th>
+                <th>{t("surveyNumber")}</th>
+                <th>{t("gpsLatitude")}</th>
+                <th>{t("gpsLongitude")}</th>
+                <th>{t("lastPhoto")}</th>
+                <th>{t("submissionDate")}</th>
+                <th>{t("claimStatus")}</th>
+                <th>{t("riskScore")}</th>
+                <th>{t("disasterAlertStatus")}</th>
+                <th>{t("action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -313,17 +335,17 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
                   <td>{farmer.cropType}</td>
                   <td>{farmer.farmArea} acres</td>
                   <td>{farmer.surveyNumber}</td>
-                  <td>{farmer.latitude ?? "Missing"}</td>
-                  <td>{farmer.longitude ?? "Missing"}</td>
-                  <td>{farmer.photoUrl ? <img className="table-photo" src={farmer.photoUrl} alt="" /> : "Missing"}</td>
+                  <td>{farmer.latitude ?? t("missingGps")}</td>
+                  <td>{farmer.longitude ?? t("missingGps")}</td>
+                  <td>{farmer.photoUrl ? <img className="table-photo" src={farmer.photoUrl} alt="" /> : t("missingPhoto")}</td>
                   <td>{farmer.submissionDate}</td>
-                  <td><span className={`status-badge ${statusClass(farmer.claimStatus)}`}>{farmer.claimStatus}</span></td>
-                  <td><span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{farmer.riskLevel} {farmer.riskScore.toFixed(2)}</span></td>
-                  <td>{farmer.disasterAlertStatus}</td>
+                  <td><span className={`status-badge ${statusClass(farmer.claimStatus)}`}>{statusLabel(farmer.claimStatus, t)}</span></td>
+                  <td><span className={`risk-badge ${riskClass(farmer.riskLevel)}`}>{riskLabel(farmer.riskLevel, t)} {farmer.riskScore.toFixed(2)}</span></td>
+                  <td>{statusLabel(farmer.disasterAlertStatus, t)}</td>
                   <td>
                     <button className="view-detail-btn" type="button" onClick={() => setSelectedFarmer(farmer)}>
                       <Eye size={15} aria-hidden="true" />
-                      View Details
+                      {t("viewDetails")}
                     </button>
                   </td>
                 </tr>

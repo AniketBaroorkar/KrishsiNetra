@@ -1,42 +1,44 @@
+"use client";
+
 import Link from "next/link";
 import { Bell, Camera, Satellite, ShieldCheck, Sprout } from "lucide-react";
 
+import { useLanguage } from "../../components/LanguageProvider";
+
 export default function AboutPage() {
+  const { t } = useLanguage();
   return (
     <main className="krishi-site">
       <section className="about-page-hero">
         <Link className="krishi-brand-lockup" href="/">
           <span className="krishi-logo-mark"><Sprout size={24} aria-hidden="true" /></span>
-          <span><strong>KrishiNetra</strong><small>AI & Satellite-Based Agricultural Fraud Detection System</small></span>
+          <span><strong>{t("appName")}</strong><small>{t("subtitle")}</small></span>
         </Link>
-        <h1>About KrishiNetra</h1>
-        <p>
-          KrishiNetra is an AI and satellite-based agricultural fraud detection and farmer support
-          system for government officers, administrators, and agriculture departments.
-        </p>
+        <h1>{t("aboutUs")}</h1>
+        <p>{t("heroSubheading")}</p>
       </section>
 
       <section className="krishi-section about-story-grid">
         {[
           {
             icon: ShieldCheck,
-            title: "Why fraud detection matters",
-            text: "False crop insurance claims can delay genuine farmer support and misuse public funds. KrishiNetra gives officers evidence-backed verification.",
+            title: t("fraudAlerts"),
+            text: t("fraudSubtitle"),
           },
           {
             icon: Camera,
-            title: "Geo-tagged field photos",
-            text: "Farmers submit crop photos with GPS coordinates from the mobile app, giving officers real field evidence instead of only paper records.",
+            title: t("geoTaggedPhoto"),
+            text: t("farmerDataSubtitle"),
           },
           {
             icon: Satellite,
-            title: "Satellite crop monitoring",
-            text: "Satellite imagery and NDVI-style crop-health checks help validate whether the submitted farm area shows expected vegetation patterns.",
+            title: t("satelliteResult"),
+            text: t("dashboardSubtitle"),
           },
           {
             icon: Bell,
-            title: "Disaster impact alerts",
-            text: "Before or after heavy rain, flood, drought, pest attack, crop disease, heat wave, or unseasonal rain, officers can send app alerts to farmers.",
+            title: t("disasterAlerts"),
+            text: t("disasterSubtitle"),
           },
         ].map(({ icon: Icon, title, text }) => (
           <article className="premium-feature-card" key={title}>

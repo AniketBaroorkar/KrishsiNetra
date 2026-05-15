@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertTriangle,
   Bell,
@@ -9,6 +11,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { useLanguage } from "../../../components/LanguageProvider";
 import { demoAlerts } from "../../../data/alertsData";
 import { getDemoFarmers, uniqueValues } from "../../../utils/farmers";
 
@@ -26,7 +29,14 @@ function riskClass(level) {
   return "low";
 }
 
+function riskLabel(level, t) {
+  if (level === "High") return t("highRisk");
+  if (level === "Medium") return t("mediumRisk");
+  return t("lowRisk");
+}
+
 export default function AnalyticsPage() {
+  const { t } = useLanguage();
   const farmers = getDemoFarmers();
   const totalFarmers = farmers.length;
   const totalClaims = farmers.length;
@@ -53,45 +63,45 @@ export default function AnalyticsPage() {
 
   const recentActivity = [
     {
-      title: "Farmer submitted geo-tagged photo",
+      title: t("farmerSubmittedPhoto"),
       detail: `${farmers[0].farmerName} submitted ${farmers[0].cropType} evidence from ${farmers[0].district}.`,
       tone: "low",
     },
     {
-      title: "Claim flagged as high risk",
+      title: t("claimFlaggedHighRisk"),
       detail: `${farmers.find((farmer) => farmer.riskLevel === "High")?.farmerName || "A farmer"} requires officer review.`,
       tone: "high",
     },
     {
-      title: "Disaster alert sent",
+      title: t("disasterAlertSent"),
       detail: `${demoAlerts[0]?.disasterType || "Weather"} alert sent to selected farmers.`,
       tone: "medium",
     },
     {
-      title: "Claim verified by officer",
+      title: t("claimVerifiedByOfficer"),
       detail: `${farmers.find((farmer) => farmer.claimStatus === "Verified")?.farmerName || "A farmer"} claim marked verified.`,
       tone: "low",
     },
   ];
 
   const summaryCards = [
-    { label: "Total Farmers", value: totalFarmers, icon: Users },
-    { label: "Total Claims", value: totalClaims, icon: ShieldAlert },
-    { label: "Verified Claims", value: verifiedClaims, icon: CheckCircle2 },
-    { label: "Pending Claims", value: pendingClaims, icon: Clock },
-    { label: "Flagged Claims", value: flaggedClaims, icon: Flag },
-    { label: "High Risk Claims", value: highRiskClaims, icon: AlertTriangle },
-    { label: "Disaster Alerts Sent", value: demoAlerts.length, icon: Bell },
-    { label: "Geo-tagged Photos Received", value: geoTaggedPhotos, icon: Camera },
+    { label: t("totalFarmers"), value: totalFarmers, icon: Users },
+    { label: t("totalClaims"), value: totalClaims, icon: ShieldAlert },
+    { label: t("verifiedClaims"), value: verifiedClaims, icon: CheckCircle2 },
+    { label: t("pendingClaims"), value: pendingClaims, icon: Clock },
+    { label: t("flaggedClaims"), value: flaggedClaims, icon: Flag },
+    { label: t("highRiskClaims"), value: highRiskClaims, icon: AlertTriangle },
+    { label: t("alertsSent"), value: demoAlerts.length, icon: Bell },
+    { label: t("geoTaggedPhotosReceived"), value: geoTaggedPhotos, icon: Camera },
   ];
 
   return (
     <section className="gov-page analytics-page">
       <div className="gov-page-header analytics-header">
         <div>
-          <span className="gov-kicker">Analytics</span>
-          <h1>Analytics</h1>
-          <p>Crop claim, fraud risk, and disaster monitoring insights</p>
+          <span className="gov-kicker">{t("analytics")}</span>
+          <h1>{t("analyticsTitle")}</h1>
+          <p>{t("analyticsSubtitle")}</p>
         </div>
       </div>
 
@@ -110,14 +120,14 @@ export default function AnalyticsPage() {
       <div className="analytics-grid">
         <section className="gov-card analytics-card">
           <div className="friendly-card-heading">
-            <h2>Risk Analytics</h2>
-            <p>Distribution of Low, Medium, and High risk farmer claims.</p>
+            <h2>{t("riskAnalytics")}</h2>
+            <p>{t("riskAnalyticsSubtitle")}</p>
           </div>
           <div className="analytics-bar-list">
             {riskRows.map((row) => (
               <div className="analytics-bar-row" key={row.level}>
                 <div>
-                  <span className={`risk-badge ${riskClass(row.level)}`}>{row.level} Risk</span>
+                  <span className={`risk-badge ${riskClass(row.level)}`}>{riskLabel(row.level, t)}</span>
                   <strong>{row.count}</strong>
                 </div>
                 <i>
@@ -130,8 +140,8 @@ export default function AnalyticsPage() {
 
         <section className="gov-card analytics-card">
           <div className="friendly-card-heading">
-            <h2>Crop Analytics</h2>
-            <p>Crop-wise claim count for the demo farmer records.</p>
+            <h2>{t("cropAnalytics")}</h2>
+            <p>{t("cropAnalyticsSubtitle")}</p>
           </div>
           <div className="analytics-chip-grid">
             {cropRows.map((row) => (
@@ -145,8 +155,8 @@ export default function AnalyticsPage() {
 
         <section className="gov-card analytics-card">
           <div className="friendly-card-heading">
-            <h2>District Analytics</h2>
-            <p>District-wise farmers and claims currently visible in the system.</p>
+            <h2>{t("districtAnalytics")}</h2>
+            <p>{t("districtAnalyticsSubtitle")}</p>
           </div>
           <div className="district-bars analytics-district-bars">
             {districtRows.map((row) => (
@@ -156,7 +166,7 @@ export default function AnalyticsPage() {
                   <i style={{ width: `${Math.max(8, percent(row.count, totalFarmers))}%` }} />
                 </div>
                 <strong>{row.count}</strong>
-                <em>claims</em>
+                <em>{t("claims")}</em>
               </div>
             ))}
           </div>
@@ -164,8 +174,8 @@ export default function AnalyticsPage() {
 
         <section className="gov-card analytics-card">
           <div className="friendly-card-heading">
-            <h2>Recent Activity</h2>
-            <p>Latest monitoring events for officer review.</p>
+            <h2>{t("recentActivity")}</h2>
+            <p>{t("recentActivitySubtitle")}</p>
           </div>
           <div className="recent-activity-list">
             {recentActivity.map((activity) => (
@@ -180,8 +190,8 @@ export default function AnalyticsPage() {
 
       <section className="gov-card analytics-card">
         <div className="friendly-card-heading">
-          <h2>Available Districts In Dataset</h2>
-          <p>Additional live districts from farmer records.</p>
+          <h2>{t("availableDistricts")}</h2>
+          <p>{t("districtSummary")}</p>
         </div>
         <div className="chip-grid">
           {uniqueValues(farmers, "district").map((district) => (
