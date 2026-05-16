@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo } from "react";
 import { divIcon } from "leaflet";
-import { ImageOverlay, MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import {
+  ImageOverlay,
+  MapContainer,
+  Marker,
+  Polygon,
+  Popup,
+  TileLayer,
+  Tooltip,
+  useMap,
+} from "react-leaflet";
 
 function MapUpdater({ latitude, longitude }) {
   const map = useMap();
@@ -39,6 +48,8 @@ export default function LocationLeafletMap({
   mapLayer = "street",
   satelliteImageUrl,
   ndviImageUrl,
+  boundaryPositions,
+  boundaryLabel,
 }) {
   const position = Number.isFinite(latitude) && Number.isFinite(longitude)
     ? [latitude, longitude]
@@ -78,6 +89,24 @@ export default function LocationLeafletMap({
         <ImageOverlay url={ndviImageUrl} bounds={bbox} opacity={0.75} />
       ) : null}
       <MapUpdater latitude={position[0]} longitude={position[1]} />
+      {boundaryPositions && boundaryPositions.length >= 3 ? (
+        <Polygon
+          positions={boundaryPositions}
+          pathOptions={{
+            color: "#facc15",
+            weight: 3,
+            fillColor: "#facc15",
+            fillOpacity: 0.18,
+            dashArray: "6 6",
+          }}
+        >
+          {boundaryLabel ? (
+            <Tooltip direction="top" permanent className="farm-boundary-tooltip">
+              {boundaryLabel}
+            </Tooltip>
+          ) : null}
+        </Polygon>
+      ) : null}
       <Marker icon={marker} position={position}>
         <Popup>
           <div className="location-popup">

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, MapPin, Satellite } from "lucide-react";
 
 import { getDemoFarmers } from "../utils/farmers";
+import { buildSquareBoundary } from "../utils/farmBoundary";
 
 const LocationLeafletMap = dynamic(() => import("./LocationLeafletMap"), {
   ssr: false,
@@ -51,6 +52,7 @@ export default function LocationCheckWorkspace() {
       village: searchParams.get("village") || "",
       district: searchParams.get("district") || "",
       surveyNumber: searchParams.get("survey") || "",
+      farmArea: searchParams.get("area") || (hasFarmerFromUrl ? "" : "4"),
     };
   }, [searchParams]);
 
@@ -64,7 +66,17 @@ export default function LocationCheckWorkspace() {
 
   const latitude = cleanNumber(mapLocation.latitude);
   const longitude = cleanNumber(mapLocation.longitude);
+  const farmAreaAcres = cleanNumber(mapLocation.farmArea);
   const hasValidLocation = latitude !== null && longitude !== null;
+
+  const farmBoundary = useMemo(() => {
+    if (!hasValidLocation || !farmAreaAcres || farmAreaAcres <= 0) return null;
+    return buildSquareBoundary(latitude, longitude, farmAreaAcres);
+  }, [hasValidLocation, latitude, longitude, farmAreaAcres]);
+
+  const boundaryLabel = farmAreaAcres
+    ? `Estimated ${farmAreaAcres} acre farm boundary`
+    : null;
 
   useEffect(() => {
     setForm(initial);
@@ -97,6 +109,7 @@ export default function LocationCheckWorkspace() {
       village: farmer.village || "",
       district: farmer.district || "",
       surveyNumber: farmer.surveyNumber || "",
+      farmArea: farmer.farmArea ? String(farmer.farmArea) : "",
     };
 
     setForm(next);
@@ -150,6 +163,7 @@ export default function LocationCheckWorkspace() {
           latitude: nextLat,
           longitude: nextLng,
           cropType: mapLocation.cropType,
+          farmArea: farmAreaAcres,
         }),
       });
       const result = await response.json();
@@ -199,6 +213,7 @@ export default function LocationCheckWorkspace() {
           <label>Latitude<input value={form.latitude} onChange={(event) => updateField("latitude", event.target.value)} placeholder="18.5204" type="number" step="any" min="-90" max="90" required /></label>
           <label>Longitude<input value={form.longitude} onChange={(event) => updateField("longitude", event.target.value)} placeholder="73.8567" type="number" step="any" min="-180" max="180" required /></label>
           <label>Crop Type<input value={form.cropType} onChange={(event) => updateField("cropType", event.target.value)} placeholder="Sugarcane" /></label>
+          <label>Farm Area (acres)<input value={form.farmArea} onChange={(event) => updateField("farmArea", event.target.value)} placeholder="4" type="number" step="0.1" min="0" /></label>
           <label>Farmer Name optional<input value={form.farmerName} onChange={(event) => updateField("farmerName", event.target.value)} placeholder="Ramesh Patil" /></label>
           <label>Village<input value={form.village} onChange={(event) => updateField("village", event.target.value)} placeholder="Malegaon" /></label>
           <label>District<input value={form.district} onChange={(event) => updateField("district", event.target.value)} placeholder="Pune" /></label>
@@ -240,6 +255,8 @@ export default function LocationCheckWorkspace() {
             mapLayer={mapLayer}
             satelliteImageUrl={satelliteResult?.satelliteImageUrl}
             ndviImageUrl={satelliteResult?.ndviImageUrl}
+            boundaryPositions={farmBoundary?.positions}
+            boundaryLabel={boundaryLabel}
           />
           {mapLayer === "sentinel" && !satelliteResult?.satelliteImageUrl ? (
             <p className="map-layer-hint">
@@ -255,6 +272,37 @@ export default function LocationCheckWorkspace() {
         </section>
       </div>
 
+      <section className="gov-card location-boundary-card">
+        <div className="friendly-card-heading">
+          <h2>Estimated Farm Boundary</h2>
+          <p>
+            Square area approximated from the GPS point and claimed acreage. Visible across all map
+            layers above.
+          </p>
+        </div>
+        {farmBoundary ? (
+          <div className="satellite-result-grid compact-result">
+            <span>Claimed Farm Area<strong>{farmAreaAcres} acres</strong></span>
+            <span>Area in square meters<strong>{Math.round(farmBoundary.areaSqMeters).toLocaleString()} sq.m</strong></span>
+            <span>Square Side Length<strong>{Math.round(farmBoundary.sideMeters)} m</strong></span>
+            <span>Boundary Type<strong>Estimated from GPS point and area</strong></span>
+          </div>
+        ) : (
+          <p className="location-empty-result">
+            Enter Farm Area (acres) and a valid GPS point, then click Show Location on Map to draw
+            the estimated boundary.
+          </p>
+        )}
+        <p className="boundary-accuracy-note">
+          This is an estimated boundary. Exact farm borders require official survey or cadastral
+          map data &mdash; official survey boundary required for exact land border.
+        </p>
+        <p className="boundary-gov-note">
+          In government deployment, survey number and cadastral GIS records can be used to display
+          the exact farm boundary.
+        </p>
+      </section>
+
       <section className="gov-card location-farmer-card">
         <div className="friendly-card-heading">
           <h2>Farmer Details</h2>
@@ -269,6 +317,7 @@ export default function LocationCheckWorkspace() {
           <span>Survey Number<strong>{mapLocation.surveyNumber || "Not provided"}</strong></span>
           <span>Latitude<strong>{mapLocation.latitude || "Missing GPS"}</strong></span>
           <span>Longitude<strong>{mapLocation.longitude || "Missing GPS"}</strong></span>
+          <span>Farm Area<strong>{mapLocation.farmArea ? `${mapLocation.farmArea} acres` : "Not provided"}</strong></span>
         </div>
       </section>
 

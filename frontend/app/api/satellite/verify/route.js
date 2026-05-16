@@ -29,6 +29,7 @@ export async function POST(request) {
       longitude,
       cropType: body.cropType,
       submittedAt: body.submittedAt,
+      farmArea: body.farmArea,
     });
 
     return NextResponse.json(result, { status: 200 });
