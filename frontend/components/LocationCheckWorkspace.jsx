@@ -12,6 +12,13 @@ const LocationLeafletMap = dynamic(() => import("./LocationLeafletMap"), {
   loading: () => <div className="location-map-loading">Loading map...</div>,
 });
 
+const MAP_LAYERS = [
+  { id: "street", label: "Street Map" },
+  { id: "satellite", label: "Satellite View" },
+  { id: "sentinel", label: "Sentinel-2 Latest Image" },
+  { id: "ndvi", label: "NDVI Layer" },
+];
+
 function cleanNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
@@ -21,6 +28,12 @@ function riskClass(riskLevel = "") {
   if (riskLevel.toLowerCase().includes("high")) return "high";
   if (riskLevel.toLowerCase().includes("medium")) return "medium";
   return "low";
+}
+
+function isHighCloudCover(result) {
+  if (!result) return false;
+  const cover = String(result.cloudCover || result.cloudCoverStatus || "").toLowerCase();
+  return cover.includes("high");
 }
 
 export default function LocationCheckWorkspace() {
@@ -47,6 +60,7 @@ export default function LocationCheckWorkspace() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedFarmerId, setSelectedFarmerId] = useState(initial.farmerId);
+  const [mapLayer, setMapLayer] = useState("street");
 
   const latitude = cleanNumber(mapLocation.latitude);
   const longitude = cleanNumber(mapLocation.longitude);
@@ -57,6 +71,7 @@ export default function LocationCheckWorkspace() {
     setMapLocation(initial);
     setSatelliteResult(null);
     setSelectedFarmerId(initial.farmerId);
+    setMapLayer("street");
     if (initial.farmerId && (!searchParams.get("lat") || !searchParams.get("lng"))) {
       setMessage("GPS location not available for this farmer.");
     } else {
@@ -106,11 +121,21 @@ export default function LocationCheckWorkspace() {
     setMapLocation(form);
   }
 
+  function selectMapLayer(nextLayer) {
+    setMapLayer(nextLayer);
+    if ((nextLayer === "sentinel" || nextLayer === "ndvi") && !satelliteResult && !loading) {
+      // Don't auto-fire; user is told below to run verification first.
+      setMessage("Run Sentinel-2 Verification first to load this overlay.");
+    } else {
+      setMessage("");
+    }
+  }
+
   async function runSatelliteVerification() {
     const nextLat = cleanNumber(mapLocation.latitude);
     const nextLng = cleanNumber(mapLocation.longitude);
     if (nextLat === null || nextLng === null) {
-      setMessage("Please show a valid map location before running satellite verification.");
+      setMessage("Please show a valid map location before running Sentinel-2 verification.");
       return;
     }
 
@@ -121,31 +146,41 @@ export default function LocationCheckWorkspace() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          farmerId: mapLocation.farmerId,
           latitude: nextLat,
           longitude: nextLng,
           cropType: mapLocation.cropType,
-          farmerName: mapLocation.farmerName,
         }),
       });
       const result = await response.json();
       setSatelliteResult(result);
     } catch (error) {
-      setMessage(error.message || "Satellite verification failed.");
+      setMessage(error.message || "Sentinel-2 verification failed.");
     } finally {
       setLoading(false);
     }
   }
+
+  const highCloud = isHighCloudCover(satelliteResult);
 
   return (
     <section className="gov-page location-check-page">
       <div className="gov-page-header">
         <div>
           <span className="gov-kicker"><MapPin size={16} aria-hidden="true" />Location Check</span>
-          <h1>Location & Satellite Area Check</h1>
-          <p>Enter GPS coordinates to center the map on the exact farm area and run Sentinel-2 NDVI verification.</p>
+          <h1>Location &amp; Satellite Area Check</h1>
+          <p>
+            Enter GPS coordinates to center the map on the exact farm area and run latest available
+            Sentinel-2 satellite imagery and NDVI verification.
+          </p>
         </div>
         <span className="api-notice">Contact: 9579207219</span>
       </div>
+
+      <p className="sentinel-disclaimer">
+        Sentinel-2 is not a live camera feed. The dashboard uses the latest available cloud-free
+        satellite image for crop verification.
+      </p>
 
       <div className="location-check-layout">
         <form className="gov-card location-check-form">
@@ -180,6 +215,20 @@ export default function LocationCheckWorkspace() {
             <h2>Map Display</h2>
             <p>{hasValidLocation ? `Centered at ${latitude}, ${longitude}` : "Enter valid coordinates to show marker."}</p>
           </div>
+          <div className="map-layer-switcher" role="tablist" aria-label="Map layer">
+            {MAP_LAYERS.map((layer) => (
+              <button
+                key={layer.id}
+                type="button"
+                role="tab"
+                aria-selected={mapLayer === layer.id}
+                className={`map-layer-tab${mapLayer === layer.id ? " active" : ""}`}
+                onClick={() => selectMapLayer(layer.id)}
+              >
+                {layer.label}
+              </button>
+            ))}
+          </div>
           <LocationLeafletMap
             latitude={latitude}
             longitude={longitude}
@@ -188,7 +237,21 @@ export default function LocationCheckWorkspace() {
             village={mapLocation.village}
             district={mapLocation.district}
             surveyNumber={mapLocation.surveyNumber}
+            mapLayer={mapLayer}
+            satelliteImageUrl={satelliteResult?.satelliteImageUrl}
+            ndviImageUrl={satelliteResult?.ndviImageUrl}
           />
+          {mapLayer === "sentinel" && !satelliteResult?.satelliteImageUrl ? (
+            <p className="map-layer-hint">
+              Run Sentinel-2 Verification below to load the latest available Sentinel-2 image
+              overlay.
+            </p>
+          ) : null}
+          {mapLayer === "ndvi" && !satelliteResult?.ndviImageUrl ? (
+            <p className="map-layer-hint">
+              Run Sentinel-2 Verification below to load the NDVI vegetation overlay.
+            </p>
+          ) : null}
         </section>
       </div>
 
@@ -212,49 +275,85 @@ export default function LocationCheckWorkspace() {
       <section className="gov-card location-satellite-card">
         <div className="friendly-card-heading table-heading-row">
           <div>
-            <h2>Satellite Verification</h2>
-            <p>Run NDVI verification for the currently selected GPS point.</p>
+            <h2>Sentinel-2 Verification</h2>
+            <p>
+              Run NDVI verification using the latest available cloud-free Sentinel-2 image for the
+              currently selected GPS point.
+            </p>
           </div>
           <button className="btn-primary" type="button" onClick={runSatelliteVerification} disabled={loading}>
             {loading ? <Loader2 className="spin" size={16} aria-hidden="true" /> : <Satellite size={16} aria-hidden="true" />}
-            {loading ? "Running..." : "Run Satellite Verification"}
+            {loading ? "Running..." : "Run Sentinel-2 Verification"}
           </button>
         </div>
+
+        {satelliteResult?.isDemo ? (
+          <p className="demo-satellite-note">
+            {satelliteResult.demoReason ||
+              "Demo satellite result shown because Sentinel API credentials are not configured."}
+          </p>
+        ) : null}
+
+        {satelliteResult && highCloud ? (
+          <p className="demo-satellite-note">
+            Cloud cover detected. Sentinel-1 SAR fallback is recommended because Sentinel-2 optical
+            NDVI is uncertain under cloudy conditions.
+          </p>
+        ) : null}
 
         {satelliteResult ? (
           <div className="satellite-verification-card-grid">
             <section className="satellite-method-card">
-              <h4>Sentinel-2 Optical Verification</h4>
+              <h4>Sentinel-2 Verification Result</h4>
               <div className="satellite-result-grid method-result-grid">
+                <span>Satellite Source<strong>{satelliteResult.source === "sentinel-2" ? "Sentinel-2 (live API)" : "Demo"}</strong></span>
+                <span>Latest Image Date<strong>{satelliteResult.satelliteDate}</strong></span>
+                <span>Cloud Cover<strong>{satelliteResult.cloudCover || satelliteResult.cloudCoverStatus}</strong></span>
                 <span>NDVI Score<strong>{Number(satelliteResult.ndviScore).toFixed(2)}</strong></span>
                 <span>Vegetation Status<strong>{satelliteResult.vegetationStatus}</strong></span>
                 <span>Crop Health<strong>{satelliteResult.cropHealth}</strong></span>
-                <span>Cloud Cover<strong>{satelliteResult.cloudCoverStatus}</strong></span>
-                <span>Satellite Date<strong>{satelliteResult.satelliteDate}</strong></span>
-                <span>Optical Result<strong>{satelliteResult.opticalResult || "Clear"}</strong></span>
-              </div>
-            </section>
-            <section className="satellite-method-card">
-              <h4>Sentinel-1 SAR Fallback</h4>
-              <div className="satellite-result-grid method-result-grid">
-                <span>SAR Used<strong>{satelliteResult.sentinel1Sar?.sarUsed ? "Yes" : "No"}</strong></span>
-                <span>VV / VH Signal<strong>{satelliteResult.sentinel1Sar?.vvSignal} / {satelliteResult.sentinel1Sar?.vhSignal}</strong></span>
-                <span>Field Moisture Status<strong>{satelliteResult.sentinel1Sar?.fieldMoistureStatus || "Unknown"}</strong></span>
-                <span>Flood/Disaster Indication<strong>{satelliteResult.sentinel1Sar?.floodDisasterIndication || "Unknown"}</strong></span>
-                <span>Crop Structure Signal<strong>{satelliteResult.sentinel1Sar?.cropStructureSignal || "Unknown"}</strong></span>
-                <span>SAR Result<strong>{satelliteResult.sentinel1Sar?.sarResult || "Uncertain"}</strong></span>
-              </div>
-            </section>
-            <section className="satellite-method-card full-width">
-              <h4>Final Satellite Risk</h4>
-              <div className="satellite-result-grid method-result-grid">
-                <span>Risk Level<strong className={`risk-badge ${riskClass(satelliteResult.riskLevel)}`}>{satelliteResult.riskLevel}</strong></span>
+                <span>
+                  Risk Level
+                  <strong className={`risk-badge ${riskClass(satelliteResult.riskLevel)}`}>
+                    {satelliteResult.riskLevel}
+                  </strong>
+                </span>
               </div>
               <p className="satellite-risk-reason">{satelliteResult.riskReason}</p>
             </section>
+
+            {satelliteResult.sentinel1Sar ? (
+              <section className="satellite-method-card">
+                <h4>Sentinel-1 SAR Fallback</h4>
+                <p className="satellite-card-note">
+                  Sentinel-1 is SAR radar fallback for clouds, soil moisture, flood detection, and
+                  field structure. It does not produce an NDVI value.
+                </p>
+                <div className="satellite-result-grid method-result-grid">
+                  <span>SAR Used<strong>{satelliteResult.sentinel1Sar.sarUsed ? "Yes" : "No"}</strong></span>
+                  <span>VV / VH Signal<strong>{satelliteResult.sentinel1Sar.vvSignal} / {satelliteResult.sentinel1Sar.vhSignal}</strong></span>
+                  <span>Field Moisture Status<strong>{satelliteResult.sentinel1Sar.fieldMoistureStatus || "Unknown"}</strong></span>
+                  <span>Flood/Disaster Indication<strong>{satelliteResult.sentinel1Sar.floodDisasterIndication || "Unknown"}</strong></span>
+                  <span>Crop Structure Signal<strong>{satelliteResult.sentinel1Sar.cropStructureSignal || "Unknown"}</strong></span>
+                  <span>SAR Result<strong>{satelliteResult.sentinel1Sar.sarResult || "Uncertain"}</strong></span>
+                </div>
+              </section>
+            ) : null}
+
+            <section className="satellite-method-card full-width">
+              <h4>NDVI Explanation</h4>
+              <p className="satellite-card-note">
+                NDVI = (B8 - B4) / (B8 + B4)
+                <br />B8 = Near Infrared, B4 = Red.
+                <br />NDVI above 0.5 usually indicates healthy vegetation.
+              </p>
+            </section>
           </div>
         ) : (
-          <p className="location-empty-result">No satellite result yet. Click Run Satellite Verification after confirming the map location.</p>
+          <p className="location-empty-result">
+            No Sentinel-2 result yet. Click Run Sentinel-2 Verification after confirming the map
+            location.
+          </p>
         )}
       </section>
     </section>

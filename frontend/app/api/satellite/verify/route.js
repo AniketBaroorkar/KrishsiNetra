@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { isValidCoordinate, verifyWithSentinelHub } from "../../../../utils/satelliteVerification";
+import {
+  buildDemoSatelliteResult,
+  isValidCoordinate,
+  verifyWithSentinelHub,
+} from "../../../../utils/satelliteVerification";
 
 export async function POST(request) {
   try {
@@ -9,8 +13,14 @@ export async function POST(request) {
     const longitude = Number(body.longitude);
 
     if (!isValidCoordinate(latitude, longitude)) {
-      const result = await verifyWithSentinelHub({ ...body, latitude, longitude });
-      return NextResponse.json(result, { status: 200 });
+      return NextResponse.json(
+        {
+          ...buildDemoSatelliteResult({ latitude, longitude }),
+          demoReason:
+            "Demo satellite result shown because the provided latitude or longitude was invalid.",
+        },
+        { status: 200 },
+      );
     }
 
     const result = await verifyWithSentinelHub({
@@ -21,19 +31,12 @@ export async function POST(request) {
       submittedAt: body.submittedAt,
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       {
-        ndviScore: 0.63,
-        vegetationStatus: "Healthy vegetation detected",
-        cropHealth: "Good",
-        satelliteDate: "Recent Sentinel-2 image",
-        cloudCoverStatus: "Low cloud cover",
-        riskLevel: "Low Risk",
-        riskReason: "Satellite NDVI indicates healthy crop vegetation.",
-        isDemo: true,
-        demoReason: `Demo satellite result shown because request handling failed: ${error.message}`,
+        ...buildDemoSatelliteResult({}),
+        demoReason: `Demo satellite result shown because Sentinel API credentials are not configured (${error.message}).`,
       },
       { status: 200 },
     );

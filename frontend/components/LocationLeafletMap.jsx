@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { divIcon } from "leaflet";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { ImageOverlay, MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 
 function MapUpdater({ latitude, longitude }) {
   const map = useMap();
@@ -16,7 +16,30 @@ function MapUpdater({ latitude, longitude }) {
   return null;
 }
 
-export default function LocationLeafletMap({ latitude, longitude, cropType, farmerName, village, district, surveyNumber }) {
+const STREET_TILE = {
+  url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+};
+
+const SATELLITE_TILE = {
+  url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  attribution:
+    'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+};
+
+export default function LocationLeafletMap({
+  latitude,
+  longitude,
+  cropType,
+  farmerName,
+  village,
+  district,
+  surveyNumber,
+  mapLayer = "street",
+  satelliteImageUrl,
+  ndviImageUrl,
+}) {
   const position = Number.isFinite(latitude) && Number.isFinite(longitude)
     ? [latitude, longitude]
     : [18.5204, 73.8567];
@@ -29,12 +52,31 @@ export default function LocationLeafletMap({ latitude, longitude, cropType, farm
     popupAnchor: [0, -14],
   }), []);
 
+  const bbox = useMemo(() => {
+    const size = 0.005;
+    return [
+      [position[0] - size, position[1] - size],
+      [position[0] + size, position[1] + size],
+    ];
+  }, [position]);
+
+  const baseTile = mapLayer === "street" ? STREET_TILE : SATELLITE_TILE;
+  const showSentinelOverlay = mapLayer === "sentinel" && satelliteImageUrl;
+  const showNdviOverlay = mapLayer === "ndvi" && ndviImageUrl;
+
   return (
     <MapContainer center={position} zoom={16} scrollWheelZoom className="location-check-map">
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        key={mapLayer === "street" ? "street" : "satellite"}
+        attribution={baseTile.attribution}
+        url={baseTile.url}
       />
+      {showSentinelOverlay ? (
+        <ImageOverlay url={satelliteImageUrl} bounds={bbox} opacity={0.9} />
+      ) : null}
+      {showNdviOverlay ? (
+        <ImageOverlay url={ndviImageUrl} bounds={bbox} opacity={0.75} />
+      ) : null}
       <MapUpdater latitude={position[0]} longitude={position[1]} />
       <Marker icon={marker} position={position}>
         <Popup>

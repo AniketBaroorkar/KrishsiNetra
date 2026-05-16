@@ -4422,6 +4422,59 @@ tr.risk-clean td {
   min-height: 500px;
 }
 
+.sentinel-disclaimer {
+  margin: 0 0 14px 0;
+  padding: 10px 14px;
+  border-left: 4px solid #2f855a;
+  background: #f0f8f2;
+  color: #234d36;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+.map-layer-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.map-layer-tab {
+  border: 1px solid #cfe0d4;
+  background: #fbfdfb;
+  color: #234d36;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.map-layer-tab.active {
+  background: #14532d;
+  color: #ffffff;
+  border-color: #14532d;
+}
+
+.map-layer-hint {
+  margin: 10px 0 0 0;
+  padding: 8px 12px;
+  background: #fff6e0;
+  color: #7a5a10;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.satellite-card-note {
+  margin: 0 0 10px 0;
+  color: #52635a;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
 .location-check-map,
 .location-map-loading {
   width: 100%;
