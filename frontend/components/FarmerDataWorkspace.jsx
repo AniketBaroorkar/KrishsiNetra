@@ -234,7 +234,13 @@ export default function FarmerDataWorkspace({ compact = false, onFarmersChange }
         if (!active) return;
         if (result.farmers.length) {
           setFarmers(result.farmers);
-          setNoticeKey(result.source === "backend" ? "connectedBackend" : "usingDemo");
+          if (result.source === "supabase") {
+            setNoticeKey("connectedSupabase");
+          } else if (result.source === "backend") {
+            setNoticeKey("connectedBackend");
+          } else {
+            setNoticeKey("usingDemo");
+          }
         }
       })
       .catch(() => setNoticeKey("usingDemo"));

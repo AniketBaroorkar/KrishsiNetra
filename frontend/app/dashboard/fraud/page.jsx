@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   Flag,
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { useLanguage } from "../../../components/LanguageProvider";
-import { getDemoFarmers } from "../../../utils/farmers";
+import { fetchFarmers, getDemoFarmers } from "../../../utils/farmers";
 
 function riskLabel(level, t) {
   if (level === "High") return t("highRisk");
@@ -40,7 +41,20 @@ function gpsTrustClass(status) {
 
 export default function FraudAlertsPage() {
   const { t } = useLanguage();
-  const farmers = getDemoFarmers();
+  const [farmers, setFarmers] = useState(() => getDemoFarmers());
+
+  useEffect(() => {
+    let active = true;
+    fetchFarmers()
+      .then((result) => {
+        if (active && result.farmers.length) setFarmers(result.farmers);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const highRisk = farmers.filter((farmer) => farmer.riskLevel === "High");
   const spoofingSuspected = farmers.filter((farmer) => farmer.gpsTrustStatus === "Spoofing Suspected");
   const missingGps = farmers.filter((farmer) => !farmer.latitude || !farmer.longitude);

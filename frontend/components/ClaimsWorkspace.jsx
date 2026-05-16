@@ -239,7 +239,13 @@ export default function ClaimsWorkspace({ mode = "overview" }) {
         if (!active) return;
         if (result.claims.length > 0) {
           setClaims(result.claims);
-          setApiNoticeKey(result.source === "backend" ? "connectedBackend" : "usingDemo");
+          if (result.source === "supabase") {
+            setApiNoticeKey("connectedSupabase");
+          } else if (result.source === "backend") {
+            setApiNoticeKey("connectedBackend");
+          } else {
+            setApiNoticeKey("usingDemo");
+          }
         } else {
           setApiNoticeKey("usingDemo");
         }

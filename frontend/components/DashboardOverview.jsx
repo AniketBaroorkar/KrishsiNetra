@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bell, ShieldAlert, Users } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
@@ -8,7 +9,7 @@ import RiskBarChart from "./charts/RiskBarChart";
 import GpsTrustDonut from "./charts/GpsTrustDonut";
 import CategoryBarChart from "./charts/CategoryBarChart";
 import { demoAlerts } from "../data/alertsData";
-import { getDemoFarmers, uniqueValues } from "../utils/farmers";
+import { fetchFarmers, getDemoFarmers, uniqueValues } from "../utils/farmers";
 
 const STATUS_TONES = [
   { key: "verified", label: "Verified", color: "#166534" },
@@ -19,7 +20,30 @@ const STATUS_TONES = [
 
 export default function DashboardOverview() {
   const { t } = useLanguage();
-  const farmers = getDemoFarmers();
+  const [farmers, setFarmers] = useState(() => getDemoFarmers());
+  const [alertsCount, setAlertsCount] = useState(demoAlerts.length);
+
+  useEffect(() => {
+    let active = true;
+    fetchFarmers()
+      .then((result) => {
+        if (active && result.farmers.length) setFarmers(result.farmers);
+      })
+      .catch(() => {});
+    fetch("/api/disaster-alerts", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!active || !data) return;
+        if (Array.isArray(data.alerts) && data.alerts.length) {
+          setAlertsCount(data.alerts.length);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const stats = {
     totalFarmers: farmers.length,
     totalClaims: farmers.length,
@@ -27,7 +51,7 @@ export default function DashboardOverview() {
     pending: farmers.filter((farmer) => farmer.claimStatus === "Pending").length,
     flagged: farmers.filter((farmer) => ["Flagged", "High Risk"].includes(farmer.claimStatus)).length,
     highRisk: farmers.filter((farmer) => farmer.riskLevel === "High").length,
-    alerts: demoAlerts.length,
+    alerts: alertsCount,
     validGps: farmers.filter((farmer) => farmer.gpsTrustStatus === "Valid").length,
     suspiciousGps: farmers.filter((farmer) => farmer.gpsTrustStatus === "Suspicious").length,
     spoofingGps: farmers.filter((farmer) => farmer.gpsTrustStatus === "Spoofing Suspected").length,

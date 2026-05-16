@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bell, Send } from "lucide-react";
 
 import { useLanguage } from "./LanguageProvider";
@@ -57,6 +57,35 @@ export default function DisasterAlertsWorkspace() {
   const { addToast } = useToast();
   const [farmers, setFarmers] = useState(() => getDemoFarmers());
   const [alerts, setAlerts] = useState(demoAlerts);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/disaster-alerts", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!active || !data) return;
+        if (data.source === "supabase" && Array.isArray(data.alerts) && data.alerts.length) {
+          setAlerts(
+            data.alerts.map((row) => ({
+              id: row.id || `SB-${row.created_at}`,
+              title: row.title,
+              disasterType: row.disaster_type,
+              message: row.body,
+              language: "English",
+              farmerIds: [],
+              sentAt: row.created_at,
+              status: "Sent",
+            })),
+          );
+        }
+      })
+      .catch(() => {
+        // keep demo alerts
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
   const [confirmation, setConfirmation] = useState("");
   const [form, setForm] = useState({
     district: "All",
@@ -103,6 +132,20 @@ export default function DisasterAlertsWorkspace() {
     });
     const result = await response.json();
     const alert = result.alert || { ...payload, id: `ALT-${Date.now()}`, status: "Sent" };
+
+    // Persist a copy to Supabase disaster_alerts when configured. Failures are silent.
+    fetch("/api/disaster-alerts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: form.title,
+        body: form.message,
+        disaster_type: form.disasterType,
+        severity: form.riskLevel === "All" ? "Medium" : form.riskLevel,
+        district: form.district === "All" ? null : form.district,
+        crop_type: form.cropType === "All" ? null : form.cropType,
+      }),
+    }).catch(() => {});
 
     setAlerts((current) => [alert, ...current]);
     setFarmers((current) => current.map((farmer) => (
