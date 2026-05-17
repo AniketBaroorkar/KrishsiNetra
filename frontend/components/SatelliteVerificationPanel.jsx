@@ -11,6 +11,15 @@ function riskClass(riskLevel = "") {
   return "low";
 }
 
+function freshnessClass(status = "") {
+  const normalized = status.toLowerCase();
+  if (normalized.includes("fresh")) return "fresh";
+  if (normalized.includes("recent")) return "recent";
+  if (normalized.includes("older") && !normalized.includes("warning")) return "stale";
+  if (normalized.includes("old") || normalized.includes("warning")) return "old";
+  return "unknown";
+}
+
 function getPayload(record) {
   return {
     farmerId: record.farmerId || record.id,
@@ -92,17 +101,30 @@ export default function SatelliteVerificationPanel({ record, uploadedPhotoUrl, t
 
       {error ? <p className="upload-status error">{error}</p> : null}
 
+      {result?.freshnessWarning ? (
+        <p className={`freshness-warning freshness-${freshnessClass(result.freshnessStatus)}`}>
+          {result.freshnessWarning}
+        </p>
+      ) : null}
+
       {result ? (
         <div className="satellite-verification-card-grid">
           <section className="satellite-method-card">
             <h4>Sentinel-2 Optical Verification</h4>
-            <p>Sentinel-2 is used for NDVI and vegetation health. NDVI helps check whether active crop vegetation is present at the submitted GPS location.</p>
+            <p>Sentinel-2 is used for NDVI and vegetation health. NDVI is calculated from the most recent cloud-free Sentinel-2 image. Sentinel-2 is not real-time.</p>
             <div className="satellite-result-grid method-result-grid">
               <span>NDVI Score<strong>{Number(result.ndviScore).toFixed(2)}</strong></span>
               <span>Vegetation Status<strong>{result.vegetationStatus}</strong></span>
               <span>Crop Health<strong>{result.cropHealth}</strong></span>
-              <span>Cloud Cover<strong>{result.cloudCoverStatus}</strong></span>
-              <span>Satellite Date<strong>{result.satelliteDate}</strong></span>
+              <span>Latest Sentinel-2 Image Date<strong>{result.satelliteDate || "Unknown"}</strong></span>
+              <span>Image Age (days)<strong>{result.imageAgeDays != null ? `${result.imageAgeDays} days` : "Unknown"}</strong></span>
+              <span>
+                Freshness Status
+                <strong className={`freshness-pill ${freshnessClass(result.freshnessStatus)}`}>
+                  {result.freshnessStatus || "Unknown"}
+                </strong>
+              </span>
+              <span>Cloud Cover<strong>{result.cloudCoverPercent != null ? `${result.cloudCoverPercent}% (${result.cloudCover})` : (result.cloudCoverStatus || "Unknown")}</strong></span>
               <span>Optical Result<strong>{result.opticalResult || "Clear"}</strong></span>
             </div>
           </section>

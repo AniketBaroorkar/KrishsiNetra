@@ -30,6 +30,9 @@ export async function POST(request) {
       cropType: body.cropType,
       submittedAt: body.submittedAt,
       farmArea: body.farmArea,
+      dateFrom: body.dateFrom,
+      dateTo: body.dateTo,
+      maxCloudCoverage: body.maxCloudCoverage,
     });
 
     return NextResponse.json(result, { status: 200 });
@@ -37,7 +40,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         ...buildDemoSatelliteResult({}),
-        demoReason: `Demo satellite result shown because Sentinel API credentials are not configured (${error.message}).`,
+        demoReason: `Demo satellite result shown because Sentinel API request handling failed (${error.message}).`,
       },
       { status: 200 },
     );

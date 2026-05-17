@@ -58,6 +58,22 @@ export default function SatelliteVerificationWorkspace() {
         <span className="api-notice">Contact: 9579207219</span>
       </div>
 
+      <section className="gov-card sentinel-explainer-card">
+        <h3>How Sentinel-2 freshness works</h3>
+        <p>
+          Sentinel-2 does not provide live video. It captures satellite images during satellite
+          pass dates. Recent images may be unavailable because of cloud cover. KrishiNetra
+          searches the last 7 days first, then expands to 15, 30, and 60 days if needed, and
+          recommends Sentinel-1 SAR fallback when optical imagery is cloudy or outdated.
+        </p>
+        <div className="freshness-legend">
+          <span className="freshness-pill fresh">0&ndash;7 days &middot; Fresh</span>
+          <span className="freshness-pill recent">8&ndash;15 days &middot; Recent</span>
+          <span className="freshness-pill stale">16&ndash;30 days &middot; Usable but older</span>
+          <span className="freshness-pill old">&gt;30 days &middot; Old image warning</span>
+        </div>
+      </section>
+
       <div className="claims-toolbar satellite-toolbar">
         <label className="claims-search">
           <Search size={17} aria-hidden="true" />

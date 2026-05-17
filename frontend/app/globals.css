@@ -4516,6 +4516,158 @@ tr.risk-clean td {
   border-top-color: rgba(20, 83, 45, 0.92) !important;
 }
 
+.sentinel-explainer-card {
+  margin: 16px 0;
+}
+
+.sentinel-explainer-card h3 {
+  margin: 0 0 8px 0;
+  color: #14532d;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.sentinel-explainer-card p {
+  margin: 0;
+  color: #4f6357;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.freshness-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.freshness-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+
+.freshness-pill.fresh {
+  background: #dcfce7;
+  color: #14532d;
+  border-color: #86efac;
+}
+
+.freshness-pill.recent {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border-color: #93c5fd;
+}
+
+.freshness-pill.stale {
+  background: #fef3c7;
+  color: #78350f;
+  border-color: #fcd34d;
+}
+
+.freshness-pill.old {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-color: #fca5a5;
+}
+
+.freshness-pill.unknown {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.freshness-warning {
+  margin: 12px 0 0 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.freshness-warning.freshness-stale {
+  background: #fef3c7;
+  color: #78350f;
+  border-left: 4px solid #d97706;
+}
+
+.freshness-warning.freshness-old {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-left: 4px solid #b91c1c;
+}
+
+.freshness-warning.freshness-unknown {
+  background: #f1f5f9;
+  color: #334155;
+  border-left: 4px solid #94a3b8;
+}
+
+.sentinel-date-controls {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #d9e9d9;
+  border-radius: 8px;
+  background: #f8fbf8;
+}
+
+.sentinel-date-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 850;
+  color: #234d36;
+  cursor: pointer;
+}
+
+.sentinel-date-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.sentinel-date-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.sentinel-date-fields.disabled {
+  opacity: 0.6;
+}
+
+.sentinel-date-fields label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #4f6357;
+}
+
+.sentinel-date-fields input {
+  min-height: 36px;
+  border: 1px solid #cfe0d4;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #102018;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .sentinel-date-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
 .location-check-map,
 .location-map-loading {
   width: 100%;

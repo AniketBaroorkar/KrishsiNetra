@@ -37,6 +37,25 @@ function isHighCloudCover(result) {
   return cover.includes("high");
 }
 
+function freshnessClass(status = "") {
+  const normalized = status.toLowerCase();
+  if (normalized.includes("fresh")) return "fresh";
+  if (normalized.includes("recent")) return "recent";
+  if (normalized.includes("old") || normalized.includes("warning")) return "old";
+  if (normalized.includes("older")) return "stale";
+  return "unknown";
+}
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function daysAgoIso(days) {
+  const dt = new Date();
+  dt.setDate(dt.getDate() - days);
+  return dt.toISOString().slice(0, 10);
+}
+
 export default function LocationCheckWorkspace() {
   const searchParams = useSearchParams();
   const farmers = useMemo(() => getDemoFarmers(), []);
@@ -63,6 +82,10 @@ export default function LocationCheckWorkspace() {
   const [message, setMessage] = useState("");
   const [selectedFarmerId, setSelectedFarmerId] = useState(initial.farmerId);
   const [mapLayer, setMapLayer] = useState("street");
+  const [dateFrom, setDateFrom] = useState(() => daysAgoIso(30));
+  const [dateTo, setDateTo] = useState(() => todayIso());
+  const [maxCloudCoverage, setMaxCloudCoverage] = useState(35);
+  const [useCustomDates, setUseCustomDates] = useState(false);
 
   const latitude = cleanNumber(mapLocation.latitude);
   const longitude = cleanNumber(mapLocation.longitude);
@@ -155,16 +178,22 @@ export default function LocationCheckWorkspace() {
     setLoading(true);
     setMessage("");
     try {
+      const body = {
+        farmerId: mapLocation.farmerId,
+        latitude: nextLat,
+        longitude: nextLng,
+        cropType: mapLocation.cropType,
+        farmArea: farmAreaAcres,
+        maxCloudCoverage,
+      };
+      if (useCustomDates && dateFrom && dateTo) {
+        body.dateFrom = `${dateFrom}T00:00:00Z`;
+        body.dateTo = `${dateTo}T23:59:59Z`;
+      }
       const response = await fetch("/api/satellite/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          farmerId: mapLocation.farmerId,
-          latitude: nextLat,
-          longitude: nextLng,
-          cropType: mapLocation.cropType,
-          farmArea: farmAreaAcres,
-        }),
+        body: JSON.stringify(body),
       });
       const result = await response.json();
       setSatelliteResult(result);
@@ -195,6 +224,22 @@ export default function LocationCheckWorkspace() {
         Sentinel-2 is not a live camera feed. The dashboard uses the latest available cloud-free
         satellite image for crop verification.
       </p>
+
+      <section className="gov-card sentinel-explainer-card">
+        <h3>How Sentinel-2 freshness works</h3>
+        <p>
+          Sentinel-2 does not provide live video. It captures satellite images during satellite
+          pass dates. Recent images may be unavailable because of cloud cover. KrishiNetra
+          searches the last 7 days first, then expands to 15, 30, and 60 days if needed, and
+          recommends Sentinel-1 SAR fallback when optical imagery is cloudy or outdated.
+        </p>
+        <div className="freshness-legend">
+          <span className="freshness-pill fresh">0&ndash;7 days &middot; Fresh</span>
+          <span className="freshness-pill recent">8&ndash;15 days &middot; Recent</span>
+          <span className="freshness-pill stale">16&ndash;30 days &middot; Usable but older</span>
+          <span className="freshness-pill old">&gt;30 days &middot; Old image warning</span>
+        </div>
+      </section>
 
       <div className="location-check-layout">
         <form className="gov-card location-check-form">
@@ -336,6 +381,22 @@ export default function LocationCheckWorkspace() {
           </button>
         </div>
 
+        <div className="sentinel-date-controls">
+          <label className="sentinel-date-toggle">
+            <input
+              type="checkbox"
+              checked={useCustomDates}
+              onChange={(event) => setUseCustomDates(event.target.checked)}
+            />
+            Use manual date range (otherwise auto-search 7 &rarr; 15 &rarr; 30 &rarr; 60 days)
+          </label>
+          <div className={`sentinel-date-fields${useCustomDates ? "" : " disabled"}`}>
+            <label>From date<input type="date" value={dateFrom} max={dateTo} onChange={(event) => setDateFrom(event.target.value)} disabled={!useCustomDates} /></label>
+            <label>To date<input type="date" value={dateTo} max={todayIso()} onChange={(event) => setDateTo(event.target.value)} disabled={!useCustomDates} /></label>
+            <label>Max cloud cover (%)<input type="number" min="0" max="100" step="1" value={maxCloudCoverage} onChange={(event) => setMaxCloudCoverage(Number(event.target.value) || 0)} /></label>
+          </div>
+        </div>
+
         {satelliteResult?.isDemo ? (
           <p className="demo-satellite-note">
             {satelliteResult.demoReason ||
@@ -345,8 +406,14 @@ export default function LocationCheckWorkspace() {
 
         {satelliteResult && highCloud ? (
           <p className="demo-satellite-note">
-            Cloud cover detected. Sentinel-1 SAR fallback is recommended because Sentinel-2 optical
-            NDVI is uncertain under cloudy conditions.
+            Recent Sentinel-2 imagery is cloudy. Sentinel-1 SAR fallback is recommended because
+            optical NDVI is uncertain under cloudy conditions.
+          </p>
+        ) : null}
+
+        {satelliteResult?.freshnessWarning ? (
+          <p className={`freshness-warning freshness-${freshnessClass(satelliteResult.freshnessStatus)}`}>
+            {satelliteResult.freshnessWarning}
           </p>
         ) : null}
 
@@ -356,8 +423,17 @@ export default function LocationCheckWorkspace() {
               <h4>Sentinel-2 Verification Result</h4>
               <div className="satellite-result-grid method-result-grid">
                 <span>Satellite Source<strong>{satelliteResult.source === "sentinel-2" ? "Sentinel-2 (live API)" : "Demo"}</strong></span>
-                <span>Latest Image Date<strong>{satelliteResult.satelliteDate}</strong></span>
-                <span>Cloud Cover<strong>{satelliteResult.cloudCover || satelliteResult.cloudCoverStatus}</strong></span>
+                <span>Latest Sentinel-2 Image Date<strong>{satelliteResult.satelliteDate || "Unknown"}</strong></span>
+                <span>Image Age (days)<strong>{satelliteResult.imageAgeDays != null ? `${satelliteResult.imageAgeDays} days` : "Unknown"}</strong></span>
+                <span>
+                  Freshness Status
+                  <strong className={`freshness-pill ${freshnessClass(satelliteResult.freshnessStatus)}`}>
+                    {satelliteResult.freshnessStatus || "Unknown"}
+                  </strong>
+                </span>
+                <span>Search Window<strong>{satelliteResult.searchWindowDays ? `Last ${satelliteResult.searchWindowDays} days` : "—"}</strong></span>
+                <span>Cloud Cover<strong>{satelliteResult.cloudCoverPercent != null ? `${satelliteResult.cloudCoverPercent}% (${satelliteResult.cloudCover})` : satelliteResult.cloudCover || satelliteResult.cloudCoverStatus || "Unknown"}</strong></span>
+                <span>Optical Result<strong>{satelliteResult.opticalResult || "—"}</strong></span>
                 <span>NDVI Score<strong>{Number(satelliteResult.ndviScore).toFixed(2)}</strong></span>
                 <span>Vegetation Status<strong>{satelliteResult.vegetationStatus}</strong></span>
                 <span>Crop Health<strong>{satelliteResult.cropHealth}</strong></span>

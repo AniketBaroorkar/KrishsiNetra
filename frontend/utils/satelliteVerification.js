@@ -4,6 +4,13 @@ const FALLBACK_IMAGE =
 const FALLBACK_NDVI_IMAGE =
   "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80";
 
+// Progressive search windows for "latest cloud-free Sentinel-2 image".
+// We try the smallest window first and fall back to larger windows only if
+// nothing usable is found. Anything older than 30 days triggers a warning.
+const PROGRESSIVE_DAY_WINDOWS = [7, 15, 30, 60];
+const STALE_AFTER_DAYS = 30;
+const DEFAULT_MAX_CLOUD_COVERAGE = 35;
+
 export function isValidCoordinate(latitude, longitude) {
   return (
     Number.isFinite(latitude) &&
@@ -24,13 +31,48 @@ export function buildBoundingBox(latitude, longitude, sizeDegrees = 0.005) {
   ];
 }
 
+function daysBetween(from, to) {
+  const ms = to.getTime() - from.getTime();
+  return Math.max(0, Math.floor(ms / 86400000));
+}
+
+export function classifyFreshness(imageAgeDays) {
+  if (imageAgeDays === null || imageAgeDays === undefined || !Number.isFinite(imageAgeDays)) {
+    return {
+      freshnessStatus: "Unknown",
+      isRecentImage: false,
+      freshnessWarning:
+        "Sentinel-2 image date could not be determined. Recommend field verification.",
+    };
+  }
+  if (imageAgeDays <= 7) {
+    return { freshnessStatus: "Fresh", isRecentImage: true, freshnessWarning: "" };
+  }
+  if (imageAgeDays <= 15) {
+    return { freshnessStatus: "Recent", isRecentImage: true, freshnessWarning: "" };
+  }
+  if (imageAgeDays <= STALE_AFTER_DAYS) {
+    return {
+      freshnessStatus: "Usable but older",
+      isRecentImage: true,
+      freshnessWarning: `Latest cloud-free Sentinel-2 image is ${imageAgeDays} days old. Confirm with Sentinel-1 SAR or field officer if claim is time-sensitive.`,
+    };
+  }
+  return {
+    freshnessStatus: "Old image warning",
+    isRecentImage: false,
+    freshnessWarning:
+      "The latest cloud-free Sentinel-2 image for this location is older than 30 days. Use Sentinel-1 SAR fallback or field verification.",
+  };
+}
+
 export function getRiskFromNdvi(ndviScore, cloudCoverStatus = "Low") {
   const cloud = String(cloudCoverStatus).toLowerCase();
-  if (cloud.includes("high")) {
+  if (cloud.includes("high") || cloud.includes("cloudy")) {
     return {
       riskLevel: "Medium Risk",
       riskReason:
-        "Cloud cover detected. Sentinel-1 SAR fallback is recommended because Sentinel-2 optical NDVI is uncertain.",
+        "Recent Sentinel-2 imagery is cloudy. Sentinel-1 SAR fallback is recommended because optical NDVI is uncertain.",
     };
   }
 
@@ -56,12 +98,11 @@ export function getRiskFromNdvi(ndviScore, cloudCoverStatus = "Low") {
   };
 }
 
-function buildSarFallback({ ndviScore, cloudCoverStatus, seed = 0.5 }) {
-  const cloudy = String(cloudCoverStatus).toLowerCase().includes("high");
-  const sarUsed = cloudy;
+function buildSarFallback({ ndviScore, cloudy, freshnessStale, seed = 0.5 }) {
+  const sarUsed = Boolean(cloudy || freshnessStale);
   const vv = Number((-9 - seed * 4).toFixed(2));
   const vh = Number((-15 - seed * 5).toFixed(2));
-  const supportsActivity = ndviScore > 0.45 || (cloudy && seed > 0.35);
+  const supportsActivity = ndviScore > 0.45 || (sarUsed && seed > 0.35);
 
   return {
     sarUsed,
@@ -86,9 +127,24 @@ function buildCropHealth(ndviScore) {
   return "Poor";
 }
 
+function cloudCoverLabel(percent) {
+  if (!Number.isFinite(percent)) return "Unknown";
+  if (percent < 15) return "Low";
+  if (percent < 40) return "Medium";
+  return "High";
+}
+
+function cloudCoverStatusLabel(percent) {
+  if (!Number.isFinite(percent)) return "Unknown cloud cover";
+  if (percent < 15) return "Low cloud cover";
+  if (percent < 40) return "Medium cloud cover";
+  return "High cloud cover";
+}
+
 export function buildDemoSatelliteResult(input = {}) {
   const latitude = Number(input.latitude);
   const longitude = Number(input.longitude);
+  const referenceDate = input.submittedAt ? new Date(input.submittedAt) : new Date();
 
   if (!isValidCoordinate(latitude, longitude)) {
     return {
@@ -100,12 +156,18 @@ export function buildDemoSatelliteResult(input = {}) {
       vegetationStatus: "GPS missing or invalid",
       cropHealth: "Unknown",
       cloudCover: "Unknown",
-      cloudCoverStatus: "Unknown",
-      satelliteDate: "Demo latest Sentinel-2 image",
+      cloudCoverPercent: null,
+      cloudCoverStatus: "Unknown cloud cover",
+      satelliteDate: null,
+      imageAgeDays: null,
+      freshnessStatus: "Unknown",
+      isRecentImage: false,
+      freshnessWarning: "GPS coordinates missing or invalid; cannot evaluate Sentinel-2 freshness.",
+      searchWindowDays: null,
       opticalResult: "Uncertain",
-      sentinel1Sar: buildSarFallback({ ndviScore: 0, cloudCoverStatus: "Unknown", seed: 0.2 }),
+      sentinel1Sar: buildSarFallback({ ndviScore: 0, cloudy: false, freshnessStale: true, seed: 0.2 }),
       riskLevel: "High Risk",
-      riskReason: "Missing GPS coordinates prevent satellite verification.",
+      riskReason: "Missing GPS coordinates prevent Sentinel-2 verification.",
       demoReason:
         "Demo satellite result shown because the provided GPS coordinates were missing or invalid.",
     };
@@ -113,8 +175,22 @@ export function buildDemoSatelliteResult(input = {}) {
 
   const seed = Math.abs(Math.sin(latitude * 12.9898 + longitude * 78.233));
   const ndviScore = Number((0.18 + seed * 0.62).toFixed(2));
-  const cloudCover = seed > 0.82 ? "High" : "Low";
-  const sentinel1Sar = buildSarFallback({ ndviScore, cloudCoverStatus: cloudCover, seed });
+  const cloudCoverPercent = Math.round(seed * 70);
+  const cloudCover = cloudCoverLabel(cloudCoverPercent);
+  const cloudy = cloudCover === "High";
+
+  // Use seed to vary the demo image age across the four buckets so the UI can
+  // be demoed without real credentials. Maps to a deterministic 1..45 day age.
+  const demoAge = Math.max(1, Math.round(seed * 45));
+  const imageDate = new Date(referenceDate);
+  imageDate.setDate(imageDate.getDate() - demoAge);
+  const freshness = classifyFreshness(demoAge);
+  const sentinel1Sar = buildSarFallback({
+    ndviScore,
+    cloudy,
+    freshnessStale: !freshness.isRecentImage,
+    seed,
+  });
   const { riskLevel, riskReason } = getRiskFromNdvi(ndviScore, cloudCover);
 
   return {
@@ -126,9 +202,15 @@ export function buildDemoSatelliteResult(input = {}) {
     vegetationStatus: buildVegetationStatus(ndviScore),
     cropHealth: buildCropHealth(ndviScore),
     cloudCover,
-    cloudCoverStatus: cloudCover === "High" ? "High cloud cover" : "Low cloud cover",
-    satelliteDate: "Demo latest Sentinel-2 image",
-    opticalResult: cloudCover === "High" ? "Cloudy" : "Clear",
+    cloudCoverPercent,
+    cloudCoverStatus: cloudCoverStatusLabel(cloudCoverPercent),
+    satelliteDate: imageDate.toISOString().slice(0, 10),
+    imageAgeDays: demoAge,
+    freshnessStatus: freshness.freshnessStatus,
+    isRecentImage: freshness.isRecentImage,
+    freshnessWarning: freshness.freshnessWarning,
+    searchWindowDays: demoAge <= 7 ? 7 : demoAge <= 15 ? 15 : demoAge <= 30 ? 30 : 60,
+    opticalResult: cloudy ? "Cloudy" : "Clear",
     sentinel1Sar,
     riskLevel,
     riskReason,
@@ -157,13 +239,6 @@ async function getSentinelToken({ clientId, clientSecret, baseUrl }) {
   return data.access_token;
 }
 
-function buildTimeRange(submittedAt, days = 30) {
-  const to = submittedAt ? new Date(submittedAt) : new Date();
-  const from = new Date(to);
-  from.setDate(from.getDate() - days);
-  return { from: from.toISOString(), to: to.toISOString() };
-}
-
 function buildBoundsPayload(latitude, longitude) {
   return {
     bbox: buildBoundingBox(latitude, longitude),
@@ -171,7 +246,7 @@ function buildBoundsPayload(latitude, longitude) {
   };
 }
 
-function buildTrueColorPayload({ latitude, longitude, submittedAt }) {
+function buildImagePayload({ latitude, longitude, dateFrom, dateTo, maxCloudCoverage, evalscript }) {
   return {
     input: {
       bounds: buildBoundsPayload(latitude, longitude),
@@ -179,8 +254,8 @@ function buildTrueColorPayload({ latitude, longitude, submittedAt }) {
         {
           type: "sentinel-2-l2a",
           dataFilter: {
-            timeRange: buildTimeRange(submittedAt),
-            maxCloudCoverage: 35,
+            timeRange: { from: dateFrom, to: dateTo },
+            maxCloudCoverage,
             mosaickingOrder: "leastCC",
           },
         },
@@ -191,7 +266,11 @@ function buildTrueColorPayload({ latitude, longitude, submittedAt }) {
       height: 512,
       responses: [{ identifier: "default", format: { type: "image/png" } }],
     },
-    evalscript: `//VERSION=3
+    evalscript,
+  };
+}
+
+const TRUE_COLOR_EVALSCRIPT = `//VERSION=3
 function setup() {
   return {
     input: ["B02", "B03", "B04", "dataMask"],
@@ -201,31 +280,9 @@ function setup() {
 function evaluatePixel(sample) {
   if (sample.dataMask === 0) return [0, 0, 0, 0];
   return [2.5 * sample.B04, 2.5 * sample.B03, 2.5 * sample.B02, 1];
-}`,
-  };
-}
+}`;
 
-function buildNdviPayload({ latitude, longitude, submittedAt }) {
-  return {
-    input: {
-      bounds: buildBoundsPayload(latitude, longitude),
-      data: [
-        {
-          type: "sentinel-2-l2a",
-          dataFilter: {
-            timeRange: buildTimeRange(submittedAt),
-            maxCloudCoverage: 35,
-            mosaickingOrder: "leastCC",
-          },
-        },
-      ],
-    },
-    output: {
-      width: 512,
-      height: 512,
-      responses: [{ identifier: "default", format: { type: "image/png" } }],
-    },
-    evalscript: `//VERSION=3
+const NDVI_EVALSCRIPT = `//VERSION=3
 function setup() {
   return {
     input: ["B04", "B08", "dataMask"],
@@ -238,27 +295,21 @@ function evaluatePixel(sample) {
   if (ndvi < 0.2) return [0.75, 0.12, 0.12, 1];
   if (ndvi < 0.5) return [0.95, 0.68, 0.12, 1];
   return [0.08, 0.47, 0.18, 1];
-}`,
-  };
-}
+}`;
 
-function buildNdviStatsPayload({ latitude, longitude, submittedAt }) {
-  const range = buildTimeRange(submittedAt);
+function buildNdviStatsPayload({ latitude, longitude, dateFrom, dateTo, maxCloudCoverage }) {
   return {
     input: {
       bounds: buildBoundsPayload(latitude, longitude),
       data: [
         {
           type: "sentinel-2-l2a",
-          dataFilter: {
-            mosaickingOrder: "leastCC",
-            maxCloudCoverage: 35,
-          },
+          dataFilter: { mosaickingOrder: "leastCC", maxCloudCoverage },
         },
       ],
     },
     aggregation: {
-      timeRange: range,
+      timeRange: { from: dateFrom, to: dateTo },
       aggregationInterval: { of: "P30D" },
       evalscript: `//VERSION=3
 function setup() {
@@ -325,12 +376,94 @@ function extractNdviFromStats(stats) {
   };
 }
 
+// Catalog API search to find the most recent cloud-filtered scene in the
+// given window. Returns { date, cloudCoverPercent } or null when no scene
+// matches the filter.
+async function findLatestScene({ baseUrl, token, latitude, longitude, dateFrom, dateTo, maxCloudCoverage }) {
+  const bbox = buildBoundingBox(latitude, longitude);
+  const response = await fetch(`${baseUrl}/api/v1/catalog/1.0.0/search`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      bbox,
+      datetime: `${dateFrom}/${dateTo}`,
+      collections: ["sentinel-2-l2a"],
+      limit: 25,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Sentinel Catalog API failed with ${response.status}`);
+  }
+  const data = await response.json();
+  const features = Array.isArray(data?.features) ? data.features : [];
+  const usable = features.filter((feature) => {
+    const cc = feature?.properties?.["eo:cloud_cover"];
+    return typeof cc === "number" && cc <= maxCloudCoverage;
+  });
+  if (!usable.length) return null;
+  usable.sort(
+    (a, b) =>
+      new Date(b.properties.datetime).getTime() - new Date(a.properties.datetime).getTime(),
+  );
+  const best = usable[0];
+  const isoDate = best.properties.datetime;
+  return {
+    date: isoDate.slice(0, 10),
+    isoDateTime: isoDate,
+    cloudCoverPercent: best.properties["eo:cloud_cover"],
+  };
+}
+
+function isoDayOffset(reference, days) {
+  const dt = new Date(reference);
+  dt.setDate(dt.getDate() - days);
+  return dt.toISOString();
+}
+
+async function searchProgressively({
+  baseUrl,
+  token,
+  latitude,
+  longitude,
+  referenceDate,
+  maxCloudCoverage,
+}) {
+  for (const days of PROGRESSIVE_DAY_WINDOWS) {
+    const dateFrom = isoDayOffset(referenceDate, days);
+    const dateTo = referenceDate.toISOString();
+    try {
+      const scene = await findLatestScene({
+        baseUrl,
+        token,
+        latitude,
+        longitude,
+        dateFrom,
+        dateTo,
+        maxCloudCoverage,
+      });
+      if (scene) {
+        return { scene, windowDays: days };
+      }
+    } catch {
+      // try next window
+    }
+  }
+  return { scene: null, windowDays: PROGRESSIVE_DAY_WINDOWS[PROGRESSIVE_DAY_WINDOWS.length - 1] };
+}
+
 export async function verifyWithSentinelHub(input = {}) {
   const latitude = Number(input.latitude);
   const longitude = Number(input.longitude);
   const baseUrl = process.env.SENTINEL_BASE_URL || DEFAULT_BASE_URL;
   const clientId = process.env.SENTINEL_CLIENT_ID;
   const clientSecret = process.env.SENTINEL_CLIENT_SECRET;
+  const maxCloudCoverage = Number.isFinite(Number(input.maxCloudCoverage))
+    ? Number(input.maxCloudCoverage)
+    : DEFAULT_MAX_CLOUD_COVERAGE;
 
   if (!isValidCoordinate(latitude, longitude)) {
     return buildDemoSatelliteResult(input);
@@ -344,49 +477,141 @@ export async function verifyWithSentinelHub(input = {}) {
     };
   }
 
+  const referenceDate = new Date();
+
   try {
     const token = await getSentinelToken({ clientId, clientSecret, baseUrl });
-    const submittedAt = input.submittedAt;
+
+    // Step 1: find the latest usable scene. If dateFrom + dateTo are passed
+    // explicitly (manual override), only search that single window.
+    let scene = null;
+    let windowDays = null;
+    if (input.dateFrom && input.dateTo) {
+      try {
+        scene = await findLatestScene({
+          baseUrl,
+          token,
+          latitude,
+          longitude,
+          dateFrom: new Date(input.dateFrom).toISOString(),
+          dateTo: new Date(input.dateTo).toISOString(),
+          maxCloudCoverage,
+        });
+      } catch {
+        scene = null;
+      }
+      const span = Math.round(
+        (new Date(input.dateTo).getTime() - new Date(input.dateFrom).getTime()) / 86400000,
+      );
+      windowDays = Number.isFinite(span) ? Math.max(1, span) : null;
+    } else {
+      const progressive = await searchProgressively({
+        baseUrl,
+        token,
+        latitude,
+        longitude,
+        referenceDate,
+        maxCloudCoverage,
+      });
+      scene = progressive.scene;
+      windowDays = progressive.windowDays;
+    }
+
+    // Step 2: fetch images + NDVI stats for the resolved scene window. If no
+    // scene was found, expand to the largest fallback window so we still
+    // return something visual, but mark freshness as old.
+    const fetchFrom = scene
+      ? isoDayOffset(new Date(`${scene.date}T00:00:00Z`), 1)
+      : isoDayOffset(referenceDate, PROGRESSIVE_DAY_WINDOWS[PROGRESSIVE_DAY_WINDOWS.length - 1]);
+    const fetchTo = scene
+      ? isoDayOffset(new Date(`${scene.date}T23:59:59Z`), -1)
+      : referenceDate.toISOString();
+
+    const trueColorPromise = fetchProcessImage({
+      baseUrl,
+      token,
+      payload: buildImagePayload({
+        latitude,
+        longitude,
+        dateFrom: fetchFrom,
+        dateTo: fetchTo,
+        maxCloudCoverage,
+        evalscript: TRUE_COLOR_EVALSCRIPT,
+      }),
+    }).catch(() => null);
+
+    const ndviPromise = fetchProcessImage({
+      baseUrl,
+      token,
+      payload: buildImagePayload({
+        latitude,
+        longitude,
+        dateFrom: fetchFrom,
+        dateTo: fetchTo,
+        maxCloudCoverage,
+        evalscript: NDVI_EVALSCRIPT,
+      }),
+    }).catch(() => null);
+
+    const statsPromise = fetchNdviStats({
+      baseUrl,
+      token,
+      payload: buildNdviStatsPayload({
+        latitude,
+        longitude,
+        dateFrom: fetchFrom,
+        dateTo: fetchTo,
+        maxCloudCoverage,
+      }),
+    }).catch(() => null);
 
     const [satelliteImageUrl, ndviImageUrl, ndviStats] = await Promise.all([
-      fetchProcessImage({
-        baseUrl,
-        token,
-        payload: buildTrueColorPayload({ latitude, longitude, submittedAt }),
-      }),
-      fetchProcessImage({
-        baseUrl,
-        token,
-        payload: buildNdviPayload({ latitude, longitude, submittedAt }),
-      }),
-      fetchNdviStats({
-        baseUrl,
-        token,
-        payload: buildNdviStatsPayload({ latitude, longitude, submittedAt }),
-      }).catch(() => null),
+      trueColorPromise,
+      ndviPromise,
+      statsPromise,
     ]);
 
     const stats = ndviStats ? extractNdviFromStats(ndviStats) : { ndvi: null, date: null };
     const fallbackNdvi = buildDemoSatelliteResult(input).ndviScore;
     const ndviScore = Number.isFinite(stats.ndvi) ? stats.ndvi : fallbackNdvi;
-    const cloudCover = "Low";
+    const satelliteDate = scene?.date || stats.date || null;
+    const imageAgeDays = satelliteDate
+      ? daysBetween(new Date(`${satelliteDate}T12:00:00Z`), referenceDate)
+      : null;
+    const freshness = classifyFreshness(imageAgeDays);
+
+    const cloudCoverPercent = Number.isFinite(scene?.cloudCoverPercent)
+      ? Math.round(scene.cloudCoverPercent)
+      : null;
+    const cloudCover = cloudCoverLabel(cloudCoverPercent);
+    const cloudy = cloudCover === "High";
+    const cloudCoverStatus = cloudCoverStatusLabel(cloudCoverPercent);
     const { riskLevel, riskReason } = getRiskFromNdvi(ndviScore, cloudCover);
 
     return {
       source: "sentinel-2",
       isDemo: false,
-      satelliteImageUrl,
-      ndviImageUrl,
+      satelliteImageUrl: satelliteImageUrl || FALLBACK_IMAGE,
+      ndviImageUrl: ndviImageUrl || FALLBACK_NDVI_IMAGE,
       ndviScore,
       vegetationStatus: buildVegetationStatus(ndviScore),
       cropHealth: buildCropHealth(ndviScore),
       cloudCover,
-      cloudCoverStatus: "Low cloud cover",
-      satelliteDate: stats.date
-        ? `Latest available Sentinel-2 image (${stats.date})`
-        : "Latest available Sentinel-2 image",
-      opticalResult: "Clear",
-      sentinel1Sar: buildSarFallback({ ndviScore, cloudCoverStatus: cloudCover, seed: 0.62 }),
+      cloudCoverPercent,
+      cloudCoverStatus,
+      satelliteDate,
+      imageAgeDays,
+      freshnessStatus: freshness.freshnessStatus,
+      isRecentImage: freshness.isRecentImage,
+      freshnessWarning: freshness.freshnessWarning,
+      searchWindowDays: windowDays,
+      opticalResult: cloudy ? "Cloudy" : "Clear",
+      sentinel1Sar: buildSarFallback({
+        ndviScore,
+        cloudy,
+        freshnessStale: !freshness.isRecentImage,
+        seed: 0.62,
+      }),
       riskLevel,
       riskReason,
     };
