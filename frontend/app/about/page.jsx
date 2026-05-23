@@ -181,10 +181,11 @@ export default function AboutPage() {
               aria-label="Representative Sentinel-2 optical satellite imagery of farmland"
             >
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Sentinel-2_image_of_Las_Vegas.jpg/1280px-Sentinel-2_image_of_Las_Vegas.jpg"
+                src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
+                referrerPolicy="no-referrer"
               />
               <span className="satellite-visual-icon"><Satellite size={28} aria-hidden="true" /></span>
               <span className="satellite-visual-caption">Sentinel-2 sample &middot; true colour</span>
@@ -216,10 +217,11 @@ export default function AboutPage() {
               aria-label="Representative Sentinel-1 SAR radar imagery"
             >
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Sentinel-1_radar_image_of_Mount_Etna%2C_Sicily.jpg/1280px-Sentinel-1_radar_image_of_Mount_Etna%2C_Sicily.jpg"
+                src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80"
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
+                referrerPolicy="no-referrer"
               />
               <span className="satellite-visual-icon"><Radar size={28} aria-hidden="true" /></span>
               <span className="satellite-visual-caption">Sentinel-1 sample &middot; VV/VH radar</span>
