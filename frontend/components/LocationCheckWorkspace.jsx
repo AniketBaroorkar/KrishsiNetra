@@ -228,10 +228,11 @@ export default function LocationCheckWorkspace() {
       <section className="gov-card sentinel-explainer-card">
         <h3>How Sentinel-2 freshness works</h3>
         <p>
-          Sentinel-2 does not provide live video. It captures satellite images during satellite
-          pass dates. Recent images may be unavailable because of cloud cover. KrishiNetra
-          searches the last 7 days first, then expands to 15, 30, and 60 days if needed, and
-          recommends Sentinel-1 SAR fallback when optical imagery is cloudy or outdated.
+          Sentinel-2 does not provide live video &mdash; the satellite revisits each location
+          roughly every 5 days. Recent passes may be unusable because of cloud cover.
+          KrishiNetra searches the last 7 days first, then expands to 15, 30, and 60 days if
+          needed, and falls back to Sentinel-1 SAR (radar, every ~6&ndash;12 days) when optical
+          imagery is cloudy or outdated.
         </p>
         <div className="freshness-legend">
           <span className="freshness-pill fresh">0&ndash;7 days &middot; Fresh</span>
@@ -451,12 +452,15 @@ export default function LocationCheckWorkspace() {
               <section className="satellite-method-card">
                 <h4>Sentinel-1 SAR Fallback</h4>
                 <p className="satellite-card-note">
-                  Sentinel-1 is SAR radar fallback for clouds, soil moisture, flood detection, and
-                  field structure. It does not produce an NDVI value.
+                  Sentinel-1 is the SAR radar fallback for clouds, soil moisture, flood detection,
+                  and field structure. Backscatter is reported in decibels (dB). Sentinel-1 does
+                  not produce an NDVI value.
                 </p>
                 <div className="satellite-result-grid method-result-grid">
+                  <span>SAR Source<strong>{satelliteResult.sentinel1Sar.source === "sentinel-1" ? "Sentinel-1 (live API)" : "Demo / heuristic"}</strong></span>
+                  <span>SAR Acquisition Date<strong>{satelliteResult.sentinel1Sar.sarDate || "—"}</strong></span>
                   <span>SAR Used<strong>{satelliteResult.sentinel1Sar.sarUsed ? "Yes" : "No"}</strong></span>
-                  <span>VV / VH Signal<strong>{satelliteResult.sentinel1Sar.vvSignal} / {satelliteResult.sentinel1Sar.vhSignal}</strong></span>
+                  <span>VV / VH (dB)<strong>{satelliteResult.sentinel1Sar.vvSignal ?? "—"} / {satelliteResult.sentinel1Sar.vhSignal ?? "—"}</strong></span>
                   <span>Field Moisture Status<strong>{satelliteResult.sentinel1Sar.fieldMoistureStatus || "Unknown"}</strong></span>
                   <span>Flood/Disaster Indication<strong>{satelliteResult.sentinel1Sar.floodDisasterIndication || "Unknown"}</strong></span>
                   <span>Crop Structure Signal<strong>{satelliteResult.sentinel1Sar.cropStructureSignal || "Unknown"}</strong></span>

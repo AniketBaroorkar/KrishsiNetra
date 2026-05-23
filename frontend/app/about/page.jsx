@@ -175,7 +175,20 @@ export default function AboutPage() {
         </div>
         <div className="satellite-grid">
           <article className="satellite-card satellite-optical">
-            <div className="satellite-visual ndvi-visual"><Satellite size={28} aria-hidden="true" /></div>
+            <div
+              className="satellite-visual ndvi-visual"
+              role="img"
+              aria-label="Representative Sentinel-2 optical satellite imagery of farmland"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Sentinel-2_image_of_Las_Vegas.jpg/1280px-Sentinel-2_image_of_Las_Vegas.jpg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+              />
+              <span className="satellite-visual-icon"><Satellite size={28} aria-hidden="true" /></span>
+              <span className="satellite-visual-caption">Sentinel-2 sample &middot; true colour</span>
+            </div>
             <div className="satellite-card-body">
               <small>Optical / Multispectral</small>
               <h3>Sentinel-2</h3>
@@ -197,7 +210,20 @@ export default function AboutPage() {
           </article>
 
           <article className="satellite-card satellite-sar">
-            <div className="satellite-visual sar-visual"><Radar size={28} aria-hidden="true" /></div>
+            <div
+              className="satellite-visual sar-visual"
+              role="img"
+              aria-label="Representative Sentinel-1 SAR radar imagery"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Sentinel-1_radar_image_of_Mount_Etna%2C_Sicily.jpg/1280px-Sentinel-1_radar_image_of_Mount_Etna%2C_Sicily.jpg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+              />
+              <span className="satellite-visual-icon"><Radar size={28} aria-hidden="true" /></span>
+              <span className="satellite-visual-caption">Sentinel-1 sample &middot; VV/VH radar</span>
+            </div>
             <div className="satellite-card-body">
               <small>Synthetic Aperture Radar</small>
               <h3>Sentinel-1</h3>

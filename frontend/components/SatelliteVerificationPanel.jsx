@@ -131,10 +131,12 @@ export default function SatelliteVerificationPanel({ record, uploadedPhotoUrl, t
 
           <section className="satellite-method-card">
             <h4>Sentinel-1 SAR Fallback</h4>
-            <p>Sentinel-1 SAR is used when clouds block Sentinel-2 imagery. It helps verify field condition during cloudy weather, rain, or night. Sentinel-1 does not calculate NDVI.</p>
+            <p>Sentinel-1 radar is used when clouds block Sentinel-2 imagery. Backscatter is reported in decibels (dB). Sentinel-1 revisits every ~6&ndash;12 days and does not produce NDVI.</p>
             <div className="satellite-result-grid method-result-grid">
+              <span>SAR Source<strong>{result.sentinel1Sar?.source === "sentinel-1" ? "Sentinel-1 (live API)" : "Demo / heuristic"}</strong></span>
+              <span>SAR Acquisition Date<strong>{result.sentinel1Sar?.sarDate || "—"}</strong></span>
               <span>SAR Used<strong>{result.sentinel1Sar?.sarUsed ? "Yes" : "No"}</strong></span>
-              <span>VV / VH Signal<strong>{result.sentinel1Sar?.vvSignal} / {result.sentinel1Sar?.vhSignal}</strong></span>
+              <span>VV / VH (dB)<strong>{result.sentinel1Sar?.vvSignal ?? "—"} / {result.sentinel1Sar?.vhSignal ?? "—"}</strong></span>
               <span>Field Moisture Status<strong>{result.sentinel1Sar?.fieldMoistureStatus || "Unknown"}</strong></span>
               <span>Flood/Disaster Indication<strong>{result.sentinel1Sar?.floodDisasterIndication || "Unknown"}</strong></span>
               <span>Crop Structure Signal<strong>{result.sentinel1Sar?.cropStructureSignal || "Unknown"}</strong></span>

@@ -106,12 +106,77 @@ function buildSarFallback({ ndviScore, cloudy, freshnessStale, seed = 0.5 }) {
 
   return {
     sarUsed,
+    source: "demo",
     vvSignal: vv,
     vhSignal: vh,
+    sarDate: null,
     fieldMoistureStatus: seed > 0.75 ? "High moisture" : seed > 0.35 ? "Normal moisture" : "Low moisture",
     floodDisasterIndication: seed > 0.86 ? "Possible waterlogging" : "No flood indication",
     cropStructureSignal: supportsActivity ? "Structured field signal present" : "Weak crop structure signal",
     sarResult: supportsActivity ? "Supports Claim" : "Uncertain",
+  };
+}
+
+// Interpret VV and VH dB backscatter for cropland. These bounds come from
+// the typical Sentinel-1 GRD VV/VH literature for vegetated agricultural
+// fields. They are heuristics, not absolute thresholds.
+function interpretSarSignals({ vvDb, vhDb, cloudy, freshnessStale }) {
+  const hasReadings = Number.isFinite(vvDb) && Number.isFinite(vhDb);
+  if (!hasReadings) {
+    return {
+      sarUsed: Boolean(cloudy || freshnessStale),
+      vvSignal: null,
+      vhSignal: null,
+      fieldMoistureStatus: "Unknown",
+      floodDisasterIndication: "Unknown",
+      cropStructureSignal: "Unknown",
+      sarResult: "Uncertain",
+    };
+  }
+
+  // Lower VV (e.g. < -16 dB) over land usually indicates very smooth
+  // surfaces -> standing water / flooding.
+  const veryLowVv = vvDb < -16;
+  // Higher VV (~ -9 to -6 dB) plus higher VH (-15 to -12 dB) on cropland
+  // suggests volumetric scattering from canopy, i.e. crop structure.
+  const strongVolumeScatter = vvDb > -11 && vhDb > -16;
+  // Cross-pol ratio (VH/VV in dB diff) hints at canopy biomass.
+  const crossPolDiff = vhDb - vvDb;
+
+  const fieldMoistureStatus = veryLowVv
+    ? "High moisture / possible standing water"
+    : vvDb < -13
+      ? "Above-normal moisture"
+      : vvDb > -8
+        ? "Low moisture / dry surface"
+        : "Normal moisture";
+
+  const floodDisasterIndication = veryLowVv
+    ? "Possible waterlogging detected"
+    : vvDb < -14
+      ? "Wet field surface, no clear flood signal"
+      : "No flood indication";
+
+  const cropStructureSignal = strongVolumeScatter
+    ? "Structured crop canopy signal present"
+    : crossPolDiff > -6
+      ? "Moderate canopy signal"
+      : "Weak crop structure signal";
+
+  const sarResult = strongVolumeScatter
+    ? "Supports Claim"
+    : veryLowVv
+      ? "Field appears flooded - manual review"
+      : "Uncertain";
+
+  return {
+    sarUsed: true,
+    vvSignal: Number(vvDb.toFixed(2)),
+    vhSignal: Number(vhDb.toFixed(2)),
+    fieldMoistureStatus,
+    floodDisasterIndication,
+    cropStructureSignal,
+    sarResult,
   };
 }
 
@@ -376,6 +441,68 @@ function extractNdviFromStats(stats) {
   };
 }
 
+// Sentinel-1 GRD statistics: returns mean VV and VH backscatter in dB for
+// the most recent acquisition in the window. Sentinel-1 revisits every
+// 6-12 days depending on latitude and orbit, so a 21-day window is a safe
+// default.
+function buildSentinel1StatsPayload({ latitude, longitude, dateFrom, dateTo }) {
+  return {
+    input: {
+      bounds: buildBoundsPayload(latitude, longitude),
+      data: [
+        {
+          type: "sentinel-1-grd",
+          dataFilter: {
+            mosaickingOrder: "mostRecent",
+            acquisitionMode: "IW",
+            polarization: "DV",
+          },
+          processing: {
+            backCoeff: "SIGMA0_ELLIPSOID",
+            orthorectify: true,
+          },
+        },
+      ],
+    },
+    aggregation: {
+      timeRange: { from: dateFrom, to: dateTo },
+      aggregationInterval: { of: "P21D" },
+      evalscript: `//VERSION=3
+function setup() {
+  return {
+    input: [{ bands: ["VV", "VH", "dataMask"] }],
+    output: [
+      { id: "vv", bands: 1, sampleType: "FLOAT32" },
+      { id: "vh", bands: 1, sampleType: "FLOAT32" },
+      { id: "dataMask", bands: 1 }
+    ]
+  };
+}
+function evaluatePixel(s) {
+  // Sentinel-1 SIGMA0 returns linear backscatter. Convert to dB.
+  const vvDb = s.VV > 0 ? 10 * Math.log(s.VV) / Math.LN10 : -30;
+  const vhDb = s.VH > 0 ? 10 * Math.log(s.VH) / Math.LN10 : -30;
+  return { vv: [vvDb], vh: [vhDb], dataMask: [s.dataMask] };
+}`,
+      resx: 10,
+      resy: 10,
+    },
+    calculations: { default: { statistics: { default: {} } } },
+  };
+}
+
+function extractSarFromStats(stats) {
+  const interval = stats?.data?.[0];
+  const vvMean = interval?.outputs?.vv?.bands?.B0?.stats?.mean;
+  const vhMean = interval?.outputs?.vh?.bands?.B0?.stats?.mean;
+  const date = interval?.interval?.to || interval?.interval?.from;
+  return {
+    vvDb: Number.isFinite(vvMean) ? vvMean : null,
+    vhDb: Number.isFinite(vhMean) ? vhMean : null,
+    date: date ? new Date(date).toISOString().slice(0, 10) : null,
+  };
+}
+
 // Catalog API search to find the most recent cloud-filtered scene in the
 // given window. Returns { date, cloudCoverPercent } or null when no scene
 // matches the filter.
@@ -565,10 +692,27 @@ export async function verifyWithSentinelHub(input = {}) {
       }),
     }).catch(() => null);
 
-    const [satelliteImageUrl, ndviImageUrl, ndviStats] = await Promise.all([
+    // Sentinel-1 SAR is queried in parallel over a slightly longer window
+    // (21 days) because S1's revisit is ~6-12 days and we want at least one
+    // pass over the bbox.
+    const sarFrom = isoDayOffset(referenceDate, 21);
+    const sarTo = referenceDate.toISOString();
+    const sarPromise = fetchNdviStats({
+      baseUrl,
+      token,
+      payload: buildSentinel1StatsPayload({
+        latitude,
+        longitude,
+        dateFrom: sarFrom,
+        dateTo: sarTo,
+      }),
+    }).catch(() => null);
+
+    const [satelliteImageUrl, ndviImageUrl, ndviStats, sarStats] = await Promise.all([
       trueColorPromise,
       ndviPromise,
       statsPromise,
+      sarPromise,
     ]);
 
     const stats = ndviStats ? extractNdviFromStats(ndviStats) : { ndvi: null, date: null };
@@ -588,6 +732,28 @@ export async function verifyWithSentinelHub(input = {}) {
     const cloudCoverStatus = cloudCoverStatusLabel(cloudCoverPercent);
     const { riskLevel, riskReason } = getRiskFromNdvi(ndviScore, cloudCover);
 
+    const sarReadings = sarStats ? extractSarFromStats(sarStats) : null;
+    let sentinel1Sar;
+    if (sarReadings && Number.isFinite(sarReadings.vvDb)) {
+      sentinel1Sar = {
+        source: "sentinel-1",
+        sarDate: sarReadings.date,
+        ...interpretSarSignals({
+          vvDb: sarReadings.vvDb,
+          vhDb: sarReadings.vhDb,
+          cloudy,
+          freshnessStale: !freshness.isRecentImage,
+        }),
+      };
+    } else {
+      sentinel1Sar = buildSarFallback({
+        ndviScore,
+        cloudy,
+        freshnessStale: !freshness.isRecentImage,
+        seed: 0.62,
+      });
+    }
+
     return {
       source: "sentinel-2",
       isDemo: false,
@@ -606,12 +772,7 @@ export async function verifyWithSentinelHub(input = {}) {
       freshnessWarning: freshness.freshnessWarning,
       searchWindowDays: windowDays,
       opticalResult: cloudy ? "Cloudy" : "Clear",
-      sentinel1Sar: buildSarFallback({
-        ndviScore,
-        cloudy,
-        freshnessStale: !freshness.isRecentImage,
-        seed: 0.62,
-      }),
+      sentinel1Sar,
       riskLevel,
       riskReason,
     };
