@@ -54,6 +54,7 @@ export default function ContactFab() {
               <div>
                 <span className="gov-kicker">{t("contact")}</span>
                 <h3 id="contact-popup-title">{t("contactSupport")}</h3>
+                <p>{siteContact.name}</p>
                 <p>{t("contactSubtitle")}</p>
               </div>
               <button
