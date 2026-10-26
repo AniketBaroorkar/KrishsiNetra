@@ -1,5 +1,5 @@
 export const siteContact = {
-  name: "Aniket Baroorkar",
+  name: "Aniket Baroorkar & Asmita Bagad",
   email: "krishinetra.ai@gmail.com",
   phone: "9579207219",
   linkedin: "https://www.linkedin.com/",
